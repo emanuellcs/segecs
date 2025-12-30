@@ -116,30 +116,89 @@ O frontend estará rodando em `http://localhost:3000` e abrirá automaticamente 
 
 ```
 SEGECS/
-├── client/                 # Frontend React
-│   ├── public/            # Arquivos públicos
-│   ├── src/               # Código fonte
-│   │   ├── components/    # Componentes reutilizáveis
-│   │   ├── pages/         # Páginas da aplicação
-│   │   ├── services/      # Serviços de API
-│   │   ├── utils/         # Funções utilitárias
-│   │   └── context/       # Context API (se necessário)
+├── client/                        # Frontend React
+│   ├── public/                    # Arquivos públicos
+│   │   └── index.html
+│   ├── src/                       # Código fonte
+│   │   ├── components/            # Componentes reutilizáveis
+│   │   │   ├── AlunoForm.js
+│   │   │   ├── AlunoList.js
+│   │   │   ├── CidadesForm.js
+│   │   │   ├── CidadesList.js
+│   │   │   ├── CursosForm.js
+│   │   │   ├── CursosList.js
+│   │   │   ├── EscolasForm.js
+│   │   │   ├── EscolasList.js
+│   │   │   ├── Layout.js
+│   │   │   ├── NiveisForm.js
+│   │   │   ├── NiveisList.js
+│   │   │   ├── PrivateRoute.js
+│   │   │   ├── ResponsaveisForm.js
+│   │   │   ├── ResponsaveisList.js
+│   │   │   ├── Sidebar.js
+│   │   │   ├── UsuariosForm.js
+│   │   │   └── UsuariosList.js
+│   │   ├── pages/                 # Páginas da aplicação
+│   │   │   ├── CadastroAlunos.js
+│   │   │   ├── CadastroCidades.js
+│   │   │   ├── CadastroCursos.js
+│   │   │   ├── CadastroEscolas.js
+│   │   │   ├── CadastroNiveis.js
+│   │   │   ├── CadastroResponsaveis.js
+│   │   │   ├── CadastroUsuarios.js
+│   │   │   ├── Dashboard.js
+│   │   │   ├── EditarUsuario.js
+│   │   │   ├── Home.js
+│   │   │   └── Login.js
+│   │   ├── services/              # Serviços de API
+│   │   │   └── api.js
+│   │   ├── utils/                 # Funções utilitárias
+│   │   │   ├── constants.js
+│   │   │   └── swalHelpers.js
+│   │   ├── App.js
+│   │   ├── App.css
+│   │   ├── index.js
+│   │   └── index.css
+│   ├── build/                     # Build de produção
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   └── ...
+├── server/                        # Backend Node.js/Express
+│   ├── config/                    # Configurações
+│   │   └── db.js
+│   ├── controllers/               # Lógica de negócio
+│   │   ├── alunosController.js
+│   │   ├── authController.js
+│   │   ├── cidadesController.js
+│   │   ├── cursosController.js
+│   │   ├── escolasController.js
+│   │   ├── niveisController.js
+│   │   ├── responsaveisController.js
+│   │   └── usuariosController.js
+│   ├── middleware/                # Middlewares customizados
+│   │   └── errorHandler.js
+│   ├── routes/                    # Rotas da API
+│   │   ├── alunosRoutes.js
+│   │   ├── authRoutes.js
+│   │   ├── cidadesRoutes.js
+│   │   ├── cursosRoutes.js
+│   │   ├── dashboardRoutes.js
+│   │   ├── escolasRoutes.js
+│   │   ├── niveisRoutes.js
+│   │   ├── responsaveisRoutes.js
+│   │   ├── usuariosRoutes.js
+│   │   └── index.js
+│   ├── server.js                  # Arquivo principal do servidor
 │   ├── package.json
 │   └── ...
-├── server/                # Backend Node.js/Express
-│   ├── config/            # Configurações (DB, etc.)
-│   ├── controllers/       # Lógica de negócio
-│   ├── middleware/        # Middlewares customizados
-│   ├── models/            # Modelos de dados
-│   ├── routes/            # Rotas da API
-│   ├── server.js          # Arquivo principal do servidor
-│   ├── package.json
-│   └── ...
-├── database/              # Scripts SQL
-│   ├── schema.sql         # Schema do banco de dados
-│   └── seed.sql           # Dados de exemplo (opcional)
+├── database/                      # Scripts SQL
+│   ├── schema.sql                 # Schema do banco de dados
+│   ├── seed.sql                   # Dados de exemplo
+│   └── migration_add_social_fields.sql
+├── env.example                    # Exemplo de variáveis de ambiente
+├── SETUP.md                       # Instruções de configuração detalhadas
 ├── .gitignore
-├── .env.example           # Exemplo de variáveis de ambiente
 └── README.md
 ```
 
@@ -194,11 +253,6 @@ Prof. Raimundo N. de Sousa (Raiworld)
 
 ## 📞 Suporte
 
-Para suporte, abra uma issue no repositório do projeto.
-
 ---
 
 **Nota**: Este é um projeto inicial. A estrutura e funcionalidades serão expandidas conforme o desenvolvimento progride.
-
->>>>>>> bd27619 (Meu primeiro commit)
->>>>>>> 05af568 (Meu primeiro commit)
