@@ -1,258 +1,222 @@
 # SEGECS - Sistema Escolar de Gestão do Estágio Curricular Supervisionado
 
-Aplicação web desenvolvida com PERN Stack (PostgreSQL, Express, React, Node.js) para gestão de estágios curriculares supervisionados.
+![Status](https://img.shields.io/badge/status-ativo-success)
+![License](https://img.shields.io/badge/license-ISC-blue)
+![Stack](https://img.shields.io/badge/stack-PERN-blueviolet)
+![Node](https://img.shields.io/badge/node-%3E%3D18-green)
 
-## 🛠️ Tecnologias:
+O **SEGECS** é uma aplicação web *Full Stack* desenvolvida para otimizar e digitalizar o controle de estágios curriculares supervisionados. O sistema centraliza a gestão de alunos, instituições concedentes, documentação e vínculos de estágio, garantindo integridade de dados e facilidade operacional para coordenadores e secretarias escolares.
 
-- **Frontend**: React 18
-- **Backend**: Node.js + Express
-- **Database**: PostgreSQL
-- **Package Manager**: npm
+## 📑 Índice
+
+- [Arquitetura e Tecnologias](#-arquitetura-e-tecnologias)
+- [Funcionalidades](#-funcionalidades)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação e Configuração](#-instalação-e-configuração)
+- [Documentação da API](#-documentação-da-api)
+- [Variáveis de Ambiente](#-variáveis-de-ambiente)
+- [Estrutura de Diretórios](#-estrutura-de-diretórios)
+- [Scripts Disponíveis](#-scripts-disponíveis)
+- [Contribuição](#-contribuição)
+- [Licença e Autor](#-licença-e-autor)
+
+---
+
+## 🏗 Arquitetura e Tecnologias
+
+O projeto segue a arquitetura **MVC (Model-View-Controller)** no backend e uma estrutura baseada em componentes no frontend.
+
+### Backend (Server)
+-   **Runtime:** Node.js
+-   **Framework:** Express.js
+-   **Banco de Dados:** PostgreSQL (Relacional)
+-   **Autenticação:** JWT (JSON Web Tokens)
+-   **Segurança:** Middleware de tratamento de erros e proteção de rotas.
+
+### Frontend (Client)
+-   **Biblioteca:** React.js (v18)
+-   **Estilização:** Tailwind CSS
+-   **Roteamento:** React Router
+-   **HTTP Client:** Axios
+-   **Feedback UI:** SweetAlert2
+
+---
+
+## ✨ Funcionalidades
+
+O sistema oferece um painel administrativo completo com as seguintes capacidades:
+
+-   **Dashboard:** Visão geral quantitativa de alunos, escolas e processos.
+-   **Controle de Acesso:** Login seguro e gerenciamento de usuários administrativos.
+-   **Gestão Acadêmica:**
+    -   Cadastro de **Alunos** com dados pessoais e sociais.
+    -   Gestão de **Cursos** e **Níveis** de ensino.
+-   **Gestão de Parceiros:**
+    -   Cadastro de **Escolas** e empresas concedentes.
+    -   Base de dados de **Cidades**.
+-   **Gestão de Pessoas:**
+    -   Cadastro de **Responsáveis** (Supervisores/Orientadores).
+
+---
 
 ## 📋 Pré-requisitos
 
-Antes de começar, certifique-se de ter instalado:
+Certifique-se de que sua máquina possui:
 
-- [Node.js](https://nodejs.org/) (v18 ou superior)
-- [npm](https://www.npmjs.com/) (vem com o Node.js)
-- [PostgreSQL](https://www.postgresql.org/download/) (v14 ou superior)
-- [Git](https://git-scm.com/) (opcional)
+-   **Node.js** (v18 ou superior)
+-   **npm** (Gerenciador de pacotes padrão do Node)
+-   **PostgreSQL** (v14 ou superior)
+-   **Git** (Opcional, para clonagem)
+
+---
 
 ## 🚀 Instalação e Configuração
 
-### 1. Clone o repositório (se aplicável)
+### 1. Configuração do Banco de Dados
+O sistema requer um banco PostgreSQL. Utilize os scripts fornecidos na pasta `database/` para criar a estrutura.
 
 ```bash
-git clone <repository-url>
-cd SEGECS
+# 1. Crie o banco de dados
+createdb segecs_db
+
+# 2. Crie as tabelas (Schema)
+psql -d segecs_db -f database/schema.sql
+
+# 3. Aplique as migrações (Atualizações de estrutura)
+psql -d segecs_db -f database/migration_add_social_fields.sql
+
+# 4. (Opcional) Popule o banco com dados de teste
+psql -d segecs_db -f database/seed.sql
 ```
 
-### 2. Configurar o Banco de Dados
-
-1. Instale e inicie o PostgreSQL
-2. Crie um novo banco de dados:
-
-```sql
-CREATE DATABASE segecs_db;
-```
-
-3. Execute o script de schema para criar as tabelas:
-
-```bash
-psql -U postgres -d segecs_db -f database/schema.sql
-```
-
-Ou conecte-se ao banco e execute o conteúdo do arquivo `database/schema.sql` manualmente.
-
-### 3. Configurar o Backend (Server)
-
-1. Navegue para a pasta do servidor:
-
+### 2. Configuração do Backend
 ```bash
 cd server
-```
-
-2. Instale as dependências:
-
-```bash
 npm install
+
+# Configure o arquivo .env (ver seção Variáveis de Ambiente)
+cp ../.env.example .env
+
+# Inicie o servidor
+npm run dev
 ```
+*O servidor rodará em: `http://localhost:5000`*
 
-3. Configure as variáveis de ambiente:
+### 3. Configuração do Frontend
+Abra um novo terminal:
+```bash
+cd client
+npm install
+npm start
+```
+*A aplicação abrirá automaticamente em: `http://localhost:3000`*
 
-Crie um arquivo `.env` na pasta `server/` (copie do `.env.example` na raiz):
+---
 
-```env
+## 🔌 Documentação da API
+
+A API RESTful serve os dados em formato JSON. Abaixo estão os principais recursos disponíveis.
+
+### Autenticação
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/auth/login` | Autentica um usuário e retorna o token JWT. |
+
+### Recursos Principais (CRUD)
+A maioria dos recursos abaixo suporta os métodos `GET` (listar), `POST` (criar), `PUT` (atualizar) e `DELETE` (remover).
+
+**Base URL:** `/api`
+
+| Recurso | Endpoints Base | Descrição |
+|---|---|---|
+| **Alunos** | `/alunos` | Gestão de dados discentes. |
+| **Escolas** | `/escolas` | Instituições de ensino e empresas parceiras. |
+| **Cursos** | `/cursos` | Cursos técnicos ou superiores ofertados. |
+| **Níveis** | `/niveis` | Níveis de ensino (Médio, Superior, etc). |
+| **Cidades** | `/cidades` | Base de cidades para endereçamento. |
+| **Responsáveis** | `/responsaveis` | Professores orientadores ou supervisores. |
+| **Usuários** | `/usuarios` | Usuários do sistema (Requer permissão de admin). |
+
+### Dashboard
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/dashboard/summary` | Retorna contagens e estatísticas para a Home. |
+
+---
+
+## 🔑 Variáveis de Ambiente
+
+Crie um arquivo `.env` na pasta **server/** com as seguintes configurações:
+
+```ini
+# Servidor
 PORT=5000
 NODE_ENV=development
 
+# Banco de Dados
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=sua_senha_aqui
 DB_NAME=segecs_db
 
-JWT_SECRET=seu_jwt_secret_aqui
+# Segurança (JWT)
+JWT_SECRET=defina_uma_chave_secreta_complexa
+
+# CORS (Frontend URL)
 CLIENT_URL=http://localhost:3000
 ```
 
-**Importante**: Substitua `sua_senha_aqui` e `seu_jwt_secret_aqui` com valores reais.
+---
 
-4. Inicie o servidor:
+## 📂 Estrutura de Diretórios
 
-```bash
-# Modo desenvolvimento (com nodemon - reinicia automaticamente)
-npm run dev
-
-# Modo produção
-npm start
-```
-
-O servidor estará rodando em `http://localhost:5000`
-
-### 4. Configurar o Frontend (Client)
-
-1. Abra um novo terminal e navegue para a pasta do cliente:
-
-```bash
-cd client
-```
-
-2. Instale as dependências:
-
-```bash
-npm install
-```
-
-3. Inicie o servidor de desenvolvimento:
-
-```bash
-npm start
-```
-
-O frontend estará rodando em `http://localhost:3000` e abrirá automaticamente no navegador.
-
-## 📁 Estrutura do Projeto
+O projeto é dividido em `client` (Frontend) e `server` (Backend).
 
 ```
 SEGECS/
-├── client/                        # Frontend React
-│   ├── public/                    # Arquivos públicos
-│   │   └── index.html
-│   ├── src/                       # Código fonte
-│   │   ├── components/            # Componentes reutilizáveis
-│   │   │   ├── AlunoForm.js
-│   │   │   ├── AlunoList.js
-│   │   │   ├── CidadesForm.js
-│   │   │   ├── CidadesList.js
-│   │   │   ├── CursosForm.js
-│   │   │   ├── CursosList.js
-│   │   │   ├── EscolasForm.js
-│   │   │   ├── EscolasList.js
-│   │   │   ├── Layout.js
-│   │   │   ├── NiveisForm.js
-│   │   │   ├── NiveisList.js
-│   │   │   ├── PrivateRoute.js
-│   │   │   ├── ResponsaveisForm.js
-│   │   │   ├── ResponsaveisList.js
-│   │   │   ├── Sidebar.js
-│   │   │   ├── UsuariosForm.js
-│   │   │   └── UsuariosList.js
-│   │   ├── pages/                 # Páginas da aplicação
-│   │   │   ├── CadastroAlunos.js
-│   │   │   ├── CadastroCidades.js
-│   │   │   ├── CadastroCursos.js
-│   │   │   ├── CadastroEscolas.js
-│   │   │   ├── CadastroNiveis.js
-│   │   │   ├── CadastroResponsaveis.js
-│   │   │   ├── CadastroUsuarios.js
-│   │   │   ├── Dashboard.js
-│   │   │   ├── EditarUsuario.js
-│   │   │   ├── Home.js
-│   │   │   └── Login.js
-│   │   ├── services/              # Serviços de API
-│   │   │   └── api.js
-│   │   ├── utils/                 # Funções utilitárias
-│   │   │   ├── constants.js
-│   │   │   └── swalHelpers.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   ├── index.js
-│   │   └── index.css
-│   ├── build/                     # Build de produção
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   └── ...
-├── server/                        # Backend Node.js/Express
-│   ├── config/                    # Configurações
-│   │   └── db.js
-│   ├── controllers/               # Lógica de negócio
-│   │   ├── alunosController.js
-│   │   ├── authController.js
-│   │   ├── cidadesController.js
-│   │   ├── cursosController.js
-│   │   ├── escolasController.js
-│   │   ├── niveisController.js
-│   │   ├── responsaveisController.js
-│   │   └── usuariosController.js
-│   ├── middleware/                # Middlewares customizados
-│   │   └── errorHandler.js
-│   ├── routes/                    # Rotas da API
-│   │   ├── alunosRoutes.js
-│   │   ├── authRoutes.js
-│   │   ├── cidadesRoutes.js
-│   │   ├── cursosRoutes.js
-│   │   ├── dashboardRoutes.js
-│   │   ├── escolasRoutes.js
-│   │   ├── niveisRoutes.js
-│   │   ├── responsaveisRoutes.js
-│   │   ├── usuariosRoutes.js
-│   │   └── index.js
-│   ├── server.js                  # Arquivo principal do servidor
-│   ├── package.json
-│   └── ...
-├── database/                      # Scripts SQL
-│   ├── schema.sql                 # Schema do banco de dados
-│   ├── seed.sql                   # Dados de exemplo
-│   └── migration_add_social_fields.sql
-├── env.example                    # Exemplo de variáveis de ambiente
-├── SETUP.md                       # Instruções de configuração detalhadas
-├── .gitignore
-└── README.md
+├── database/               # Scripts SQL (Schema, Seeds, Migrations)
+├── client/                 # Frontend React
+│   ├── public/             # Arquivos estáticos (HTML, Icons)
+│   └── src/
+│       ├── components/     # Componentes (Forms, Lists, Layout)
+│       ├── pages/          # Páginas da aplicação (Vistas)
+│       ├── services/       # Configuração da API (Axios)
+│       └── utils/          # Funções auxiliares e constantes
+├── server/                 # Backend Node.js
+│   ├── config/             # Configurações (DB connection)
+│   ├── controllers/        # Lógica de Negócio (Handlers)
+│   ├── middleware/         # Middlewares (Auth, Error Handling)
+│   └── routes/             # Definição das rotas da API
+└── SETUP.md                # Guia detalhado de configuração
 ```
-
-## 🔌 Endpoints da API
-
-### Status
-- `GET /api/health` - Verifica o status da API e conexão com o banco
-
-### (Endpoints adicionais serão documentados conforme o desenvolvimento)
-
-## 🧪 Testando a Aplicação
-
-1. Certifique-se de que o PostgreSQL está rodando
-2. Inicie o servidor backend (porta 5000)
-3. Inicie o frontend (porta 3000)
-4. Acesse `http://localhost:3000` no navegador
-5. A página inicial deve exibir o status da conexão com a API
-
-## 📝 Scripts Disponíveis
-
-### Backend
-- `npm start` - Inicia o servidor em modo produção
-- `npm run dev` - Inicia o servidor em modo desenvolvimento (com nodemon)
-
-### Frontend
-- `npm start` - Inicia o servidor de desenvolvimento
-- `npm run build` - Cria build de produção
-- `npm test` - Executa os testes
-
-## 🔒 Segurança
-
-- **Nunca** commite o arquivo `.env` no repositório
-- Use variáveis de ambiente para informações sensíveis
-- Gere um `JWT_SECRET` forte e único
-- Mantenha as dependências atualizadas
-
-## 🤝 Contribuindo
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença ISC.
-
-## 👥 Autor
-
-Prof. Raimundo N. de Sousa (Raiworld)
-
-## 📞 Suporte
 
 ---
 
-**Nota**: Este é um projeto inicial. A estrutura e funcionalidades serão expandidas conforme o desenvolvimento progride.
+## 📜 Scripts Disponíveis
+
+### Backend (`/server`)
+-   `npm run dev`: Inicia o servidor em modo de desenvolvimento (com Nodemon).
+-   `npm start`: Inicia o servidor em modo de produção.
+
+### Frontend (`/client`)
+-   `npm start`: Inicia o servidor de desenvolvimento do React.
+-   `npm run build`: Cria a versão otimizada para produção na pasta `build`.
+
+---
+
+## 🤝 Contribuição
+
+1.  Faça um **Fork** do projeto.
+2.  Crie uma Branch para sua feature (`git checkout -b feature/MinhaFeature`).
+3.  Commit suas mudanças (`git commit -m 'Adiciona funcionalidade X'`).
+4.  Push para a Branch (`git push origin feature/MinhaFeature`).
+5.  Abra um **Pull Request**.
+
+---
+
+## 📄 Licença e Autor
+
+Este projeto está sob a licença **ISC**.
+
+**Desenvolvido por:** Prof. Raimundo N. de Sousa (Raiworld)
