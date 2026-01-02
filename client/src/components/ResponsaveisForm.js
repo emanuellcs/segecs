@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaSave, FaTimes, FaPlus } from 'react-icons/fa';
 import { Toast } from '../utils/swalHelpers';
 import Swal from 'sweetalert2';
-import InputMask from 'react-input-mask';
+import { IMaskInput } from 'react-imask';
 
 function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
   const [formData, setFormData] = useState({
@@ -144,21 +144,14 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
           {/* Telefone */}
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-1">Telefone *</label>
-            <InputMask 
-              mask="(99)99999-9999"
+            <IMaskInput
+              mask="(00)00000-0000"
               value={formData.telefone}
-              onChange={(e) => setFormData({...formData, telefone: e.target.value})}
-            >
-              {(inputProps) => (
-                <input 
-                  {...inputProps}
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholder="(00)00000-0000"
-                  required
-                />
-              )}
-            </InputMask>
+              onAccept={(value) => setFormData({...formData, telefone: value})}
+              placeholder="(00)00000-0000"
+              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
+              required
+            />
           </div>
 
           {/* RG */}

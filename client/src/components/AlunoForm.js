@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import InputMask from 'react-input-mask';
+import { IMaskInput } from 'react-imask';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import { Toast } from '../utils/swalHelpers';
 import Swal from 'sweetalert2';
 
+const initialData = {
+  matricula: '',
+  nome: '',
+  rg: '',
+  cpf: '',
+  nasc: '',
+  telefone: '',
+  email: '',
+  id_cidade: '',
+  bairro: '',
+  zona: '',
+  id_curso: '',
+  turma: '',
+  observacoes: '',
+  inform_egressa: '',
+  facebook: '',
+  linkedin: '',
+  github: ''
+};
+
 function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
-  const initialData = {
-    matricula: '',
-    nome: '',
-    rg: '',
-    cpf: '',
-    nasc: '',
-    telefone: '',
-    email: '',
-    id_cidade: '',
-    bairro: '',
-    zona: '',
-    id_curso: '',
-    turma: '',
-    observacoes: '',
-    inform_egressa: '',
-    facebook: '',
-    linkedin: '',
-    github: ''
-  };
 
   const [formData, setFormData] = useState(initialData);
   const [cidades, setCidades] = useState([]);
@@ -190,11 +191,10 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
 
             <div>
               <label className="block text-sm font-semibold text-gray-600 mb-1">CPF *</label>
-              <InputMask
-                mask="999.999.999-99"
-                name="cpf"
+              <IMaskInput
+                mask="000.000.000-00"
                 value={formData.cpf}
-                onChange={handleChange}
+                onAccept={(value) => setFormData({ ...formData, cpf: value })}
                 placeholder="000.000.000-00"
                 className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
                 required
@@ -221,11 +221,10 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-600 mb-1">Telefone</label>
-              <InputMask
-                mask="(99)99999-9999"
-                name="telefone"
+              <IMaskInput
+                mask="(00)00000-0000"
                 value={formData.telefone}
-                onChange={handleChange}
+                onAccept={(value) => setFormData({ ...formData, telefone: value })}
                 placeholder="(00)00000-0000"
                 className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
               />

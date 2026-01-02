@@ -5,15 +5,15 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // --- INÍCIO DO DIAGNÓSTICO (O ESPIÃO) ---
-console.log("==========================================");
-console.log("🔍 DIAGNÓSTICO DE CONEXÃO COM O BANCO");
-console.log("Arquivo .env carregado?");
-console.log("HOST:", process.env.DB_HOST || 'localhost (padrão)');
-console.log("USER:", process.env.DB_USER || 'postgres (padrão)');
-console.log("DB:", process.env.DB_NAME || 'segecs_db (padrão)');
+// console.log("==========================================");
+// console.log("🔍 DIAGNÓSTICO DE CONEXÃO COM O BANCO");
+// console.log("Arquivo .env carregado?");
+// console.log("HOST:", process.env.DB_HOST || 'localhost (padrão)');
+// console.log("USER:", process.env.DB_USER || 'postgres (padrão)');
+// console.log("DB:", process.env.DB_NAME || 'segecs_db (padrão)');
 // A linha abaixo vai mostrar sua senha no terminal para conferirmos se há espaços extras ou erro
-console.log("SENHA LIDA:", process.env.DB_PASSWORD ? `'${process.env.DB_PASSWORD}'` : "❌ NENHUMA (UNDEFINED)");
-console.log("==========================================");
+// console.log("SENHA LIDA:", process.env.DB_PASSWORD ? `'${process.env.DB_PASSWORD}'` : "❌ NENHUMA (UNDEFINED)");
+// console.log("==========================================");
 // --- FIM DO DIAGNÓSTICO ---
 
 // Database connection pool
