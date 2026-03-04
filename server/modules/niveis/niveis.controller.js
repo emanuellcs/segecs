@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { query } = require('../../shared/config/db');
 
 /**
  * Listar todos os níveis de acesso
@@ -38,12 +38,6 @@ const getNivelById = async (req, res, next) => {
 const createNivel = async (req, res, next) => {
   try {
     const { nivel, descricao } = req.body;
-
-    if (!nivel) {
-      const error = new Error('O campo nível é obrigatório.');
-      error.statusCode = 400;
-      throw error;
-    }
 
     const sql = 'INSERT INTO sys_niveis_acesso (nivel, descricao) VALUES ($1, $2) RETURNING *';
     const result = await query(sql, [nivel, descricao]);

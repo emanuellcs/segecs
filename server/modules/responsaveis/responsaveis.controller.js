@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { query } = require('../../shared/config/db');
 
 /**
  * Listar todos os responsáveis
@@ -23,12 +23,6 @@ const getResponsaveis = async (req, res, next) => {
 const createResponsavel = async (req, res, next) => {
   try {
     const { nome, rg, cpf, telefone, id_cidade, bairro, observacoes } = req.body;
-
-    if (!nome || !cpf) {
-      const error = new Error('Campos obrigatórios: nome e CPF.');
-      error.statusCode = 400;
-      throw error;
-    }
 
     const sql = `
       INSERT INTO cad_responsaveis (nome, rg, cpf, telefone, id_cidade, bairro, observacoes)

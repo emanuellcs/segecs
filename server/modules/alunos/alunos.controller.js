@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { query } = require('../../shared/config/db');
 
 /**
  * Listar todos os alunos com nome do curso

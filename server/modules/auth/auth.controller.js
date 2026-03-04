@@ -1,8 +1,8 @@
-const { query } = require('../config/db');
+const { query } = require('../../shared/config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, senha } = req.body;
 
@@ -10,7 +10,9 @@ const login = async (req, res) => {
     const result = await query('SELECT * FROM sys_usuarios WHERE email = $1', [email]);
 
     if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'Usuário não encontrado' });
+      const error = new Error('Usuário não encontrado');
+      error.statusCode = 400;
+      throw error;
     }
 
     const usuario = result.rows[0];
@@ -18,14 +20,18 @@ const login = async (req, res) => {
     // 2. Verifica a senha
     const validPassword = await bcrypt.compare(senha, usuario.senha_hash);
     if (!validPassword) {
-      return res.status(400).json({ error: 'Senha incorreta' });
+      const error = new Error('Senha incorreta');
+      error.statusCode = 400;
+      throw error;
     }
 
     // Verifica se a chave secreta existe
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       console.error('ERRO CRÍTICO: JWT_SECRET não definido no .env');
-      return res.status(500).json({ error: 'Erro de configuração no servidor' });
+      const error = new Error('Erro de configuração no servidor');
+      error.statusCode = 500;
+      throw error;
     }
 
     // 3. Gera o Token
@@ -45,8 +51,7 @@ const login = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Erro no Login:', err.message);
-    res.status(500).send('Erro no servidor');
+    next(err);
   }
 };
 

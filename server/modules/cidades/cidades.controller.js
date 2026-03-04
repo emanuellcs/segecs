@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { query } = require('../../shared/config/db');
 
 /**
  * Listar todas as cidades
@@ -18,12 +18,6 @@ const getCidades = async (req, res, next) => {
 const createCidade = async (req, res, next) => {
   try {
     const { cidade, uf, observacoes } = req.body;
-
-    if (!cidade || !uf) {
-      const error = new Error('Campos obrigatórios: cidade e UF.');
-      error.statusCode = 400;
-      throw error;
-    }
 
     const sql = 'INSERT INTO cad_cidades (cidade, uf, observacoes) VALUES ($1, $2, $3) RETURNING *';
     const result = await query(sql, [cidade, uf, observacoes]);

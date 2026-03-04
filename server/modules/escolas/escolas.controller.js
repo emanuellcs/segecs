@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { query } = require('../../shared/config/db');
 
 /**
  * Listar todas as escolas
@@ -24,12 +24,6 @@ const createEscola = async (req, res, next) => {
   try {
     const { nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes } =
       req.body;
-
-    if (!nome_escola || !inep) {
-      const error = new Error('Campos obrigatórios: nome da escola e INEP.');
-      error.statusCode = 400;
-      throw error;
-    }
 
     const sql = `
       INSERT INTO cad_escolas (nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes)

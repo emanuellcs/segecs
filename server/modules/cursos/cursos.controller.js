@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { query } = require('../../shared/config/db');
 
 /**
  * Listar todos os cursos
@@ -18,12 +18,6 @@ const getCursos = async (req, res, next) => {
 const createCurso = async (req, res, next) => {
   try {
     const { nome_curso, eixo_curso, observacoes } = req.body;
-
-    if (!nome_curso || !eixo_curso) {
-      const error = new Error('Campos obrigatórios: nome do curso e eixo.');
-      error.statusCode = 400;
-      throw error;
-    }
 
     const sql = `
       INSERT INTO cad_cursos (nome_curso, eixo_curso, observacoes)
