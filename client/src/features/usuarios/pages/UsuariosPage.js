@@ -17,14 +17,11 @@ function UsuariosPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [resUsers, resNiveis] = await Promise.all([
-          api.get('/usuarios'),
-          api.get('/niveis')
-        ]);
+        const [resUsers, resNiveis] = await Promise.all([api.get('/usuarios'), api.get('/niveis')]);
         setUsuarios(resUsers.data);
         setNiveis(resNiveis.data);
       } catch (err) {
-        console.error("Erro ao carregar dados:", err);
+        console.error('Erro ao carregar dados:', err);
       }
     };
     fetchData();
@@ -42,15 +39,15 @@ function UsuariosPage() {
   };
 
   const handleSuccess = () => {
-    setRefresh(prev => prev + 1);
+    setRefresh((prev) => prev + 1);
     setEditandoId(null);
     setShowForm(false);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <PageHeader 
-        title="Controle de Acesso" 
+      <PageHeader
+        title="Controle de Acesso"
         subtitle="Gerencie os usuários do sistema e seus respectivos níveis de permissão."
         icon={FaUsers}
         actions={
@@ -63,10 +60,10 @@ function UsuariosPage() {
       />
 
       {showForm && (
-        <Card title={editandoId ? "Editar Usuário" : "Novo Usuário"}>
+        <Card title={editandoId ? 'Editar Usuário' : 'Novo Usuário'}>
           <UsuariosForm
             onSuccess={handleSuccess}
-            usuarioParaEditar={usuarios.find(u => u.id_usuario === editandoId)} 
+            usuarioParaEditar={usuarios.find((u) => u.id_usuario === editandoId)}
             onCancel={handleCancel}
             niveis={niveis}
           />
@@ -77,7 +74,7 @@ function UsuariosPage() {
         <UsuariosList
           usuarios={usuarios}
           onEditClick={handleEditClick}
-          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+          onDeleteSuccess={() => setRefresh((prev) => prev + 1)}
         />
       </Card>
     </div>

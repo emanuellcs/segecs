@@ -14,7 +14,7 @@ function DashboardPage() {
         const response = await api.get('/dashboard/stats');
         setStats(response.data);
       } catch (err) {
-        console.error("Erro ao carregar estatísticas do dashboard:", err);
+        console.error('Erro ao carregar estatísticas do dashboard:', err);
       } finally {
         setLoading(false);
       }
@@ -32,8 +32,8 @@ function DashboardPage() {
 
   return (
     <div className="animate-fadeIn space-y-8">
-      <PageHeader 
-        title="Painel Principal" 
+      <PageHeader
+        title="Painel Principal"
         subtitle="Resumo geral das atividades do SEGECS."
         icon={FaChartLine}
       />
@@ -60,11 +60,12 @@ function DashboardPage() {
             Gestão de Estágios Simplificada
           </h2>
           <p className="text-blue-100 text-base sm:text-lg leading-relaxed font-medium">
-            O SEGECS foi projetado para otimizar o fluxo de acompanhamento dos estágios curriculares supervisionados. 
-            Utilize o menu lateral para gerenciar as entidades do sistema de forma rápida e segura.
+            O SEGECS foi projetado para otimizar o fluxo de acompanhamento dos estágios curriculares
+            supervisionados. Utilize o menu lateral para gerenciar as entidades do sistema de forma
+            rápida e segura.
           </p>
         </div>
-        
+
         {/* Elemento Decorativo */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 sm:w-96 sm:h-96 bg-blue-800 rounded-full opacity-50 blur-3xl pointer-events-none"></div>
       </div>

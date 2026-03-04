@@ -7,10 +7,23 @@ import Button from '@/components/common/Button';
 
 function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
   const [formData, setFormData] = useState({
-    matricula: '', nome: '', rg: '', cpf: '', nasc: '',
-    telefone: '', email: '', id_cidade: '', bairro: '',
-    zona: '', id_curso: '', turma: '', observacoes: '',
-    inform_egressa: '', facebook: '', linkedin: '', github: ''
+    matricula: '',
+    nome: '',
+    rg: '',
+    cpf: '',
+    nasc: '',
+    telefone: '',
+    email: '',
+    id_cidade: '',
+    bairro: '',
+    zona: '',
+    id_curso: '',
+    turma: '',
+    observacoes: '',
+    inform_egressa: '',
+    facebook: '',
+    linkedin: '',
+    github: '',
   });
   const [cursos, setCursos] = useState([]);
   const [cidades, setCidades] = useState([]);
@@ -21,19 +34,21 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
       try {
         const [resCursos, resCidades] = await Promise.all([
           api.get('/cursos'),
-          api.get('/cidades')
+          api.get('/cidades'),
         ]);
         setCursos(resCursos.data);
         setCidades(resCidades.data);
       } catch (err) {
-        console.error("Erro ao carregar dados auxiliares", err);
+        console.error('Erro ao carregar dados auxiliares', err);
       }
     };
     fetchData();
 
     if (alunoParaEditar) {
       // Formata a data para o input date (YYYY-MM-DD)
-      const formattedDate = alunoParaEditar.nasc ? new Date(alunoParaEditar.nasc).toISOString().split('T')[0] : '';
+      const formattedDate = alunoParaEditar.nasc
+        ? new Date(alunoParaEditar.nasc).toISOString().split('T')[0]
+        : '';
       setFormData({ ...alunoParaEditar, nasc: formattedDate });
     }
   }, [alunoParaEditar]);
@@ -54,20 +69,24 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
     } catch (err) {
       const errors = err.response?.data?.errors;
       const msg = err.response?.data?.message || 'Erro ao processar solicitação.';
-      
+
       Swal.fire({
         icon: 'error',
         title: 'Erro de Validação',
-        html: errors ? `<ul class="text-left text-sm">${errors.map(e => `<li>• ${e.msg}</li>`).join('')}</ul>` : msg
+        html: errors
+          ? `<ul class="text-left text-sm">${errors.map((e) => `<li>• ${e.msg}</li>`).join('')}</ul>`
+          : msg,
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const InputField = ({ label, name, type = "text", required = false }) => (
+  const InputField = ({ label, name, type = 'text', required = false }) => (
     <div className="space-y-1">
-      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label} {required && "*"}</label>
+      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+        {label} {required && '*'}
+      </label>
       <input
         type={type}
         value={formData[name] || ''}
@@ -88,9 +107,11 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
         <InputField label="Data de Nascimento" name="nasc" type="date" required />
         <InputField label="Telefone" name="telefone" />
         <InputField label="Email" name="email" type="email" />
-        
+
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Cidade *</label>
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Cidade *
+          </label>
           <select
             value={formData.id_cidade}
             onChange={(e) => setFormData({ ...formData, id_cidade: e.target.value })}
@@ -98,12 +119,18 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
             required
           >
             <option value="">Selecione...</option>
-            {cidades.map(c => <option key={c.id_cidade} value={c.id_cidade}>{c.cidade} - {c.uf}</option>)}
+            {cidades.map((c) => (
+              <option key={c.id_cidade} value={c.id_cidade}>
+                {c.cidade} - {c.uf}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Curso *</label>
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Curso *
+          </label>
           <select
             value={formData.id_curso}
             onChange={(e) => setFormData({ ...formData, id_curso: e.target.value })}
@@ -111,7 +138,11 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
             required
           >
             <option value="">Selecione...</option>
-            {cursos.map(c => <option key={c.id_curso} value={c.id_curso}>{c.nome_curso}</option>)}
+            {cursos.map((c) => (
+              <option key={c.id_curso} value={c.id_curso}>
+                {c.nome_curso}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -119,8 +150,12 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
       </div>
 
       <div className="flex flex-wrap gap-4 justify-end pt-6 border-t border-gray-100">
-        <Button onClick={onCancel} variant="secondary" icon={FaTimes}>Cancelar</Button>
-        <Button type="submit" disabled={loading} icon={FaSave}>{loading ? 'Salvando...' : 'Salvar Aluno'}</Button>
+        <Button onClick={onCancel} variant="secondary" icon={FaTimes}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={loading} icon={FaSave}>
+          {loading ? 'Salvando...' : 'Salvar Aluno'}
+        </Button>
       </div>
     </form>
   );

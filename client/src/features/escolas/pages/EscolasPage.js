@@ -19,7 +19,7 @@ function EscolasPage() {
         const response = await api.get('/escolas');
         setEscolas(response.data);
       } catch (error) {
-        console.error("Erro ao buscar escolas", error);
+        console.error('Erro ao buscar escolas', error);
       }
     };
     fetchEscolas();
@@ -37,15 +37,15 @@ function EscolasPage() {
   };
 
   const handleSuccess = () => {
-    setRefresh(prev => prev + 1);
+    setRefresh((prev) => prev + 1);
     setEditandoId(null);
     setShowForm(false);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <PageHeader 
-        title="Escolas" 
+      <PageHeader
+        title="Escolas"
         subtitle="Gerencie as instituições de ensino cadastradas."
         icon={FaSchool}
         actions={
@@ -58,10 +58,10 @@ function EscolasPage() {
       />
 
       {showForm && (
-        <Card title={editandoId ? "Editar Escola" : "Nova Escola"}>
+        <Card title={editandoId ? 'Editar Escola' : 'Nova Escola'}>
           <EscolasForm
             onSuccess={handleSuccess}
-            escolaParaEditar={escolas.find(e => e.id_escola === editandoId)}
+            escolaParaEditar={escolas.find((e) => e.id_escola === editandoId)}
             onCancel={handleCancel}
           />
         </Card>
@@ -71,7 +71,7 @@ function EscolasPage() {
         <EscolasList
           escolas={escolas}
           onEditClick={handleEditClick}
-          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+          onDeleteSuccess={() => setRefresh((prev) => prev + 1)}
         />
       </Card>
     </div>

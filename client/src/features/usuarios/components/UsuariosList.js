@@ -7,7 +7,10 @@ import Button from '@/components/common/Button';
 
 function UsuariosList({ usuarios, onEditClick, onDeleteSuccess }) {
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Usuário?", "Deseja realmente remover este usuário?");
+    const result = await confirmDelete(
+      'Excluir Usuário?',
+      'Deseja realmente remover este usuário?'
+    );
     if (result.isConfirmed) {
       try {
         await api.delete(`/usuarios/${id}`);
@@ -59,18 +62,28 @@ function UsuariosList({ usuarios, onEditClick, onDeleteSuccess }) {
               </td>
               <td className="px-6 py-5">
                 <div className="flex items-center gap-2">
-                  <FaCircle className={user.ativo ? "text-green-500" : "text-gray-300"} size={8} />
-                  <span className={`text-xs font-bold uppercase ${user.ativo ? "text-green-600" : "text-gray-400"}`}>
+                  <FaCircle className={user.ativo ? 'text-green-500' : 'text-gray-300'} size={8} />
+                  <span
+                    className={`text-xs font-bold uppercase ${user.ativo ? 'text-green-600' : 'text-gray-400'}`}
+                  >
                     {user.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
               </td>
               <td className="px-6 py-5">
                 <div className="flex justify-end gap-2">
-                  <Button variant="secondary" className="p-2 h-10 w-10 !px-0" onClick={() => onEditClick(user)}>
+                  <Button
+                    variant="secondary"
+                    className="p-2 h-10 w-10 !px-0"
+                    onClick={() => onEditClick(user)}
+                  >
                     <FaEdit />
                   </Button>
-                  <Button variant="danger" className="p-2 h-10 w-10 !px-0" onClick={() => handleDelete(user.id_usuario)}>
+                  <Button
+                    variant="danger"
+                    className="p-2 h-10 w-10 !px-0"
+                    onClick={() => handleDelete(user.id_usuario)}
+                  >
                     <FaTrash />
                   </Button>
                 </div>

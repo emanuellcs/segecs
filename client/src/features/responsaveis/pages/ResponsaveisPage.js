@@ -19,7 +19,7 @@ function ResponsaveisPage() {
         const response = await api.get('/responsaveis');
         setResponsaveis(response.data);
       } catch (error) {
-        console.error("Erro ao buscar responsáveis", error);
+        console.error('Erro ao buscar responsáveis', error);
       }
     };
     fetchResponsaveis();
@@ -37,15 +37,15 @@ function ResponsaveisPage() {
   };
 
   const handleSuccess = () => {
-    setRefresh(prev => prev + 1);
+    setRefresh((prev) => prev + 1);
     setEditandoId(null);
     setShowForm(false);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <PageHeader 
-        title="Responsáveis" 
+      <PageHeader
+        title="Responsáveis"
         subtitle="Gerencie os responsáveis legais pelos alunos estagiários."
         icon={FaUserTie}
         actions={
@@ -58,10 +58,10 @@ function ResponsaveisPage() {
       />
 
       {showForm && (
-        <Card title={editandoId ? "Editar Responsável" : "Novo Cadastro"}>
+        <Card title={editandoId ? 'Editar Responsável' : 'Novo Cadastro'}>
           <ResponsaveisForm
             onSuccess={handleSuccess}
-            responsavelParaEditar={responsaveis.find(r => r.id_responsavel === editandoId)}
+            responsavelParaEditar={responsaveis.find((r) => r.id_responsavel === editandoId)}
             onCancel={handleCancel}
           />
         </Card>
@@ -71,7 +71,7 @@ function ResponsaveisPage() {
         <ResponsaveisList
           responsaveis={responsaveis}
           onEditClick={handleEditClick}
-          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+          onDeleteSuccess={() => setRefresh((prev) => prev + 1)}
         />
       </Card>
     </div>

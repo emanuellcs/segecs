@@ -10,18 +10,24 @@ const usuarioValidation = [
   body('nome_completo').notEmpty().withMessage('Nome completo é obrigatório'),
   body('email').isEmail().withMessage('Email inválido'),
   body('id_nivel').isInt().withMessage('Nível de acesso inválido'),
-  validate
+  validate,
 ];
 
 const senhaValidation = [
   body('senha').isLength({ min: 6 }).withMessage('A senha deve ter pelo menos 6 caracteres'),
-  validate
+  validate,
 ];
 
 // Apenas Administradores (Nível 1) podem gerenciar usuários
 router.get('/', authorizeLevels([1]), usuariosController.getUsuarios);
 router.get('/:id', authorizeLevels([1]), usuariosController.getUserById);
-router.post('/', authorizeLevels([1]), usuarioValidation, senhaValidation, usuariosController.createUsuario);
+router.post(
+  '/',
+  authorizeLevels([1]),
+  usuarioValidation,
+  senhaValidation,
+  usuariosController.createUsuario
+);
 router.put('/:id', authorizeLevels([1]), usuarioValidation, usuariosController.updateUser);
 router.delete('/:id', authorizeLevels([1]), usuariosController.deleteUsuario);
 

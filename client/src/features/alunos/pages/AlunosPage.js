@@ -19,7 +19,7 @@ function AlunosPage() {
         const response = await api.get('/alunos');
         setAlunos(response.data);
       } catch (error) {
-        console.error("Erro ao buscar alunos", error);
+        console.error('Erro ao buscar alunos', error);
       }
     };
     fetchAlunos();
@@ -37,15 +37,15 @@ function AlunosPage() {
   };
 
   const handleSuccess = () => {
-    setRefresh(prev => prev + 1);
+    setRefresh((prev) => prev + 1);
     setEditandoId(null);
     setShowForm(false);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <PageHeader 
-        title="Gestão de Alunos" 
+      <PageHeader
+        title="Gestão de Alunos"
         subtitle="Cadastre e gerencie os dados dos alunos estagiários."
         icon={FaUserGraduate}
         actions={
@@ -58,13 +58,13 @@ function AlunosPage() {
       />
 
       {showForm && (
-        <Card 
-          title={editandoId ? "Editar Aluno" : "Novo Cadastro"} 
+        <Card
+          title={editandoId ? 'Editar Aluno' : 'Novo Cadastro'}
           description="Preencha as informações básicas e de contato."
         >
           <AlunoForm
             onSuccess={handleSuccess}
-            alunoParaEditar={alunos.find(a => a.id_aluno === editandoId)}
+            alunoParaEditar={alunos.find((a) => a.id_aluno === editandoId)}
             onCancel={handleCancel}
           />
         </Card>
@@ -74,7 +74,7 @@ function AlunosPage() {
         <AlunoList
           alunos={alunos}
           onEditClick={handleEditClick}
-          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+          onDeleteSuccess={() => setRefresh((prev) => prev + 1)}
         />
       </Card>
     </div>

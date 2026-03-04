@@ -9,7 +9,7 @@ function CursosForm({ onSuccess, cursoParaEditar, onCancel }) {
   const [formData, setFormData] = useState({
     nome_curso: '',
     eixo_curso: '',
-    observacoes: ''
+    observacoes: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +40,9 @@ function CursosForm({ onSuccess, cursoParaEditar, onCancel }) {
       Swal.fire({
         icon: 'error',
         title: 'Erro de Validação',
-        html: errors ? `<ul class="text-left text-sm">${errors.map(e => `<li>• ${e.msg}</li>`).join('')}</ul>` : msg
+        html: errors
+          ? `<ul class="text-left text-sm">${errors.map((e) => `<li>• ${e.msg}</li>`).join('')}</ul>`
+          : msg,
       });
     } finally {
       setLoading(false);
@@ -51,7 +53,9 @@ function CursosForm({ onSuccess, cursoParaEditar, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Nome do Curso *</label>
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Nome do Curso *
+          </label>
           <input
             type="text"
             value={formData.nome_curso}
@@ -63,7 +67,9 @@ function CursosForm({ onSuccess, cursoParaEditar, onCancel }) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Eixo Tecnológico *</label>
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Eixo Tecnológico *
+          </label>
           <input
             type="text"
             value={formData.eixo_curso}
@@ -76,7 +82,9 @@ function CursosForm({ onSuccess, cursoParaEditar, onCancel }) {
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Observações</label>
+        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+          Observações
+        </label>
         <textarea
           value={formData.observacoes || ''}
           onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
@@ -86,8 +94,12 @@ function CursosForm({ onSuccess, cursoParaEditar, onCancel }) {
       </div>
 
       <div className="flex gap-4 justify-end pt-4 border-t border-gray-50">
-        <Button onClick={onCancel} variant="secondary" icon={FaTimes}>Cancelar</Button>
-        <Button type="submit" disabled={loading} icon={FaSave}>{loading ? 'Salvando...' : 'Salvar Curso'}</Button>
+        <Button onClick={onCancel} variant="secondary" icon={FaTimes}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={loading} icon={FaSave}>
+          {loading ? 'Salvando...' : 'Salvar Curso'}
+        </Button>
       </div>
     </form>
   );

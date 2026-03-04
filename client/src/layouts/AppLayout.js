@@ -12,17 +12,19 @@ const AppLayout = () => {
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
       {/* Overlay para fechar o sidebar no mobile ao clicar fora */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-20 bg-black bg-opacity-50 transition-opacity lg:hidden"
           onClick={toggleSidebar}
         ></div>
       )}
 
       {/* Sidebar - Agora com controle de visibilidade responsivo */}
-      <div className={`
+      <div
+        className={`
         fixed inset-y-0 left-0 z-30 w-64 transform bg-blue-900 transition duration-300 ease-in-out lg:static lg:inset-0 lg:translate-x-0
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-      `}>
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}
+      >
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 

@@ -5,7 +5,7 @@ const PrivateRoute = () => {
   const token = localStorage.getItem('token');
   const user = localStorage.getItem('user');
 
-  return (token && user) ? <Outlet /> : <Navigate to="/" />;
+  return token && user ? <Outlet /> : <Navigate to="/" />;
 };
 
 export default PrivateRoute;

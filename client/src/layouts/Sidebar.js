@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  FaHome, FaUserGraduate, FaUsers, FaUserTie, 
-  FaLayerGroup, FaCity, FaBook, FaSchool, FaTimes 
+import {
+  FaHome,
+  FaUserGraduate,
+  FaUsers,
+  FaUserTie,
+  FaLayerGroup,
+  FaCity,
+  FaBook,
+  FaSchool,
+  FaTimes,
 } from 'react-icons/fa';
 
 function Sidebar({ onClose }) {
@@ -25,16 +32,16 @@ function Sidebar({ onClose }) {
   };
 
   const isActive = (path) => {
-    return currentPath === path 
-      ? "bg-blue-800 border-l-4 border-yellow-400 text-white" 
-      : "text-blue-100 hover:bg-blue-800 hover:text-white";
+    return currentPath === path
+      ? 'bg-blue-800 border-l-4 border-yellow-400 text-white'
+      : 'text-blue-100 hover:bg-blue-800 hover:text-white';
   };
 
   const showAdminMenu = user && user.id_nivel === 1;
 
   const NavLink = ({ to, icon: Icon, children }) => (
-    <Link 
-      to={to} 
+    <Link
+      to={to}
       onClick={onClose}
       className={`flex items-center gap-4 px-6 py-3 transition-all duration-200 ${isActive(to)}`}
     >
@@ -63,26 +70,44 @@ function Sidebar({ onClose }) {
 
       {/* Navegação */}
       <nav className="flex-1 mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-700">
-        <NavLink to="/dashboard" icon={FaHome}>Dashboard</NavLink>
-        <NavLink to="/cidades" icon={FaCity}>Cidades</NavLink>
-        <NavLink to="/escolas" icon={FaSchool}>Escolas</NavLink>
-        <NavLink to="/cursos" icon={FaBook}>Cursos</NavLink>
-        <NavLink to="/alunos" icon={FaUserGraduate}>Alunos</NavLink>
-        <NavLink to="/responsaveis" icon={FaUserTie}>Responsáveis</NavLink>
+        <NavLink to="/dashboard" icon={FaHome}>
+          Dashboard
+        </NavLink>
+        <NavLink to="/cidades" icon={FaCity}>
+          Cidades
+        </NavLink>
+        <NavLink to="/escolas" icon={FaSchool}>
+          Escolas
+        </NavLink>
+        <NavLink to="/cursos" icon={FaBook}>
+          Cursos
+        </NavLink>
+        <NavLink to="/alunos" icon={FaUserGraduate}>
+          Alunos
+        </NavLink>
+        <NavLink to="/responsaveis" icon={FaUserTie}>
+          Responsáveis
+        </NavLink>
 
         {showAdminMenu && (
           <div className="mt-6">
-            <p className="px-6 py-2 text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Administração</p>
-            <NavLink to="/niveis" icon={FaLayerGroup}>Níveis de Acesso</NavLink>
-            <NavLink to="/usuarios" icon={FaUsers}>Usuários</NavLink>
+            <p className="px-6 py-2 text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">
+              Administração
+            </p>
+            <NavLink to="/niveis" icon={FaLayerGroup}>
+              Níveis de Acesso
+            </NavLink>
+            <NavLink to="/usuarios" icon={FaUsers}>
+              Usuários
+            </NavLink>
           </div>
         )}
       </nav>
 
       {/* Footer / Logout */}
       <div className="p-4 bg-blue-950/30">
-        <button 
-          onClick={handleLogout} 
+        <button
+          onClick={handleLogout}
           className="w-full flex items-center justify-center gap-2 p-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-xl text-sm font-bold transition-all duration-300"
         >
           Sair do Sistema

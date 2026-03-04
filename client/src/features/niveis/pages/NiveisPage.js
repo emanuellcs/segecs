@@ -19,7 +19,7 @@ function NiveisPage() {
         const response = await api.get('/niveis');
         setNiveis(response.data);
       } catch (error) {
-        console.error("Erro ao buscar níveis", error);
+        console.error('Erro ao buscar níveis', error);
       }
     };
     fetchNiveis();
@@ -37,15 +37,15 @@ function NiveisPage() {
   };
 
   const handleSuccess = () => {
-    setRefresh(prev => prev + 1);
+    setRefresh((prev) => prev + 1);
     setEditandoId(null);
     setShowForm(false);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <PageHeader 
-        title="Níveis de Acesso" 
+      <PageHeader
+        title="Níveis de Acesso"
         subtitle="Defina os perfis de permissão do sistema."
         icon={FaLayerGroup}
         actions={
@@ -58,10 +58,10 @@ function NiveisPage() {
       />
 
       {showForm && (
-        <Card title={editandoId ? "Editar Nível" : "Novo Nível"}>
+        <Card title={editandoId ? 'Editar Nível' : 'Novo Nível'}>
           <NiveisForm
             onSuccess={handleSuccess}
-            nivelParaEditar={niveis.find(n => n.id_nivel === editandoId)}
+            nivelParaEditar={niveis.find((n) => n.id_nivel === editandoId)}
             onCancel={handleCancel}
           />
         </Card>
@@ -71,7 +71,7 @@ function NiveisPage() {
         <NiveisList
           niveis={niveis}
           onEditClick={handleEditClick}
-          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+          onDeleteSuccess={() => setRefresh((prev) => prev + 1)}
         />
       </Card>
     </div>

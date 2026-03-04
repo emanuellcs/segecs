@@ -5,9 +5,7 @@ const validate = require('../../shared/middleware/validate');
 const niveisController = require('./niveis.controller');
 
 // Validação de nível
-const nivelValidationRules = [
-  body('nivel').notEmpty().withMessage('Nome do nível é obrigatório'),
-];
+const nivelValidationRules = [body('nivel').notEmpty().withMessage('Nome do nível é obrigatório')];
 
 router.get('/', niveisController.getNiveis);
 router.get('/:id', niveisController.getNivelById);

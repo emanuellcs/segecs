@@ -7,7 +7,7 @@ import Button from '@/components/common/Button';
 
 function CursosList({ cursos, onEditClick, onDeleteSuccess }) {
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Curso?", "Deseja realmente remover este curso?");
+    const result = await confirmDelete('Excluir Curso?', 'Deseja realmente remover este curso?');
     if (result.isConfirmed) {
       try {
         await api.delete(`/cursos/${id}`);
@@ -55,10 +55,18 @@ function CursosList({ cursos, onEditClick, onDeleteSuccess }) {
               </td>
               <td className="px-6 py-5">
                 <div className="flex justify-end gap-2">
-                  <Button variant="secondary" className="p-2 h-10 w-10 !px-0" onClick={() => onEditClick(curso)}>
+                  <Button
+                    variant="secondary"
+                    className="p-2 h-10 w-10 !px-0"
+                    onClick={() => onEditClick(curso)}
+                  >
                     <FaEdit />
                   </Button>
-                  <Button variant="danger" className="p-2 h-10 w-10 !px-0" onClick={() => handleDelete(curso.id_curso)}>
+                  <Button
+                    variant="danger"
+                    className="p-2 h-10 w-10 !px-0"
+                    onClick={() => handleDelete(curso.id_curso)}
+                  >
                     <FaTrash />
                   </Button>
                 </div>

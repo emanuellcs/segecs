@@ -43,16 +43,16 @@ app.use('/api/responsaveis', authenticateToken, responsaveisRoutes);
 app.get('/api/health', async (req, res) => {
   try {
     const result = await query('SELECT NOW()');
-    res.json({ 
-      status: 'OK', 
+    res.json({
+      status: 'OK',
       database: 'Connected',
-      timestamp: result.rows[0].now 
+      timestamp: result.rows[0].now,
     });
   } catch (error) {
-    res.status(500).json({ 
-      status: 'ERROR', 
+    res.status(500).json({
+      status: 'ERROR',
       database: 'Disconnected',
-      error: error.message 
+      error: error.message,
     });
   }
 });

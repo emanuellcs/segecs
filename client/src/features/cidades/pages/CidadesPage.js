@@ -19,7 +19,7 @@ function CidadesPage() {
         const response = await api.get('/cidades');
         setCidades(response.data);
       } catch (error) {
-        console.error("Erro ao buscar cidades", error);
+        console.error('Erro ao buscar cidades', error);
       }
     };
     fetchCidades();
@@ -37,15 +37,15 @@ function CidadesPage() {
   };
 
   const handleSuccess = () => {
-    setRefresh(prev => prev + 1);
+    setRefresh((prev) => prev + 1);
     setEditandoId(null);
     setShowForm(false);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <PageHeader 
-        title="Municípios" 
+      <PageHeader
+        title="Municípios"
         subtitle="Gerencie as cidades e estados atendidos pelo sistema."
         icon={FaCity}
         actions={
@@ -58,10 +58,10 @@ function CidadesPage() {
       />
 
       {showForm && (
-        <Card title={editandoId ? "Editar Cidade" : "Nova Cidade"}>
+        <Card title={editandoId ? 'Editar Cidade' : 'Nova Cidade'}>
           <CidadesForm
             onSuccess={handleSuccess}
-            cidadeParaEditar={cidades.find(c => c.id_cidade === editandoId)}
+            cidadeParaEditar={cidades.find((c) => c.id_cidade === editandoId)}
             onCancel={handleCancel}
           />
         </Card>
@@ -71,7 +71,7 @@ function CidadesPage() {
         <CidadesList
           cidades={cidades}
           onEditClick={handleEditClick}
-          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+          onDeleteSuccess={() => setRefresh((prev) => prev + 1)}
         />
       </Card>
     </div>

@@ -2,12 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const validate = require('../../shared/middleware/validate');
-const {
-  getCidades,
-  createCidade,
-  updateCidade,
-  deleteCidade,
-} = require('./cidades.controller');
+const { getCidades, createCidade, updateCidade, deleteCidade } = require('./cidades.controller');
 
 // Validação de cidade
 const cidadeValidationRules = [

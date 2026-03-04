@@ -19,7 +19,7 @@ function CursosPage() {
         const response = await api.get('/cursos');
         setCursos(response.data);
       } catch (error) {
-        console.error("Erro ao buscar cursos", error);
+        console.error('Erro ao buscar cursos', error);
       }
     };
     fetchCursos();
@@ -37,15 +37,15 @@ function CursosPage() {
   };
 
   const handleSuccess = () => {
-    setRefresh(prev => prev + 1);
+    setRefresh((prev) => prev + 1);
     setEditandoId(null);
     setShowForm(false);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <PageHeader 
-        title="Gestão de Cursos" 
+      <PageHeader
+        title="Gestão de Cursos"
         subtitle="Gerencie os cursos técnicos e de graduação do sistema."
         icon={FaBook}
         actions={
@@ -58,10 +58,10 @@ function CursosPage() {
       />
 
       {showForm && (
-        <Card title={editandoId ? "Editar Curso" : "Novo Curso"}>
+        <Card title={editandoId ? 'Editar Curso' : 'Novo Curso'}>
           <CursosForm
             onSuccess={handleSuccess}
-            cursoParaEditar={cursos.find(c => c.id_curso === editandoId)}
+            cursoParaEditar={cursos.find((c) => c.id_curso === editandoId)}
             onCancel={handleCancel}
           />
         </Card>
@@ -71,7 +71,7 @@ function CursosPage() {
         <CursosList
           cursos={cursos}
           onEditClick={handleEditClick}
-          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+          onDeleteSuccess={() => setRefresh((prev) => prev + 1)}
         />
       </Card>
     </div>
