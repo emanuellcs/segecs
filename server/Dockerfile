@@ -1,5 +1,5 @@
 # Usar uma imagem Node leve
-FROM node:lts-alpine
+FROM node:18-alpine
 
 # Definir diretório de trabalho
 WORKDIR /app
@@ -7,7 +7,7 @@ WORKDIR /app
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar dependências
+# Instalar dependências (incluindo devDependencies como nodemon)
 RUN npm install
 
 # Copiar o restante do código
@@ -16,5 +16,5 @@ COPY . .
 # Expor a porta que o servidor usa
 EXPOSE 5000
 
-# Comando para iniciar o servidor
+# Comando padrão (será sobrescrito para npm run dev no docker-compose)
 CMD ["npm", "start"]
