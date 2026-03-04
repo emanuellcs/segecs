@@ -1,84 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { FaUserTie } from 'react-icons/fa';
+import { FaUserTie, FaPlus } from 'react-icons/fa';
 import api from '@/services/api';
 import ResponsaveisForm from '@/features/responsaveis/components/ResponsaveisForm';
 import ResponsaveisList from '@/features/responsaveis/components/ResponsaveisList';
+import PageHeader from '@/components/common/PageHeader';
+import Card from '@/components/common/Card';
+import Button from '@/components/common/Button';
 
-function CadastroResponsaveis() {
+function ResponsaveisPage() {
   const [responsaveis, setResponsaveis] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [refresh, setRefresh] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchResponsaveis = async () => {
       try {
-        const res = await api.get('/responsaveis');
-        setResponsaveis(res.data);
-      } catch (err) {
-        console.error('Erro ao carregar responsáveis:', err);
-      } finally {
-        setLoading(false);
+        const response = await api.get('/responsaveis');
+        setResponsaveis(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar responsáveis", error);
       }
     };
-    fetchData();
+    fetchResponsaveis();
   }, [refresh]);
 
-  const handleEditClick = (responsavel) => setEditandoId(responsavel.id_responsavel);
-  const handleCancelEdit = () => setEditandoId(null);
-  const handleSuccess = () => {
-    setRefresh(refresh + 1);
-    setEditandoId(null);
+  const handleEditClick = (resp) => {
+    setEditandoId(resp.id_responsavel);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (loading && refresh === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const handleCancel = () => {
+    setEditandoId(null);
+    setShowForm(false);
+  };
+
+  const handleSuccess = () => {
+    setRefresh(prev => prev + 1);
+    setEditandoId(null);
+    setShowForm(false);
+  };
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-gray-800 flex items-center gap-3 uppercase tracking-tight">
-            <FaUserTie className="text-blue-600" />
-            Responsáveis
-          </h1>
-          <p className="text-gray-500 font-medium">
-            Gerenciamento de pais e responsáveis pelos alunos.
-          </p>
-        </div>
-      </div>
+    <div className="space-y-8 animate-fadeIn">
+      <PageHeader 
+        title="Responsáveis" 
+        subtitle="Gerencie os responsáveis legais pelos alunos estagiários."
+        icon={FaUserTie}
+        actions={
+          !showForm && (
+            <Button onClick={() => setShowForm(true)} icon={FaPlus}>
+              Novo Responsável
+            </Button>
+          )
+        }
+      />
 
-      <div className="grid grid-cols-1 gap-8">
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            {editandoId ? 'Editar Responsável' : 'Novo Responsável'}
-          </h2>
+      {showForm && (
+        <Card title={editandoId ? "Editar Responsável" : "Novo Cadastro"}>
           <ResponsaveisForm
             onSuccess={handleSuccess}
-            responsavelParaEditar={responsaveis.find((r) => r.id_responsavel === editandoId)}
-            onCancel={handleCancelEdit}
+            responsavelParaEditar={responsaveis.find(r => r.id_responsavel === editandoId)}
+            onCancel={handleCancel}
           />
-        </section>
+        </Card>
+      )}
 
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            Lista de Responsáveis
-          </h2>
-          <ResponsaveisList
-            refresh={refresh}
-            onEditClick={handleEditClick}
-            setResponsaveis={setResponsaveis}
-            responsaveis={responsaveis}
-          />
-        </section>
-      </div>
+      <Card title="Lista de Responsáveis">
+        <ResponsaveisList
+          responsaveis={responsaveis}
+          onEditClick={handleEditClick}
+          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+        />
+      </Card>
     </div>
   );
 }
 
-export default CadastroResponsaveis;
+export default ResponsaveisPage;

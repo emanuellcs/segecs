@@ -1,82 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { FaMapMarkerAlt } from 'react-icons/fa';
+import { FaCity, FaPlus } from 'react-icons/fa';
 import api from '@/services/api';
 import CidadesForm from '@/features/cidades/components/CidadesForm';
 import CidadesList from '@/features/cidades/components/CidadesList';
+import PageHeader from '@/components/common/PageHeader';
+import Card from '@/components/common/Card';
+import Button from '@/components/common/Button';
 
-function CadastroCidades() {
+function CidadesPage() {
   const [cidades, setCidades] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [refresh, setRefresh] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCidades = async () => {
       try {
-        const res = await api.get('/cidades');
-        setCidades(res.data);
-      } catch (err) {
-        console.error('Erro ao carregar cidades:', err);
-      } finally {
-        setLoading(false);
+        const response = await api.get('/cidades');
+        setCidades(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar cidades", error);
       }
     };
-    fetchData();
+    fetchCidades();
   }, [refresh]);
 
-  const handleEditClick = (cidade) => setEditandoId(cidade.id_cidade);
-  const handleCancelEdit = () => setEditandoId(null);
-  const handleSuccess = () => {
-    setRefresh(refresh + 1);
-    setEditandoId(null);
+  const handleEditClick = (cidade) => {
+    setEditandoId(cidade.id_cidade);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (loading && refresh === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const handleCancel = () => {
+    setEditandoId(null);
+    setShowForm(false);
+  };
+
+  const handleSuccess = () => {
+    setRefresh(prev => prev + 1);
+    setEditandoId(null);
+    setShowForm(false);
+  };
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-gray-800 flex items-center gap-3 uppercase tracking-tight">
-            <FaMapMarkerAlt className="text-blue-600" />
-            Cidades
-          </h1>
-          <p className="text-gray-500 font-medium">Gerenciamento de municípios atendidos.</p>
-        </div>
-      </div>
+    <div className="space-y-8 animate-fadeIn">
+      <PageHeader 
+        title="Municípios" 
+        subtitle="Gerencie as cidades e estados atendidos pelo sistema."
+        icon={FaCity}
+        actions={
+          !showForm && (
+            <Button onClick={() => setShowForm(true)} icon={FaPlus}>
+              Nova Cidade
+            </Button>
+          )
+        }
+      />
 
-      <div className="grid grid-cols-1 gap-8">
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            {editandoId ? 'Editar Cidade' : 'Nova Cidade'}
-          </h2>
+      {showForm && (
+        <Card title={editandoId ? "Editar Cidade" : "Nova Cidade"}>
           <CidadesForm
             onSuccess={handleSuccess}
-            cidadeParaEditar={cidades.find((c) => c.id_cidade === editandoId)}
-            onCancel={handleCancelEdit}
+            cidadeParaEditar={cidades.find(c => c.id_cidade === editandoId)}
+            onCancel={handleCancel}
           />
-        </section>
+        </Card>
+      )}
 
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            Lista de Cidades
-          </h2>
-          <CidadesList
-            refresh={refresh}
-            onEditClick={handleEditClick}
-            setCidades={setCidades}
-            cidades={cidades}
-          />
-        </section>
-      </div>
+      <Card title="Cidades Atendidas">
+        <CidadesList
+          cidades={cidades}
+          onEditClick={handleEditClick}
+          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+        />
+      </Card>
     </div>
   );
 }
 
-export default CadastroCidades;
+export default CidadesPage;

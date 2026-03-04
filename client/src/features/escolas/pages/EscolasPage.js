@@ -1,84 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { FaSchool } from 'react-icons/fa';
+import { FaSchool, FaPlus } from 'react-icons/fa';
 import api from '@/services/api';
 import EscolasForm from '@/features/escolas/components/EscolasForm';
 import EscolasList from '@/features/escolas/components/EscolasList';
+import PageHeader from '@/components/common/PageHeader';
+import Card from '@/components/common/Card';
+import Button from '@/components/common/Button';
 
-function CadastroEscolas() {
+function EscolasPage() {
   const [escolas, setEscolas] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [refresh, setRefresh] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchEscolas = async () => {
       try {
-        const res = await api.get('/escolas');
-        setEscolas(res.data);
-      } catch (err) {
-        console.error('Erro ao carregar escolas:', err);
-      } finally {
-        setLoading(false);
+        const response = await api.get('/escolas');
+        setEscolas(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar escolas", error);
       }
     };
-    fetchData();
+    fetchEscolas();
   }, [refresh]);
 
-  const handleEditClick = (escola) => setEditandoId(escola.id_escola);
-  const handleCancelEdit = () => setEditandoId(null);
-  const handleSuccess = () => {
-    setRefresh(refresh + 1);
-    setEditandoId(null);
+  const handleEditClick = (escola) => {
+    setEditandoId(escola.id_escola);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (loading && refresh === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const handleCancel = () => {
+    setEditandoId(null);
+    setShowForm(false);
+  };
+
+  const handleSuccess = () => {
+    setRefresh(prev => prev + 1);
+    setEditandoId(null);
+    setShowForm(false);
+  };
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-gray-800 flex items-center gap-3 uppercase tracking-tight">
-            <FaSchool className="text-blue-600" />
-            Escolas
-          </h1>
-          <p className="text-gray-500 font-medium">
-            Gerenciamento de instituições de ensino parceiras.
-          </p>
-        </div>
-      </div>
+    <div className="space-y-8 animate-fadeIn">
+      <PageHeader 
+        title="Escolas" 
+        subtitle="Gerencie as instituições de ensino cadastradas."
+        icon={FaSchool}
+        actions={
+          !showForm && (
+            <Button onClick={() => setShowForm(true)} icon={FaPlus}>
+              Nova Escola
+            </Button>
+          )
+        }
+      />
 
-      <div className="grid grid-cols-1 gap-8">
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            {editandoId ? 'Editar Escola' : 'Nova Escola'}
-          </h2>
+      {showForm && (
+        <Card title={editandoId ? "Editar Escola" : "Nova Escola"}>
           <EscolasForm
             onSuccess={handleSuccess}
-            escolaParaEditar={escolas.find((e) => e.id_escola === editandoId)}
-            onCancel={handleCancelEdit}
+            escolaParaEditar={escolas.find(e => e.id_escola === editandoId)}
+            onCancel={handleCancel}
           />
-        </section>
+        </Card>
+      )}
 
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            Lista de Escolas
-          </h2>
-          <EscolasList
-            refresh={refresh}
-            onEditClick={handleEditClick}
-            setEscolas={setEscolas}
-            escolas={escolas}
-          />
-        </section>
-      </div>
+      <Card title="Instituições Cadastradas">
+        <EscolasList
+          escolas={escolas}
+          onEditClick={handleEditClick}
+          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+        />
+      </Card>
     </div>
   );
 }
 
-export default CadastroEscolas;
+export default EscolasPage;

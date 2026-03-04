@@ -1,82 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { FaUserGraduate } from 'react-icons/fa';
+import { FaUserGraduate, FaPlus } from 'react-icons/fa';
 import api from '@/services/api';
 import AlunoForm from '@/features/alunos/components/AlunoForm';
 import AlunoList from '@/features/alunos/components/AlunoList';
+import PageHeader from '@/components/common/PageHeader';
+import Card from '@/components/common/Card';
+import Button from '@/components/common/Button';
 
-function CadastroAlunos() {
+function AlunosPage() {
   const [alunos, setAlunos] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [refresh, setRefresh] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAlunos = async () => {
       try {
-        const res = await api.get('/alunos');
-        setAlunos(res.data);
-      } catch (err) {
-        console.error('Erro ao carregar alunos:', err);
-      } finally {
-        setLoading(false);
+        const response = await api.get('/alunos');
+        setAlunos(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar alunos", error);
       }
     };
-    fetchData();
+    fetchAlunos();
   }, [refresh]);
 
-  const handleEditClick = (aluno) => setEditandoId(aluno.id_aluno);
-  const handleCancelEdit = () => setEditandoId(null);
-  const handleSuccess = () => {
-    setRefresh(refresh + 1);
-    setEditandoId(null);
+  const handleEditClick = (aluno) => {
+    setEditandoId(aluno.id_aluno);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (loading && refresh === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const handleCancel = () => {
+    setEditandoId(null);
+    setShowForm(false);
+  };
+
+  const handleSuccess = () => {
+    setRefresh(prev => prev + 1);
+    setEditandoId(null);
+    setShowForm(false);
+  };
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-gray-800 flex items-center gap-3 uppercase tracking-tight">
-            <FaUserGraduate className="text-blue-600" />
-            Alunos
-          </h1>
-          <p className="text-gray-500 font-medium">Gerenciamento completo do corpo discente.</p>
-        </div>
-      </div>
+    <div className="space-y-8 animate-fadeIn">
+      <PageHeader 
+        title="Gestão de Alunos" 
+        subtitle="Cadastre e gerencie os dados dos alunos estagiários."
+        icon={FaUserGraduate}
+        actions={
+          !showForm && (
+            <Button onClick={() => setShowForm(true)} icon={FaPlus}>
+              Novo Aluno
+            </Button>
+          )
+        }
+      />
 
-      <div className="grid grid-cols-1 gap-8">
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            {editandoId ? 'Editar Aluno' : 'Novo Aluno'}
-          </h2>
+      {showForm && (
+        <Card 
+          title={editandoId ? "Editar Aluno" : "Novo Cadastro"} 
+          description="Preencha as informações básicas e de contato."
+        >
           <AlunoForm
             onSuccess={handleSuccess}
-            alunoParaEditar={alunos.find((a) => a.id_aluno === editandoId)}
-            onCancel={handleCancelEdit}
+            alunoParaEditar={alunos.find(a => a.id_aluno === editandoId)}
+            onCancel={handleCancel}
           />
-        </section>
+        </Card>
+      )}
 
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            Lista de Alunos
-          </h2>
-          <AlunoList
-            refresh={refresh}
-            onEditClick={handleEditClick}
-            setAlunos={setAlunos}
-            alunos={alunos}
-          />
-        </section>
-      </div>
+      <Card title="Lista de Alunos" description="Todos os alunos matriculados no sistema.">
+        <AlunoList
+          alunos={alunos}
+          onEditClick={handleEditClick}
+          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+        />
+      </Card>
     </div>
   );
 }
 
-export default CadastroAlunos;
+export default AlunosPage;

@@ -1,84 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import { FaUsers } from 'react-icons/fa';
+import { FaUsers, FaPlus } from 'react-icons/fa';
 import api from '@/services/api';
 import UsuariosForm from '@/features/usuarios/components/UsuariosForm';
 import UsuariosList from '@/features/usuarios/components/UsuariosList';
+import PageHeader from '@/components/common/PageHeader';
+import Card from '@/components/common/Card';
+import Button from '@/components/common/Button';
 
-function CadastroUsuarios() {
+function UsuariosPage() {
   const [usuarios, setUsuarios] = useState([]);
   const [niveis, setNiveis] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [refresh, setRefresh] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resNiveis = await api.get('/niveis');
+        const [resUsers, resNiveis] = await Promise.all([
+          api.get('/usuarios'),
+          api.get('/niveis')
+        ]);
+        setUsuarios(resUsers.data);
         setNiveis(resNiveis.data);
       } catch (err) {
-        console.error('Erro ao carregar dados iniciais:', err);
-      } finally {
-        setLoading(false);
+        console.error("Erro ao carregar dados:", err);
       }
     };
     fetchData();
-  }, []);
+  }, [refresh]);
 
-  const handleEditClick = (user) => setEditandoId(user.id_usuario);
-  const handleCancelEdit = () => setEditandoId(null);
-  const handleSuccess = () => {
-    setRefresh(refresh + 1);
-    setEditandoId(null);
+  const handleEditClick = (user) => {
+    setEditandoId(user.id_usuario);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const handleCancel = () => {
+    setEditandoId(null);
+    setShowForm(false);
+  };
+
+  const handleSuccess = () => {
+    setRefresh(prev => prev + 1);
+    setEditandoId(null);
+    setShowForm(false);
+  };
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-gray-800 flex items-center gap-3 uppercase tracking-tight">
-            <FaUsers className="text-blue-600" />
-            Usuários
-          </h1>
-          <p className="text-gray-500 font-medium">Gerenciamento de acessos ao sistema.</p>
-        </div>
-      </div>
+    <div className="space-y-8 animate-fadeIn">
+      <PageHeader 
+        title="Controle de Acesso" 
+        subtitle="Gerencie os usuários do sistema e seus respectivos níveis de permissão."
+        icon={FaUsers}
+        actions={
+          !showForm && (
+            <Button onClick={() => setShowForm(true)} icon={FaPlus}>
+              Novo Usuário
+            </Button>
+          )
+        }
+      />
 
-      <div className="grid grid-cols-1 gap-8">
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            {editandoId ? 'Editar Usuário' : 'Novo Usuário'}
-          </h2>
+      {showForm && (
+        <Card title={editandoId ? "Editar Usuário" : "Novo Usuário"}>
           <UsuariosForm
             onSuccess={handleSuccess}
-            usuarioParaEditar={usuarios.find((u) => u.id_usuario === editandoId)}
-            onCancel={handleCancelEdit}
+            usuarioParaEditar={usuarios.find(u => u.id_usuario === editandoId)} 
+            onCancel={handleCancel}
             niveis={niveis}
           />
-        </section>
+        </Card>
+      )}
 
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-50">
-            Lista de Usuários
-          </h2>
-          <UsuariosList
-            refresh={refresh}
-            onEditClick={handleEditClick}
-            setUsuarios={setUsuarios}
-            usuarios={usuarios}
-          />
-        </section>
-      </div>
+      <Card title="Usuários Ativos">
+        <UsuariosList
+          usuarios={usuarios}
+          onEditClick={handleEditClick}
+          onDeleteSuccess={() => setRefresh(prev => prev + 1)}
+        />
+      </Card>
     </div>
   );
 }
 
-export default CadastroUsuarios;
+export default UsuariosPage;
