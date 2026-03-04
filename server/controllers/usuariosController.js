@@ -1,11 +1,13 @@
 const { query } = require('../config/db');
-const bcrypt = require('bcryptjs'); 
+const bcrypt = require('bcryptjs');
 
-// 1. Listar Usuários
-const getUsuarios = async (req, res) => {
+/**
+ * Listar todos os usuários com seus níveis de acesso
+ */
+const getUsuarios = async (req, res, next) => {
   try {
     const sql = `
-      SELECT u.id_usuario, u.nome_completo, u.email, n.nivel as nome_nivel 
+      SELECT u.id_usuario, u.nome_completo, u.email, u.id_nivel, u.ativo, n.nivel as nome_nivel 
       FROM sys_usuarios u
       LEFT JOIN sys_niveis_acesso n ON u.id_nivel = n.id_nivel
       ORDER BY u.nome_completo ASC
@@ -13,105 +15,131 @@ const getUsuarios = async (req, res) => {
     const resultado = await query(sql);
     res.json(resultado.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao listar usuários" });
+    next(err);
   }
 };
 
-// 2. Criar Usuário (CORRIGIDO: nome -> nome_completo)
-const createUsuario = async (req, res) => {
+/**
+ * Buscar usuário por ID
+ */
+const getUserById = async (req, res, next) => {
   try {
-    // AQUI ESTAVA O ERRO: O front manda nome_completo, não nome
-    const { nome_completo, email, senha, id_nivel } = req.body; 
+    const { id } = req.params;
+    const result = await query(
+      'SELECT id_usuario, nome_completo, email, id_nivel, ativo FROM sys_usuarios WHERE id_usuario = $1', 
+      [id]
+    );
 
-    // Validação básica
-    if (!nome_completo || !email || !senha || !id_nivel) {
-        return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    if (result.rows.length === 0) {
+      const error = new Error('Usuário não encontrado');
+      error.statusCode = 404;
+      throw error;
     }
 
-    // Criptografa a senha
+    res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Criar um novo usuário
+ */
+const createUsuario = async (req, res, next) => {
+  try {
+    const { nome_completo, email, senha, id_nivel } = req.body;
+
+    if (!nome_completo || !email || !senha || !id_nivel) {
+      const error = new Error('Todos os campos são obrigatórios');
+      error.statusCode = 400;
+      throw error;
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(senha, salt);
 
     const sql = `
       INSERT INTO sys_usuarios (nome_completo, email, senha_hash, id_nivel, ativo)
       VALUES ($1, $2, $3, $4, true)
-      RETURNING id_usuario, nome_completo, email
+      RETURNING id_usuario, nome_completo, email, id_nivel
     `;
     
-    // Passamos nome_completo aqui
     const novo = await query(sql, [nome_completo, email, hash, id_nivel]);
-    res.json(novo.rows[0]);
-
+    res.status(201).json(novo.rows[0]);
   } catch (err) {
-    console.error(err);
-    if (err.code === '23505') {
-      return res.status(400).json({ error: "Email já cadastrado." });
-    }
-    res.status(500).json({ error: "Erro ao criar usuário" });
+    next(err);
   }
 };
 
-// 3. Deletar Usuário
-const deleteUsuario = async (req, res) => {
+/**
+ * Atualizar um usuário existente
+ */
+const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await query("DELETE FROM sys_usuarios WHERE id_usuario = $1", [id]);
-    res.json({ message: "Usuário removido" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao deletar" });
-  }
-};
+    const { nome_completo, email, senha, id_nivel, ativo } = req.body;
 
-// 4. Buscar Usuário pelo ID (Para edição)
-const getUserById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await query('SELECT id_usuario, nome_completo, email, id_nivel, ativo FROM sys_usuarios WHERE id_usuario = $1', [id]);
+    let sql;
+    let params;
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Usuário não encontrado" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao buscar usuário" });
-  }
-};
-
-// 5. Atualizar Usuário
-const updateUser = async (req, res) => {
-  const { id } = req.params;
-  const { nome_completo, email, senha, id_nivel, ativo } = req.body;
-
-  try {
     if (senha && senha.trim() !== "") {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(senha, salt);
-      
-      await query(
-        `UPDATE sys_usuarios 
-         SET nome_completo=$1, email=$2, senha_hash=$3, id_nivel=$4, ativo=$5 
-         WHERE id_usuario=$6`,
-        [nome_completo, email, hash, id_nivel, ativo, id]
-      );
+      sql = `
+        UPDATE sys_usuarios 
+        SET nome_completo=$1, email=$2, senha_hash=$3, id_nivel=$4, ativo=$5, dt_atualizacao=CURRENT_TIMESTAMP
+        WHERE id_usuario=$6
+        RETURNING id_usuario, nome_completo, email
+      `;
+      params = [nome_completo, email, hash, id_nivel, ativo, id];
     } else {
-      await query(
-        `UPDATE sys_usuarios 
-         SET nome_completo=$1, email=$2, id_nivel=$3, ativo=$4 
-         WHERE id_usuario=$5`,
-        [nome_completo, email, id_nivel, ativo, id]
-      );
+      sql = `
+        UPDATE sys_usuarios 
+        SET nome_completo=$1, email=$2, id_nivel=$3, ativo=$4, dt_atualizacao=CURRENT_TIMESTAMP
+        WHERE id_usuario=$5
+        RETURNING id_usuario, nome_completo, email
+      `;
+      params = [nome_completo, email, id_nivel, ativo, id];
     }
 
-    res.json({ message: "Usuário atualizado com sucesso!" });
+    const result = await query(sql, params);
 
+    if (result.rowCount === 0) {
+      const error = new Error('Usuário não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.json({ message: "Usuário atualizado com sucesso!", user: result.rows[0] });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao atualizar usuário" });
+    next(err);
   }
 };
 
-module.exports = { getUsuarios, createUsuario, deleteUsuario, getUserById, updateUser };
+/**
+ * Remover um usuário
+ */
+const deleteUsuario = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await query("DELETE FROM sys_usuarios WHERE id_usuario = $1", [id]);
+    
+    if (result.rowCount === 0) {
+      const error = new Error('Usuário não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.json({ message: "Usuário removido com sucesso" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { 
+  getUsuarios, 
+  getUserById, 
+  createUsuario, 
+  updateUser, 
+  deleteUsuario 
+};

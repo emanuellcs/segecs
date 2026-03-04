@@ -25,6 +25,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const { authenticateToken } = require('./middleware/authMiddleware');
+const errorHandler = require('./middleware/errorHandler');
 
 // --- 2. ROTA DE SETUP (CRIA O ADMIN) ---
 // Coloquei aqui antes das rotas da API para ficar fácil de achar
@@ -57,17 +59,17 @@ app.get('/setup-admin', async (req, res) => {
 });
 
 // --- ROTAS DA API ---
-// ########## ATIVAR AS ROTAS ########## //
-app.use('/api/niveis', niveisRoutes);
-app.use('/api/alunos', alunosRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/usuarios', usuariosRoutes);
-app.use('/api/cidades', require('./routes/cidadesRoutes'));
-app.use('/api/cursos', cursosRoutes);
-app.use('/api/escolas', escolasRoutes);
-app.use('/api/responsaveis', responsaveisRoutes);
-// app.use('/api/responsaveis', authenticateToken, responsaveisRoutes);
+app.use('/api/auth', authRoutes); // Pública
+
+// Rotas Protegidas
+app.use('/api/niveis', authenticateToken, niveisRoutes);
+app.use('/api/alunos', authenticateToken, alunosRoutes);
+app.use('/api/dashboard', authenticateToken, dashboardRoutes);
+app.use('/api/usuarios', authenticateToken, usuariosRoutes);
+app.use('/api/cidades', authenticateToken, require('./routes/cidadesRoutes'));
+app.use('/api/cursos', authenticateToken, cursosRoutes);
+app.use('/api/escolas', authenticateToken, escolasRoutes);
+app.use('/api/responsaveis', authenticateToken, responsaveisRoutes);
 
 // Test route
 app.get('/', (req, res) => {
@@ -92,19 +94,13 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    error: 'Algo deu errado!',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'Rota não encontrada' });
 });
 
-// 404 handler (Isso pegava seu erro antes)
-app.use((req, res) => {
-  res.status(404).json({ error: 'Rota não encontrada' });
-});
+// Global Error handling middleware
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {

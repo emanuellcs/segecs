@@ -1,23 +1,47 @@
 const { query } = require('../config/db');
 
-// Listar
-const getAlunos = async (req, res) => {
+/**
+ * Listar todos os alunos com nome do curso
+ */
+const getAlunos = async (req, res, next) => {
   try {
-    const todos = await query(`
+    const sql = `
       SELECT a.*, c.nome_curso 
       FROM cad_alunos a 
       LEFT JOIN cad_cursos c ON a.id_curso = c.id_curso 
-      ORDER BY a.id_aluno ASC
-    `);
+      ORDER BY a.nome ASC
+    `;
+    const todos = await query(sql);
     res.json(todos.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Erro ao buscar alunos" });
+    next(err);
   }
 };
 
-// Criar
-const createAluno = async (req, res) => {
+/**
+ * Buscar aluno por ID
+ */
+const getAlunoById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await query('SELECT * FROM cad_alunos WHERE id_aluno = $1', [id]);
+
+    if (result.rows.length === 0) {
+      const error = new Error('Aluno não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Criar novo aluno
+ */
+const createAluno = async (req, res, next) => {
   try {
     const { 
       matricula, nome, rg, cpf, nasc, telefone, email, 
@@ -25,43 +49,38 @@ const createAluno = async (req, res) => {
       observacoes, inform_egressa, facebook, linkedin, github 
     } = req.body;
     
-    const novo = await query(
-      `INSERT INTO cad_alunos (
+    // Validação básica de campos obrigatórios
+    if (!matricula || !nome || !cpf || !nasc || !id_curso) {
+      const error = new Error('Campos obrigatórios: matrícula, nome, cpf, data de nascimento e curso.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const sql = `
+      INSERT INTO cad_alunos (
         matricula, nome, rg, cpf, nasc, telefone, email, 
         id_cidade, bairro, zona, id_curso, turma, 
         observacoes, inform_egressa, facebook, linkedin, github
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) 
-      RETURNING *`,
-      [
-        matricula, nome, rg, cpf, nasc, telefone, email, 
-        id_cidade || 1, bairro, zona, id_curso, turma, 
-        observacoes, inform_egressa, facebook, linkedin, github
-      ]
-    );
+      RETURNING *
+    `;
     
-    res.json(novo.rows[0]);
+    const result = await query(sql, [
+      matricula, nome, rg, cpf, nasc, telefone, email, 
+      id_cidade || null, bairro, zona, id_curso, turma, 
+      observacoes, inform_egressa, facebook, linkedin, github
+    ]);
+    
+    res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error('Erro ao criar aluno:', err.message);
-    
-    // Tratamento de erros específicos
-    if (err.message.includes('cad_alunos_cpf_key')) {
-      return res.status(400).json({ error: 'Já existe um aluno cadastrado com este CPF.' });
-    }
-    
-    if (err.message.includes('cad_alunos_matricula_key')) {
-      return res.status(400).json({ error: 'Já existe um aluno cadastrado com esta matrícula.' });
-    }
-    
-    if (err.message.includes('not-null')) {
-      return res.status(400).json({ error: 'Preencha todos os campos obrigatórios.' });
-    }
-    
-    res.status(500).json({ error: "Erro ao cadastrar aluno" });
+    next(err);
   }
 };
 
-// Atualizar
-const updateAluno = async (req, res) => {
+/**
+ * Atualizar aluno
+ */
+const updateAluno = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { 
@@ -70,56 +89,58 @@ const updateAluno = async (req, res) => {
       observacoes, inform_egressa, facebook, linkedin, github 
     } = req.body;
 
-    const updateOp = await query(
-      `UPDATE cad_alunos 
-       SET matricula = $1, nome = $2, rg = $3, cpf = $4, nasc = $5, 
-           telefone = $6, email = $7, id_cidade = $8, bairro = $9, zona = $10, 
-           id_curso = $11, turma = $12, observacoes = $13, inform_egressa = $14, 
-           facebook = $15, linkedin = $16, github = $17, dt_atualizacao = CURRENT_TIMESTAMP
-       WHERE id_aluno = $18`,
-      [
-        matricula, nome, rg, cpf, nasc, telefone, email, 
-        id_cidade || 1, bairro, zona, id_curso, turma, 
-        observacoes, inform_egressa, facebook, linkedin, github, id
-      ]
-    );
+    const sql = `
+      UPDATE cad_alunos 
+      SET matricula = $1, nome = $2, rg = $3, cpf = $4, nasc = $5, 
+          telefone = $6, email = $7, id_cidade = $8, bairro = $9, zona = $10, 
+          id_curso = $11, turma = $12, observacoes = $13, inform_egressa = $14, 
+          facebook = $15, linkedin = $16, github = $17, dt_atualizacao = CURRENT_TIMESTAMP
+      WHERE id_aluno = $18
+      RETURNING *
+    `;
 
-    if (updateOp.rowCount === 0) {
-      return res.status(404).json({ error: "Aluno não encontrado" });
+    const result = await query(sql, [
+      matricula, nome, rg, cpf, nasc, telefone, email, 
+      id_cidade || null, bairro, zona, id_curso, turma, 
+      observacoes, inform_egressa, facebook, linkedin, github, id
+    ]);
+
+    if (result.rowCount === 0) {
+      const error = new Error('Aluno não encontrado');
+      error.statusCode = 404;
+      throw error;
     }
 
-    res.json({ message: "Aluno atualizado com sucesso!" });
+    res.json({ message: "Aluno atualizado com sucesso!", aluno: result.rows[0] });
   } catch (err) {
-    console.error('Erro ao atualizar aluno:', err.message);
-    
-    // Tratamento de erros específicos
-    if (err.message.includes('cad_alunos_cpf_key')) {
-      return res.status(400).json({ error: 'Já existe outro aluno cadastrado com este CPF.' });
-    }
-    
-    if (err.message.includes('cad_alunos_matricula_key')) {
-      return res.status(400).json({ error: 'Já existe outro aluno cadastrado com esta matrícula.' });
-    }
-    
-    res.status(500).json({ error: "Erro ao atualizar aluno" });
+    next(err);
   }
 };
 
-// Deletar
-const deleteAluno = async (req, res) => {
+/**
+ * Remover aluno
+ */
+const deleteAluno = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const deleteOp = await query("DELETE FROM cad_alunos WHERE id_aluno = $1", [id]);
+    const result = await query("DELETE FROM cad_alunos WHERE id_aluno = $1", [id]);
     
-    if (deleteOp.rowCount === 0) {
-      return res.status(404).json({ error: "Aluno não encontrado" });
+    if (result.rowCount === 0) {
+      const error = new Error('Aluno não encontrado');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.json({ message: "Aluno excluído com sucesso!" });
   } catch (err) {
-    console.error('Erro ao deletar aluno:', err.message);
-    res.status(500).json({ error: "Erro ao deletar aluno" });
+    next(err);
   }
 };
 
-module.exports = { getAlunos, createAluno, updateAluno, deleteAluno };
+module.exports = { 
+  getAlunos, 
+  getAlunoById,
+  createAluno, 
+  updateAluno, 
+  deleteAluno 
+};
