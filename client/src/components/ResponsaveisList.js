@@ -12,9 +12,9 @@ function ResponsaveisList({ refresh, onEditClick, setResponsaveis, responsaveis 
       try {
         setLoading(true);
         const response = await api.get('/responsaveis');
-        setResponsaveis(response.data); 
+        setResponsaveis(response.data);
       } catch (error) {
-        console.error("Erro ao buscar responsáveis:", error);
+        console.error('Erro ao buscar responsáveis:', error);
       } finally {
         setLoading(false);
       }
@@ -23,11 +23,14 @@ function ResponsaveisList({ refresh, onEditClick, setResponsaveis, responsaveis 
   }, [refresh, setResponsaveis]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Responsável?", "Deseja realmente remover este responsável?");
+    const result = await confirmDelete(
+      'Excluir Responsável?',
+      'Deseja realmente remover este responsável?'
+    );
     if (result.isConfirmed) {
       try {
         await api.delete(`/responsaveis/${id}`);
-        setResponsaveis(responsaveis.filter(r => r.id_responsavel !== id));
+        setResponsaveis(responsaveis.filter((r) => r.id_responsavel !== id));
         Swal.fire('Deletado!', 'Responsável removido com sucesso.', 'success');
       } catch (error) {
         const msg = error.response?.data?.message || 'Não foi possível excluir.';
@@ -66,7 +69,10 @@ function ResponsaveisList({ refresh, onEditClick, setResponsaveis, responsaveis 
         </thead>
         <tbody className="divide-y divide-gray-50">
           {responsaveis.map((responsavel) => (
-            <tr key={responsavel.id_responsavel} className="group hover:bg-gray-50/50 transition-all">
+            <tr
+              key={responsavel.id_responsavel}
+              className="group hover:bg-gray-50/50 transition-all"
+            >
               <td className="px-4 py-5">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold">
@@ -81,28 +87,44 @@ function ResponsaveisList({ refresh, onEditClick, setResponsaveis, responsaveis 
                 </div>
               </td>
               <td className="px-4 py-5 text-gray-500 font-medium text-sm">
-                {responsavel.cpf && <div className="text-xs"><span className="font-bold">CPF:</span> {responsavel.cpf}</div>}
-                {responsavel.rg && <div className="text-xs"><span className="font-bold">RG:</span> {responsavel.rg}</div>}
+                {responsavel.cpf && (
+                  <div className="text-xs">
+                    <span className="font-bold">CPF:</span> {responsavel.cpf}
+                  </div>
+                )}
+                {responsavel.rg && (
+                  <div className="text-xs">
+                    <span className="font-bold">RG:</span> {responsavel.rg}
+                  </div>
+                )}
                 {!responsavel.cpf && !responsavel.rg && <span className="text-gray-300">N/A</span>}
               </td>
               <td className="px-4 py-5">
                 <div className="text-sm font-medium text-gray-700">
-                  {responsavel.cidade ? `${responsavel.cidade} - ${responsavel.uf}` : <span className="text-gray-300">Cidade N/A</span>}
+                  {responsavel.cidade ? (
+                    `${responsavel.cidade} - ${responsavel.uf}`
+                  ) : (
+                    <span className="text-gray-300">Cidade N/A</span>
+                  )}
                 </div>
-                {responsavel.bairro && <div className="text-xs text-gray-400">{responsavel.bairro}</div>}
-                {responsavel.telefone && <div className="text-xs text-gray-500">{responsavel.telefone}</div>}
+                {responsavel.bairro && (
+                  <div className="text-xs text-gray-400">{responsavel.bairro}</div>
+                )}
+                {responsavel.telefone && (
+                  <div className="text-xs text-gray-500">{responsavel.telefone}</div>
+                )}
               </td>
               <td className="px-4 py-5 text-right">
                 <div className="flex justify-end gap-2">
-                  <button 
-                    onClick={() => onEditClick(responsavel)} 
+                  <button
+                    onClick={() => onEditClick(responsavel)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                     title="Editar"
                   >
                     <FaEdit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(responsavel.id_responsavel)} 
+                  <button
+                    onClick={() => handleDelete(responsavel.id_responsavel)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Excluir"
                   >

@@ -7,7 +7,7 @@ import api from '../services/api';
 function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
   const [formData, setFormData] = useState({
     nivel: '',
-    descricao: ''
+    descricao: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +15,7 @@ function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
     if (nivelParaEditar) {
       setFormData({
         nivel: nivelParaEditar.nivel || '',
-        descricao: nivelParaEditar.descricao || ''
+        descricao: nivelParaEditar.descricao || '',
       });
     } else {
       setFormData({ nivel: '', descricao: '' });
@@ -47,11 +47,13 @@ function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Nome do Nível</label>
-          <input 
-            type="text" 
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Nome do Nível
+          </label>
+          <input
+            type="text"
             value={formData.nivel}
-            onChange={(e) => setFormData({...formData, nivel: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, nivel: e.target.value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             placeholder="Ex: Administrador"
             required
@@ -59,11 +61,13 @@ function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Descrição</label>
-          <input 
-            type="text" 
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Descrição
+          </label>
+          <input
+            type="text"
             value={formData.descricao}
-            onChange={(e) => setFormData({...formData, descricao: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             placeholder="O que este nível pode fazer?"
           />
@@ -73,15 +77,15 @@ function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
       <div className="flex gap-4 justify-end pt-4">
         {nivelParaEditar ? (
           <>
-            <button 
-              type="button" 
-              onClick={onCancel} 
+            <button
+              type="button"
+              onClick={onCancel}
               className="px-6 py-3 border border-gray-200 text-gray-500 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
             >
               <FaTimes /> Cancelar
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
             >
@@ -89,8 +93,8 @@ function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
             </button>
           </>
         ) : (
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
           >

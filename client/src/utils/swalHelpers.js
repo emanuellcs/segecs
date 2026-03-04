@@ -11,12 +11,12 @@ export const Toast = Swal.mixin({
 export const confirmDelete = (title, text) => {
   return Swal.fire({
     title: title || 'Tem certeza?',
-    text: text || "Você não poderá reverter isso!",
+    text: text || 'Você não poderá reverter isso!',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
     cancelButtonColor: '#9ca3af',
     confirmButtonText: 'Sim, excluir!',
-    cancelButtonText: 'Cancelar'
+    cancelButtonText: 'Cancelar',
   });
 };

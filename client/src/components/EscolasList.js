@@ -12,9 +12,9 @@ function EscolasList({ refresh, onEditClick, setEscolas, escolas }) {
       try {
         setLoading(true);
         const response = await api.get('/escolas');
-        setEscolas(response.data); 
+        setEscolas(response.data);
       } catch (error) {
-        console.error("Erro ao buscar escolas:", error);
+        console.error('Erro ao buscar escolas:', error);
       } finally {
         setLoading(false);
       }
@@ -23,11 +23,11 @@ function EscolasList({ refresh, onEditClick, setEscolas, escolas }) {
   }, [refresh, setEscolas]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Escola?", "Deseja realmente remover esta escola?");
+    const result = await confirmDelete('Excluir Escola?', 'Deseja realmente remover esta escola?');
     if (result.isConfirmed) {
       try {
         await api.delete(`/escolas/${id}`);
-        setEscolas(escolas.filter(e => e.id_escola !== id));
+        setEscolas(escolas.filter((e) => e.id_escola !== id));
         Swal.fire('Deletado!', 'Escola removida com sucesso.', 'success');
       } catch (error) {
         const msg = error.response?.data?.message || 'Não foi possível excluir.';
@@ -84,21 +84,23 @@ function EscolasList({ refresh, onEditClick, setEscolas, escolas }) {
                 {escola.inep || <span className="text-gray-300">N/A</span>}
               </td>
               <td className="px-4 py-5">
-                <div className="text-sm font-medium text-gray-700">{escola.cidade} - {escola.uf}</div>
+                <div className="text-sm font-medium text-gray-700">
+                  {escola.cidade} - {escola.uf}
+                </div>
                 {escola.telefone && <div className="text-xs text-gray-400">{escola.telefone}</div>}
                 {escola.email && <div className="text-xs text-blue-500">{escola.email}</div>}
               </td>
               <td className="px-4 py-5 text-right">
                 <div className="flex justify-end gap-2">
-                  <button 
-                    onClick={() => onEditClick(escola)} 
+                  <button
+                    onClick={() => onEditClick(escola)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                     title="Editar"
                   >
                     <FaEdit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(escola.id_escola)} 
+                  <button
+                    onClick={() => handleDelete(escola.id_escola)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Excluir"
                   >

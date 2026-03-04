@@ -22,7 +22,8 @@ const getEscolas = async (req, res, next) => {
  */
 const createEscola = async (req, res, next) => {
   try {
-    const { nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes } = req.body;
+    const { nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes } =
+      req.body;
 
     if (!nome_escola || !inep) {
       const error = new Error('Campos obrigatórios: nome da escola e INEP.');
@@ -34,8 +35,17 @@ const createEscola = async (req, res, next) => {
       INSERT INTO cad_escolas (nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
     `;
-    
-    const result = await query(sql, [nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes]);
+
+    const result = await query(sql, [
+      nome_escola,
+      inep,
+      id_cidade,
+      uf,
+      endereco_escola,
+      telefone,
+      email,
+      observacoes,
+    ]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     next(err);
@@ -48,7 +58,8 @@ const createEscola = async (req, res, next) => {
 const updateEscola = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes } = req.body;
+    const { nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes } =
+      req.body;
 
     const sql = `
       UPDATE cad_escolas
@@ -58,7 +69,17 @@ const updateEscola = async (req, res, next) => {
       RETURNING *
     `;
 
-    const result = await query(sql, [nome_escola, inep, id_cidade, uf, endereco_escola, telefone, email, observacoes, id]);
+    const result = await query(sql, [
+      nome_escola,
+      inep,
+      id_cidade,
+      uf,
+      endereco_escola,
+      telefone,
+      email,
+      observacoes,
+      id,
+    ]);
 
     if (result.rowCount === 0) {
       const error = new Error('Escola não encontrada');
@@ -66,7 +87,7 @@ const updateEscola = async (req, res, next) => {
       throw error;
     }
 
-    res.json({ message: "Escola atualizada com sucesso!", escola: result.rows[0] });
+    res.json({ message: 'Escola atualizada com sucesso!', escola: result.rows[0] });
   } catch (err) {
     next(err);
   }
@@ -78,23 +99,23 @@ const updateEscola = async (req, res, next) => {
 const deleteEscola = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await query("DELETE FROM cad_escolas WHERE id_escola = $1", [id]);
-    
+    const result = await query('DELETE FROM cad_escolas WHERE id_escola = $1', [id]);
+
     if (result.rowCount === 0) {
       const error = new Error('Escola não encontrada');
       error.statusCode = 404;
       throw error;
     }
-    
-    res.json({ message: "Escola excluída com sucesso!" });
+
+    res.json({ message: 'Escola excluída com sucesso!' });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { 
-  getEscolas, 
-  createEscola, 
-  updateEscola, 
-  deleteEscola 
+module.exports = {
+  getEscolas,
+  createEscola,
+  updateEscola,
+  deleteEscola,
 };

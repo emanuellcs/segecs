@@ -16,7 +16,7 @@ function CadastroResponsaveis() {
         const res = await api.get('/responsaveis');
         setResponsaveis(res.data);
       } catch (err) {
-        console.error("Erro ao carregar responsáveis:", err);
+        console.error('Erro ao carregar responsáveis:', err);
       } finally {
         setLoading(false);
       }
@@ -47,7 +47,9 @@ function CadastroResponsaveis() {
             <FaUserTie className="text-blue-600" />
             Responsáveis
           </h1>
-          <p className="text-gray-500 font-medium">Gerenciamento de pais e responsáveis pelos alunos.</p>
+          <p className="text-gray-500 font-medium">
+            Gerenciamento de pais e responsáveis pelos alunos.
+          </p>
         </div>
       </div>
 
@@ -58,7 +60,7 @@ function CadastroResponsaveis() {
           </h2>
           <ResponsaveisForm
             onSuccess={handleSuccess}
-            responsavelParaEditar={responsaveis.find(r => r.id_responsavel === editandoId)}
+            responsavelParaEditar={responsaveis.find((r) => r.id_responsavel === editandoId)}
             onCancel={handleCancelEdit}
           />
         </section>

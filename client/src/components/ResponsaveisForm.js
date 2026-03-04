@@ -13,7 +13,7 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
     telefone: '',
     id_cidade: '',
     bairro: '',
-    observacoes: ''
+    observacoes: '',
   });
   const [cidades, setCidades] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
         const res = await api.get('/cidades');
         setCidades(res.data);
       } catch (err) {
-        console.error("Erro ao buscar cidades:", err);
+        console.error('Erro ao buscar cidades:', err);
       }
     };
     fetchCidades();
@@ -37,17 +37,17 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
         telefone: responsavelParaEditar.telefone || '',
         id_cidade: responsavelParaEditar.id_cidade || '',
         bairro: responsavelParaEditar.bairro || '',
-        observacoes: responsavelParaEditar.observacoes || ''
+        observacoes: responsavelParaEditar.observacoes || '',
       });
     } else {
-      setFormData({ 
-        nome: '', 
-        rg: '', 
-        cpf: '', 
-        telefone: '', 
-        id_cidade: '', 
-        bairro: '', 
-        observacoes: '' 
+      setFormData({
+        nome: '',
+        rg: '',
+        cpf: '',
+        telefone: '',
+        id_cidade: '',
+        bairro: '',
+        observacoes: '',
       });
     }
   }, [responsavelParaEditar]);
@@ -77,11 +77,13 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Nome Completo</label>
-          <input 
-            type="text" 
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Nome Completo
+          </label>
+          <input
+            type="text"
             value={formData.nome}
-            onChange={(e) => setFormData({...formData, nome: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             placeholder="Ex: João da Silva"
             required
@@ -89,11 +91,13 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Telefone</label>
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Telefone
+          </label>
           <IMaskInput
             mask="(00) 00000-0000"
             value={formData.telefone}
-            onAccept={(value) => setFormData({...formData, telefone: value})}
+            onAccept={(value) => setFormData({ ...formData, telefone: value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             placeholder="(00) 00000-0000"
             required
@@ -102,10 +106,10 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
 
         <div className="space-y-1">
           <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">RG</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={formData.rg}
-            onChange={(e) => setFormData({...formData, rg: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, rg: e.target.value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             placeholder="Ex: 1234567"
           />
@@ -116,7 +120,7 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
           <IMaskInput
             mask="000.000.000-00"
             value={formData.cpf}
-            onAccept={(value) => setFormData({...formData, cpf: value})}
+            onAccept={(value) => setFormData({ ...formData, cpf: value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             placeholder="000.000.000-00"
           />
@@ -126,32 +130,36 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
           <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Cidade</label>
           <select
             value={formData.id_cidade}
-            onChange={(e) => setFormData({...formData, id_cidade: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, id_cidade: e.target.value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all appearance-none"
           >
             <option value="">Selecione a cidade...</option>
-            {cidades.map(c => (
-              <option key={c.id_cidade} value={c.id_cidade}>{c.cidade} - {c.uf}</option>
+            {cidades.map((c) => (
+              <option key={c.id_cidade} value={c.id_cidade}>
+                {c.cidade} - {c.uf}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="md:col-span-1 space-y-1">
           <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Bairro</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={formData.bairro}
-            onChange={(e) => setFormData({...formData, bairro: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             placeholder="Ex: Centro"
           />
         </div>
 
         <div className="md:col-span-2 space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Observações</label>
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Observações
+          </label>
           <textarea
             value={formData.observacoes}
-            onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
             rows="2"
             placeholder="Notas adicionais..."
@@ -162,15 +170,15 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
       <div className="flex gap-4 justify-end pt-4">
         {responsavelParaEditar ? (
           <>
-            <button 
-              type="button" 
-              onClick={onCancel} 
+            <button
+              type="button"
+              onClick={onCancel}
               className="px-6 py-3 border border-gray-200 text-gray-500 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
             >
               <FaTimes /> Cancelar
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
             >
@@ -178,8 +186,8 @@ function ResponsaveisForm({ onSuccess, responsavelParaEditar, onCancel }) {
             </button>
           </>
         ) : (
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
           >

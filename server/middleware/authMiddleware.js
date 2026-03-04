@@ -8,9 +8,9 @@ const authenticateToken = (req, res, next) => {
   const token = authHeader && authHeader.split(' ')[1]; // Formato "Bearer TOKEN"
 
   if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Acesso negado. Token não fornecido.' 
+    return res.status(401).json({
+      success: false,
+      message: 'Acesso negado. Token não fornecido.',
     });
   }
 
@@ -19,9 +19,9 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Token inválido ou expirado.' 
+    return res.status(403).json({
+      success: false,
+      message: 'Token inválido ou expirado.',
     });
   }
 };
@@ -35,8 +35,10 @@ const authorizeLevels = (allowedLevels) => {
     try {
       // O req.user contém apenas o ID vindo do token
       const { query } = require('../config/db');
-      const result = await query('SELECT id_nivel FROM sys_usuarios WHERE id_usuario = $1', [req.user.id]);
-      
+      const result = await query('SELECT id_nivel FROM sys_usuarios WHERE id_usuario = $1', [
+        req.user.id,
+      ]);
+
       if (result.rows.length === 0) {
         return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
       }
@@ -44,9 +46,9 @@ const authorizeLevels = (allowedLevels) => {
       const userLevel = result.rows[0].id_nivel;
 
       if (!allowedLevels.includes(userLevel)) {
-        return res.status(403).json({ 
-          success: false, 
-          message: 'Você não tem permissão para acessar este recurso.' 
+        return res.status(403).json({
+          success: false,
+          message: 'Você não tem permissão para acessar este recurso.',
         });
       }
 
@@ -59,5 +61,5 @@ const authorizeLevels = (allowedLevels) => {
 
 module.exports = {
   authenticateToken,
-  authorizeLevels
+  authorizeLevels,
 };

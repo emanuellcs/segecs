@@ -12,9 +12,9 @@ function UsuariosList({ refresh, onEditClick, setUsuarios, usuarios }) {
       try {
         setLoading(true);
         const response = await api.get('/usuarios');
-        setUsuarios(response.data); 
+        setUsuarios(response.data);
       } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
+        console.error('Erro ao buscar usuários:', error);
       } finally {
         setLoading(false);
       }
@@ -23,11 +23,14 @@ function UsuariosList({ refresh, onEditClick, setUsuarios, usuarios }) {
   }, [refresh, setUsuarios]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Usuário?", "Deseja realmente remover este usuário?");
+    const result = await confirmDelete(
+      'Excluir Usuário?',
+      'Deseja realmente remover este usuário?'
+    );
     if (result.isConfirmed) {
       try {
         await api.delete(`/usuarios/${id}`);
-        setUsuarios(usuarios.filter(u => u.id_usuario !== id));
+        setUsuarios(usuarios.filter((u) => u.id_usuario !== id));
         Swal.fire('Deletado!', 'Usuário removido com sucesso.', 'success');
       } catch (error) {
         const msg = error.response?.data?.message || 'Não foi possível excluir.';
@@ -84,23 +87,25 @@ function UsuariosList({ refresh, onEditClick, setUsuarios, usuarios }) {
               </td>
               <td className="px-4 py-5">
                 <div className="flex items-center gap-2">
-                  <FaCircle className={user.ativo ? "text-green-500" : "text-gray-300"} size={8} />
-                  <span className={`text-xs font-bold uppercase ${user.ativo ? "text-green-600" : "text-gray-400"}`}>
+                  <FaCircle className={user.ativo ? 'text-green-500' : 'text-gray-300'} size={8} />
+                  <span
+                    className={`text-xs font-bold uppercase ${user.ativo ? 'text-green-600' : 'text-gray-400'}`}
+                  >
                     {user.ativo ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
               </td>
               <td className="px-4 py-5 text-right">
                 <div className="flex justify-end gap-2">
-                  <button 
-                    onClick={() => onEditClick(user)} 
+                  <button
+                    onClick={() => onEditClick(user)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                     title="Editar"
                   >
                     <FaEdit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(user.id_usuario)} 
+                  <button
+                    onClick={() => handleDelete(user.id_usuario)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Excluir"
                   >

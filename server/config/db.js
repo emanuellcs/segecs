@@ -57,25 +57,25 @@ const getClient = async () => {
   const client = await pool.connect();
   const query = client.query.bind(client);
   const release = client.release.bind(client);
-  
+
   // Set a timeout of 5 seconds
   const timeout = setTimeout(() => {
     console.error('A client has been checked out for more than 5 seconds!');
   }, 5000);
-  
+
   // Monkey patch the query method to log the query when a client is checked out
   client.query = (...args) => {
     client.lastQuery = args;
     return query(...args);
   };
-  
+
   client.release = () => {
     clearTimeout(timeout);
     client.query = query;
     client.release = release;
     return release();
   };
-  
+
   return client;
 };
 

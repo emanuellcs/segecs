@@ -26,7 +26,7 @@ const getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await query(
-      'SELECT id_usuario, nome_completo, email, id_nivel, ativo FROM sys_usuarios WHERE id_usuario = $1', 
+      'SELECT id_usuario, nome_completo, email, id_nivel, ativo FROM sys_usuarios WHERE id_usuario = $1',
       [id]
     );
 
@@ -63,7 +63,7 @@ const createUsuario = async (req, res, next) => {
       VALUES ($1, $2, $3, $4, true)
       RETURNING id_usuario, nome_completo, email, id_nivel
     `;
-    
+
     const novo = await query(sql, [nome_completo, email, hash, id_nivel]);
     res.status(201).json(novo.rows[0]);
   } catch (err) {
@@ -82,7 +82,7 @@ const updateUser = async (req, res, next) => {
     let sql;
     let params;
 
-    if (senha && senha.trim() !== "") {
+    if (senha && senha.trim() !== '') {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(senha, salt);
       sql = `
@@ -110,7 +110,7 @@ const updateUser = async (req, res, next) => {
       throw error;
     }
 
-    res.json({ message: "Usuário atualizado com sucesso!", user: result.rows[0] });
+    res.json({ message: 'Usuário atualizado com sucesso!', user: result.rows[0] });
   } catch (err) {
     next(err);
   }
@@ -122,24 +122,24 @@ const updateUser = async (req, res, next) => {
 const deleteUsuario = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await query("DELETE FROM sys_usuarios WHERE id_usuario = $1", [id]);
-    
+    const result = await query('DELETE FROM sys_usuarios WHERE id_usuario = $1', [id]);
+
     if (result.rowCount === 0) {
       const error = new Error('Usuário não encontrado');
       error.statusCode = 404;
       throw error;
     }
 
-    res.json({ message: "Usuário removido com sucesso" });
+    res.json({ message: 'Usuário removido com sucesso' });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { 
-  getUsuarios, 
-  getUserById, 
-  createUsuario, 
-  updateUser, 
-  deleteUsuario 
+module.exports = {
+  getUsuarios,
+  getUserById,
+  createUsuario,
+  updateUser,
+  deleteUsuario,
 };

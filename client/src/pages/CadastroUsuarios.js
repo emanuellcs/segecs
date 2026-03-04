@@ -17,7 +17,7 @@ function CadastroUsuarios() {
         const resNiveis = await api.get('/niveis');
         setNiveis(resNiveis.data);
       } catch (err) {
-        console.error("Erro ao carregar dados iniciais:", err);
+        console.error('Erro ao carregar dados iniciais:', err);
       } finally {
         setLoading(false);
       }
@@ -59,7 +59,7 @@ function CadastroUsuarios() {
           </h2>
           <UsuariosForm
             onSuccess={handleSuccess}
-            usuarioParaEditar={usuarios.find(u => u.id_usuario === editandoId)} 
+            usuarioParaEditar={usuarios.find((u) => u.id_usuario === editandoId)}
             onCancel={handleCancelEdit}
             niveis={niveis}
           />

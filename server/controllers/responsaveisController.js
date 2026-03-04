@@ -34,7 +34,7 @@ const createResponsavel = async (req, res, next) => {
       INSERT INTO cad_responsaveis (nome, rg, cpf, telefone, id_cidade, bairro, observacoes)
       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
     `;
-    
+
     const result = await query(sql, [nome, rg, cpf, telefone, id_cidade, bairro, observacoes]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -66,7 +66,7 @@ const updateResponsavel = async (req, res, next) => {
       throw error;
     }
 
-    res.json({ message: "Responsável atualizado com sucesso!", responsavel: result.rows[0] });
+    res.json({ message: 'Responsável atualizado com sucesso!', responsavel: result.rows[0] });
   } catch (err) {
     next(err);
   }
@@ -78,23 +78,23 @@ const updateResponsavel = async (req, res, next) => {
 const deleteResponsavel = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await query("DELETE FROM cad_responsaveis WHERE id_responsavel = $1", [id]);
-    
+    const result = await query('DELETE FROM cad_responsaveis WHERE id_responsavel = $1', [id]);
+
     if (result.rowCount === 0) {
       const error = new Error('Responsável não encontrado');
       error.statusCode = 404;
       throw error;
     }
-    
-    res.json({ message: "Responsável excluído com sucesso!" });
+
+    res.json({ message: 'Responsável excluído com sucesso!' });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { 
-  getResponsaveis, 
-  createResponsavel, 
-  updateResponsavel, 
-  deleteResponsavel 
+module.exports = {
+  getResponsaveis,
+  createResponsavel,
+  updateResponsavel,
+  deleteResponsavel,
 };

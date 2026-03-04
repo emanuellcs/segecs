@@ -16,7 +16,7 @@ function CadastroEscolas() {
         const res = await api.get('/escolas');
         setEscolas(res.data);
       } catch (err) {
-        console.error("Erro ao carregar escolas:", err);
+        console.error('Erro ao carregar escolas:', err);
       } finally {
         setLoading(false);
       }
@@ -47,7 +47,9 @@ function CadastroEscolas() {
             <FaSchool className="text-blue-600" />
             Escolas
           </h1>
-          <p className="text-gray-500 font-medium">Gerenciamento de instituições de ensino parceiras.</p>
+          <p className="text-gray-500 font-medium">
+            Gerenciamento de instituições de ensino parceiras.
+          </p>
         </div>
       </div>
 
@@ -58,7 +60,7 @@ function CadastroEscolas() {
           </h2>
           <EscolasForm
             onSuccess={handleSuccess}
-            escolaParaEditar={escolas.find(e => e.id_escola === editandoId)}
+            escolaParaEditar={escolas.find((e) => e.id_escola === editandoId)}
             onCancel={handleCancelEdit}
           />
         </section>

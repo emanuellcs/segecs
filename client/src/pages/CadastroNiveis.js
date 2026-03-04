@@ -16,7 +16,7 @@ function CadastroNiveis() {
         const res = await api.get('/niveis');
         setNiveis(res.data);
       } catch (err) {
-        console.error("Erro ao carregar níveis:", err);
+        console.error('Erro ao carregar níveis:', err);
       } finally {
         setLoading(false);
       }
@@ -47,7 +47,9 @@ function CadastroNiveis() {
             <FaShieldAlt className="text-blue-600" />
             Níveis de Acesso
           </h1>
-          <p className="text-gray-500 font-medium">Gerenciamento de permissões e perfis do sistema.</p>
+          <p className="text-gray-500 font-medium">
+            Gerenciamento de permissões e perfis do sistema.
+          </p>
         </div>
       </div>
 
@@ -58,7 +60,7 @@ function CadastroNiveis() {
           </h2>
           <NiveisForm
             onSuccess={handleSuccess}
-            nivelParaEditar={niveis.find(n => n.id_nivel === editandoId)}
+            nivelParaEditar={niveis.find((n) => n.id_nivel === editandoId)}
             onCancel={handleCancelEdit}
           />
         </section>

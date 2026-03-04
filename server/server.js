@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 
 // Nota: O dotenv já foi carregado na linha 1, não precisa carregar de novo
-const { query } = require('./config/db'); 
+const { query } = require('./config/db');
 
 // ########## IMPORTAÇÃO DAS ROTAS ########## //
 const niveisRoutes = require('./routes/niveisRoutes');
@@ -15,7 +15,6 @@ const usuariosRoutes = require('./routes/usuariosRoutes');
 const cursosRoutes = require('./routes/cursosRoutes');
 const escolasRoutes = require('./routes/escolasRoutes');
 const responsaveisRoutes = require('./routes/responsaveisRoutes');
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,7 +31,7 @@ const errorHandler = require('./middleware/errorHandler');
 // Coloquei aqui antes das rotas da API para ficar fácil de achar
 app.get('/setup-admin', async (req, res) => {
   try {
-    console.log("--> Tentando criar Admin...");
+    console.log('--> Tentando criar Admin...');
 
     // 1. Garante nível Admin (ID 1)
     await query(
@@ -41,7 +40,7 @@ app.get('/setup-admin', async (req, res) => {
 
     // 2. Criptografa senha
     const hashedPassword = await bcrypt.hash('123456', 10);
-    
+
     // 3. Insere Usuário
     await query(
       `INSERT INTO sys_usuarios (id_nivel, nome_completo, email, senha_hash, ativo) 
@@ -49,11 +48,11 @@ app.get('/setup-admin', async (req, res) => {
        ON CONFLICT (email) DO NOTHING`,
       [1, 'Administrador do Sistema', 'admin@segecs.com', hashedPassword, true]
     );
-    
-    console.log("--> Admin criado/verificado com sucesso!");
-    res.send("✅ Admin verificado/criado com sucesso!<br>Login: admin@segecs.com<br>Senha: 123456");
+
+    console.log('--> Admin criado/verificado com sucesso!');
+    res.send('✅ Admin verificado/criado com sucesso!<br>Login: admin@segecs.com<br>Senha: 123456');
   } catch (err) {
-    console.error("--> ERRO:", err);
+    console.error('--> ERRO:', err);
     res.status(500).send(`Erro ao criar admin: ${err.message}`);
   }
 });
@@ -80,16 +79,16 @@ app.get('/', (req, res) => {
 app.get('/api/health', async (req, res) => {
   try {
     const result = await query('SELECT NOW()');
-    res.json({ 
-      status: 'OK', 
+    res.json({
+      status: 'OK',
       database: 'Connected',
-      timestamp: result.rows[0].now 
+      timestamp: result.rows[0].now,
     });
   } catch (error) {
-    res.status(500).json({ 
-      status: 'ERROR', 
+    res.status(500).json({
+      status: 'ERROR',
       database: 'Disconnected',
-      error: error.message 
+      error: error.message,
     });
   }
 });

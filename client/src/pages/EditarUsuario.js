@@ -11,7 +11,7 @@ function EditarUsuario() {
     email: '',
     senha: '',
     id_nivel: 2,
-    ativo: true
+    ativo: true,
   });
 
   const getToken = () => localStorage.getItem('token');
@@ -20,9 +20,9 @@ function EditarUsuario() {
     const fetchUsuario = async () => {
       try {
         const response = await fetch(`/api/usuarios/${id}`, {
-          headers: { 'Authorization': getToken() }
+          headers: { Authorization: getToken() },
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setFormData({
@@ -30,7 +30,7 @@ function EditarUsuario() {
             email: data.email,
             senha: '',
             id_nivel: data.id_nivel,
-            ativo: data.ativo
+            ativo: data.ativo,
           });
         } else {
           alert('Erro ao carregar usuário');
@@ -56,9 +56,9 @@ function EditarUsuario() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': getToken()
+          Authorization: getToken(),
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
@@ -77,12 +77,11 @@ function EditarUsuario() {
   // Removi a Sidebar e a div "flex" que envolvia a tela toda.
   // Deixei apenas o container do conteúdo.
   return (
-    <div className="max-w-4xl mx-auto mt-6"> 
+    <div className="max-w-4xl mx-auto mt-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Editar Usuário</h2>
-      
+
       <div className="bg-white p-6 rounded-lg shadow-md">
         <form onSubmit={handleSubmit}>
-          
           <div className="mb-4">
             <label className="block text-gray-700 font-bold mb-2">Nome Completo</label>
             <input
@@ -139,7 +138,7 @@ function EditarUsuario() {
             <select
               name="ativo"
               value={formData.ativo}
-              onChange={(e) => setFormData({...formData, ativo: e.target.value === 'true'})}
+              onChange={(e) => setFormData({ ...formData, ativo: e.target.value === 'true' })}
               className="w-full p-2 border border-gray-300 rounded"
             >
               <option value="true">Ativo</option>

@@ -16,7 +16,7 @@ function CadastroCursos() {
         const res = await api.get('/cursos');
         setCursos(res.data);
       } catch (err) {
-        console.error("Erro ao carregar cursos:", err);
+        console.error('Erro ao carregar cursos:', err);
       } finally {
         setLoading(false);
       }
@@ -58,7 +58,7 @@ function CadastroCursos() {
           </h2>
           <CursosForm
             onSuccess={handleSuccess}
-            cursoParaEditar={cursos.find(c => c.id_curso === editandoId)}
+            cursoParaEditar={cursos.find((c) => c.id_curso === editandoId)}
             onCancel={handleCancelEdit}
           />
         </section>

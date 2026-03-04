@@ -15,7 +15,7 @@ import CadastroResponsaveis from './pages/CadastroResponsaveis';
 
 // Componentes de Estrutura
 import PrivateRoute from './components/PrivateRoute';
-import Layout from './components/Layout'; 
+import Layout from './components/Layout';
 
 function App() {
   return (

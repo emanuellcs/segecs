@@ -43,15 +43,31 @@ const getAlunoById = async (req, res, next) => {
  */
 const createAluno = async (req, res, next) => {
   try {
-    const { 
-      matricula, nome, rg, cpf, nasc, telefone, email, 
-      id_cidade, bairro, zona, id_curso, turma, 
-      observacoes, inform_egressa, facebook, linkedin, github 
+    const {
+      matricula,
+      nome,
+      rg,
+      cpf,
+      nasc,
+      telefone,
+      email,
+      id_cidade,
+      bairro,
+      zona,
+      id_curso,
+      turma,
+      observacoes,
+      inform_egressa,
+      facebook,
+      linkedin,
+      github,
     } = req.body;
-    
+
     // Validação básica de campos obrigatórios
     if (!matricula || !nome || !cpf || !nasc || !id_curso) {
-      const error = new Error('Campos obrigatórios: matrícula, nome, cpf, data de nascimento e curso.');
+      const error = new Error(
+        'Campos obrigatórios: matrícula, nome, cpf, data de nascimento e curso.'
+      );
       error.statusCode = 400;
       throw error;
     }
@@ -64,13 +80,27 @@ const createAluno = async (req, res, next) => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) 
       RETURNING *
     `;
-    
+
     const result = await query(sql, [
-      matricula, nome, rg, cpf, nasc, telefone, email, 
-      id_cidade || null, bairro, zona, id_curso, turma, 
-      observacoes, inform_egressa, facebook, linkedin, github
+      matricula,
+      nome,
+      rg,
+      cpf,
+      nasc,
+      telefone,
+      email,
+      id_cidade || null,
+      bairro,
+      zona,
+      id_curso,
+      turma,
+      observacoes,
+      inform_egressa,
+      facebook,
+      linkedin,
+      github,
     ]);
-    
+
     res.status(201).json(result.rows[0]);
   } catch (err) {
     next(err);
@@ -83,10 +113,24 @@ const createAluno = async (req, res, next) => {
 const updateAluno = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { 
-      matricula, nome, rg, cpf, nasc, telefone, email, 
-      id_cidade, bairro, zona, id_curso, turma, 
-      observacoes, inform_egressa, facebook, linkedin, github 
+    const {
+      matricula,
+      nome,
+      rg,
+      cpf,
+      nasc,
+      telefone,
+      email,
+      id_cidade,
+      bairro,
+      zona,
+      id_curso,
+      turma,
+      observacoes,
+      inform_egressa,
+      facebook,
+      linkedin,
+      github,
     } = req.body;
 
     const sql = `
@@ -100,9 +144,24 @@ const updateAluno = async (req, res, next) => {
     `;
 
     const result = await query(sql, [
-      matricula, nome, rg, cpf, nasc, telefone, email, 
-      id_cidade || null, bairro, zona, id_curso, turma, 
-      observacoes, inform_egressa, facebook, linkedin, github, id
+      matricula,
+      nome,
+      rg,
+      cpf,
+      nasc,
+      telefone,
+      email,
+      id_cidade || null,
+      bairro,
+      zona,
+      id_curso,
+      turma,
+      observacoes,
+      inform_egressa,
+      facebook,
+      linkedin,
+      github,
+      id,
     ]);
 
     if (result.rowCount === 0) {
@@ -111,7 +170,7 @@ const updateAluno = async (req, res, next) => {
       throw error;
     }
 
-    res.json({ message: "Aluno atualizado com sucesso!", aluno: result.rows[0] });
+    res.json({ message: 'Aluno atualizado com sucesso!', aluno: result.rows[0] });
   } catch (err) {
     next(err);
   }
@@ -123,24 +182,24 @@ const updateAluno = async (req, res, next) => {
 const deleteAluno = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await query("DELETE FROM cad_alunos WHERE id_aluno = $1", [id]);
-    
+    const result = await query('DELETE FROM cad_alunos WHERE id_aluno = $1', [id]);
+
     if (result.rowCount === 0) {
       const error = new Error('Aluno não encontrado');
       error.statusCode = 404;
       throw error;
     }
-    
-    res.json({ message: "Aluno excluído com sucesso!" });
+
+    res.json({ message: 'Aluno excluído com sucesso!' });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { 
-  getAlunos, 
+module.exports = {
+  getAlunos,
   getAlunoById,
-  createAluno, 
-  updateAluno, 
-  deleteAluno 
+  createAluno,
+  updateAluno,
+  deleteAluno,
 };

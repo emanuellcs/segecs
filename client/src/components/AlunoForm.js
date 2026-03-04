@@ -22,7 +22,7 @@ const initialData = {
   inform_egressa: '',
   facebook: '',
   linkedin: '',
-  github: ''
+  github: '',
 };
 
 function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
@@ -36,12 +36,12 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
       try {
         const [resCidades, resCursos] = await Promise.all([
           api.get('/cidades'),
-          api.get('/cursos')
+          api.get('/cursos'),
         ]);
         setCidades(resCidades.data);
         setCursos(resCursos.data);
       } catch (err) {
-        console.error("Erro ao buscar dados iniciais:", err);
+        console.error('Erro ao buscar dados iniciais:', err);
       }
     };
     fetchData();
@@ -51,7 +51,7 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
         ...alunoParaEditar,
         nasc: alunoParaEditar.nasc ? alunoParaEditar.nasc.split('T')[0] : '',
         id_cidade: alunoParaEditar.id_cidade || '',
-        id_curso: alunoParaEditar.id_curso || ''
+        id_curso: alunoParaEditar.id_curso || '',
       });
     } else {
       setFormData(initialData);
@@ -93,9 +93,11 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Nome Completo</label>
-            <input 
-              type="text" 
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Nome Completo
+            </label>
+            <input
+              type="text"
               name="nome"
               value={formData.nome}
               onChange={handleChange}
@@ -105,9 +107,11 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Matrícula</label>
-            <input 
-              type="text" 
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Matrícula
+            </label>
+            <input
+              type="text"
               name="matricula"
               value={formData.matricula}
               onChange={handleChange}
@@ -121,7 +125,7 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
             <IMaskInput
               mask="000.000.000-00"
               value={formData.cpf}
-              onAccept={(value) => setFormData({...formData, cpf: value})}
+              onAccept={(value) => setFormData({ ...formData, cpf: value })}
               className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
               placeholder="000.000.000-00"
               required
@@ -129,8 +133,8 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
           </div>
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">RG</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="rg"
               value={formData.rg}
               onChange={handleChange}
@@ -139,9 +143,11 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Data de Nascimento</label>
-            <input 
-              type="date" 
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Data de Nascimento
+            </label>
+            <input
+              type="date"
               name="nasc"
               value={formData.nasc}
               onChange={handleChange}
@@ -160,19 +166,23 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Telefone</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Telefone
+            </label>
             <IMaskInput
               mask="(00) 00000-0000"
               value={formData.telefone}
-              onAccept={(value) => setFormData({...formData, telefone: value})}
+              onAccept={(value) => setFormData({ ...formData, telefone: value })}
               className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
               placeholder="(00) 00000-0000"
             />
           </div>
           <div className="md:col-span-2 space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">E-mail</label>
-            <input 
-              type="email" 
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              E-mail
+            </label>
+            <input
+              type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
@@ -181,7 +191,9 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Cidade</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Cidade
+            </label>
             <select
               name="id_cidade"
               value={formData.id_cidade}
@@ -190,15 +202,19 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
               required
             >
               <option value="">Selecione a cidade...</option>
-              {cidades.map(c => (
-                <option key={c.id_cidade} value={c.id_cidade}>{c.cidade} - {c.uf}</option>
+              {cidades.map((c) => (
+                <option key={c.id_cidade} value={c.id_cidade}>
+                  {c.cidade} - {c.uf}
+                </option>
               ))}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Bairro</label>
-            <input 
-              type="text" 
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Bairro
+            </label>
+            <input
+              type="text"
               name="bairro"
               value={formData.bairro}
               onChange={handleChange}
@@ -230,7 +246,9 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Curso</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Curso
+            </label>
             <select
               name="id_curso"
               value={formData.id_curso}
@@ -238,15 +256,19 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
               className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all appearance-none"
             >
               <option value="">Selecione o curso...</option>
-              {cursos.map(c => (
-                <option key={c.id_curso} value={c.id_curso}>{c.nome_curso}</option>
+              {cursos.map((c) => (
+                <option key={c.id_curso} value={c.id_curso}>
+                  {c.nome_curso}
+                </option>
               ))}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Turma</label>
-            <input 
-              type="text" 
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Turma
+            </label>
+            <input
+              type="text"
               name="turma"
               value={formData.turma}
               onChange={handleChange}
@@ -265,25 +287,70 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2"><FaFacebook className="text-blue-600"/> Facebook</label>
-            <input type="text" name="facebook" value={formData.facebook} onChange={handleChange} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all" placeholder="URL do perfil"/>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+              <FaFacebook className="text-blue-600" /> Facebook
+            </label>
+            <input
+              type="text"
+              name="facebook"
+              value={formData.facebook}
+              onChange={handleChange}
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+              placeholder="URL do perfil"
+            />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2"><FaLinkedin className="text-blue-700"/> LinkedIn</label>
-            <input type="text" name="linkedin" value={formData.linkedin} onChange={handleChange} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all" placeholder="URL do perfil"/>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+              <FaLinkedin className="text-blue-700" /> LinkedIn
+            </label>
+            <input
+              type="text"
+              name="linkedin"
+              value={formData.linkedin}
+              onChange={handleChange}
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+              placeholder="URL do perfil"
+            />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2"><FaGithub className="text-gray-900"/> GitHub</label>
-            <input type="text" name="github" value={formData.github} onChange={handleChange} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all" placeholder="URL do perfil"/>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+              <FaGithub className="text-gray-900" /> GitHub
+            </label>
+            <input
+              type="text"
+              name="github"
+              value={formData.github}
+              onChange={handleChange}
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+              placeholder="URL do perfil"
+            />
           </div>
           <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Observações Gerais</label>
-              <textarea name="observacoes" value={formData.observacoes} onChange={handleChange} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all" rows="2" placeholder="Notas internas..."></textarea>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Observações Gerais
+              </label>
+              <textarea
+                name="observacoes"
+                value={formData.observacoes}
+                onChange={handleChange}
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                rows="2"
+                placeholder="Notas internas..."
+              ></textarea>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Informações Egresso</label>
-              <textarea name="inform_egressa" value={formData.inform_egressa} onChange={handleChange} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all" rows="2" placeholder="Situação após curso..."></textarea>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Informações Egresso
+              </label>
+              <textarea
+                name="inform_egressa"
+                value={formData.inform_egressa}
+                onChange={handleChange}
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                rows="2"
+                placeholder="Situação após curso..."
+              ></textarea>
             </div>
           </div>
         </div>
@@ -292,15 +359,15 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
       <div className="flex gap-4 justify-end pt-4">
         {alunoParaEditar ? (
           <>
-            <button 
-              type="button" 
-              onClick={onCancel} 
+            <button
+              type="button"
+              onClick={onCancel}
               className="px-6 py-3 border border-gray-200 text-gray-500 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
             >
               <FaTimes /> Cancelar
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
             >
@@ -308,8 +375,8 @@ function AlunoForm({ onSuccess, alunoParaEditar, onCancel }) {
             </button>
           </>
         ) : (
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
           >

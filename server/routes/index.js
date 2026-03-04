@@ -13,4 +13,3 @@ const router = express.Router();
 // router.use('/internships', internshipRoutes);
 
 module.exports = router;
-

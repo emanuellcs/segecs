@@ -12,9 +12,9 @@ function CursosList({ refresh, onEditClick, setCursos, cursos }) {
       try {
         setLoading(true);
         const response = await api.get('/cursos');
-        setCursos(response.data); 
+        setCursos(response.data);
       } catch (error) {
-        console.error("Erro ao buscar cursos:", error);
+        console.error('Erro ao buscar cursos:', error);
       } finally {
         setLoading(false);
       }
@@ -23,11 +23,11 @@ function CursosList({ refresh, onEditClick, setCursos, cursos }) {
   }, [refresh, setCursos]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Curso?", "Deseja realmente remover este curso?");
+    const result = await confirmDelete('Excluir Curso?', 'Deseja realmente remover este curso?');
     if (result.isConfirmed) {
       try {
         await api.delete(`/cursos/${id}`);
-        setCursos(cursos.filter(c => c.id_curso !== id));
+        setCursos(cursos.filter((c) => c.id_curso !== id));
         Swal.fire('Deletado!', 'Curso removido com sucesso.', 'success');
       } catch (error) {
         const msg = error.response?.data?.message || 'Não foi possível excluir.';
@@ -86,15 +86,15 @@ function CursosList({ refresh, onEditClick, setCursos, cursos }) {
               </td>
               <td className="px-4 py-5 text-right">
                 <div className="flex justify-end gap-2">
-                  <button 
-                    onClick={() => onEditClick(curso)} 
+                  <button
+                    onClick={() => onEditClick(curso)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                     title="Editar"
                   >
                     <FaEdit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(curso.id_curso)} 
+                  <button
+                    onClick={() => handleDelete(curso.id_curso)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Excluir"
                   >

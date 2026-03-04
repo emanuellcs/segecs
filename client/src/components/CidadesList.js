@@ -12,9 +12,9 @@ function CidadesList({ refresh, onEditClick, setCidades, cidades }) {
       try {
         setLoading(true);
         const response = await api.get('/cidades');
-        setCidades(response.data); 
+        setCidades(response.data);
       } catch (error) {
-        console.error("Erro ao buscar cidades:", error);
+        console.error('Erro ao buscar cidades:', error);
       } finally {
         setLoading(false);
       }
@@ -23,11 +23,11 @@ function CidadesList({ refresh, onEditClick, setCidades, cidades }) {
   }, [refresh, setCidades]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Cidade?", "Deseja realmente remover esta cidade?");
+    const result = await confirmDelete('Excluir Cidade?', 'Deseja realmente remover esta cidade?');
     if (result.isConfirmed) {
       try {
         await api.delete(`/cidades/${id}`);
-        setCidades(cidades.filter(c => c.id_cidade !== id));
+        setCidades(cidades.filter((c) => c.id_cidade !== id));
         Swal.fire('Deletado!', 'Cidade removida com sucesso.', 'success');
       } catch (error) {
         const msg = error.response?.data?.message || 'Não foi possível excluir.';
@@ -79,15 +79,15 @@ function CidadesList({ refresh, onEditClick, setCidades, cidades }) {
               </td>
               <td className="px-4 py-5 text-right">
                 <div className="flex justify-end gap-2">
-                  <button 
-                    onClick={() => onEditClick(c)} 
+                  <button
+                    onClick={() => onEditClick(c)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                     title="Editar"
                   >
                     <FaEdit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(c.id_cidade)} 
+                  <button
+                    onClick={() => handleDelete(c.id_cidade)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Excluir"
                   >

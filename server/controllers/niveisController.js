@@ -19,7 +19,7 @@ const getNivelById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await query('SELECT * FROM sys_niveis_acesso WHERE id_nivel = $1', [id]);
-    
+
     if (result.rows.length === 0) {
       const error = new Error('Nível não encontrado');
       error.statusCode = 404;
@@ -60,7 +60,7 @@ const updateNivel = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { nivel, descricao } = req.body;
-    
+
     const sql = `
       UPDATE sys_niveis_acesso 
       SET nivel = $1, descricao = $2, dt_atualizacao = CURRENT_TIMESTAMP 
@@ -75,7 +75,7 @@ const updateNivel = async (req, res, next) => {
       throw error;
     }
 
-    res.json({ message: "Nível atualizado com sucesso!", nivel: result.rows[0] });
+    res.json({ message: 'Nível atualizado com sucesso!', nivel: result.rows[0] });
   } catch (err) {
     next(err);
   }
@@ -87,7 +87,7 @@ const updateNivel = async (req, res, next) => {
 const deleteNivel = async (req, res, next) => {
   try {
     const { id } = req.params;
-    
+
     // Verificar se existem usuários vinculados
     const checkUsers = await query('SELECT count(*) FROM sys_usuarios WHERE id_nivel = $1', [id]);
     if (parseInt(checkUsers.rows[0].count) > 0) {
@@ -97,23 +97,23 @@ const deleteNivel = async (req, res, next) => {
     }
 
     const result = await query('DELETE FROM sys_niveis_acesso WHERE id_nivel = $1', [id]);
-    
+
     if (result.rowCount === 0) {
       const error = new Error('Nível não encontrado');
       error.statusCode = 404;
       throw error;
     }
 
-    res.json({ message: "Nível removido com sucesso!" });
+    res.json({ message: 'Nível removido com sucesso!' });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { 
-  getNiveis, 
-  getNivelById, 
-  createNivel, 
-  updateNivel, 
-  deleteNivel 
+module.exports = {
+  getNiveis,
+  getNivelById,
+  createNivel,
+  updateNivel,
+  deleteNivel,
 };

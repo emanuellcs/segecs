@@ -12,9 +12,9 @@ function AlunoList({ refresh, onEditClick, setAlunos, alunos }) {
       try {
         setLoading(true);
         const response = await api.get('/alunos');
-        setAlunos(response.data); 
+        setAlunos(response.data);
       } catch (error) {
-        console.error("Erro ao buscar alunos:", error);
+        console.error('Erro ao buscar alunos:', error);
       } finally {
         setLoading(false);
       }
@@ -23,11 +23,11 @@ function AlunoList({ refresh, onEditClick, setAlunos, alunos }) {
   }, [refresh, setAlunos]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Aluno?", "Deseja realmente remover este aluno?");
+    const result = await confirmDelete('Excluir Aluno?', 'Deseja realmente remover este aluno?');
     if (result.isConfirmed) {
       try {
         await api.delete(`/alunos/${id}`);
-        setAlunos(alunos.filter(a => a.id_aluno !== id));
+        setAlunos(alunos.filter((a) => a.id_aluno !== id));
         Swal.fire('Deletado!', 'Aluno removido com sucesso.', 'success');
       } catch (error) {
         const msg = error.response?.data?.message || 'Não foi possível excluir.';
@@ -82,24 +82,30 @@ function AlunoList({ refresh, onEditClick, setAlunos, alunos }) {
                 </div>
               </td>
               <td className="px-4 py-5">
-                <div className="text-sm font-bold text-gray-700">{aluno.nome_curso || <span className="text-gray-300">N/A</span>}</div>
-                <div className="text-xs text-gray-400 font-medium">{aluno.turma || 'Sem turma'}</div>
+                <div className="text-sm font-bold text-gray-700">
+                  {aluno.nome_curso || <span className="text-gray-300">N/A</span>}
+                </div>
+                <div className="text-xs text-gray-400 font-medium">
+                  {aluno.turma || 'Sem turma'}
+                </div>
               </td>
               <td className="px-4 py-5">
-                <div className="text-sm text-gray-600 font-medium">{aluno.telefone || <span className="text-gray-300">Sem telefone</span>}</div>
+                <div className="text-sm text-gray-600 font-medium">
+                  {aluno.telefone || <span className="text-gray-300">Sem telefone</span>}
+                </div>
                 <div className="text-xs text-blue-500 lowercase">{aluno.email}</div>
               </td>
               <td className="px-4 py-5 text-right">
                 <div className="flex justify-end gap-2">
-                  <button 
-                    onClick={() => onEditClick(aluno)} 
+                  <button
+                    onClick={() => onEditClick(aluno)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                     title="Editar"
                   >
                     <FaEdit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(aluno.id_aluno)} 
+                  <button
+                    onClick={() => handleDelete(aluno.id_aluno)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Excluir"
                   >

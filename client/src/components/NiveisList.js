@@ -12,9 +12,9 @@ function NiveisList({ refresh, onEditClick, setNiveis, niveis }) {
       try {
         setLoading(true);
         const response = await api.get('/niveis');
-        setNiveis(response.data); 
+        setNiveis(response.data);
       } catch (error) {
-        console.error("Erro ao buscar níveis:", error);
+        console.error('Erro ao buscar níveis:', error);
       } finally {
         setLoading(false);
       }
@@ -23,11 +23,14 @@ function NiveisList({ refresh, onEditClick, setNiveis, niveis }) {
   }, [refresh, setNiveis]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Nível?", "Deseja realmente remover este nível de acesso?");
+    const result = await confirmDelete(
+      'Excluir Nível?',
+      'Deseja realmente remover este nível de acesso?'
+    );
     if (result.isConfirmed) {
       try {
         await api.delete(`/niveis/${id}`);
-        setNiveis(niveis.filter(n => n.id_nivel !== id));
+        setNiveis(niveis.filter((n) => n.id_nivel !== id));
         Swal.fire('Deletado!', 'Nível removido com sucesso.', 'success');
       } catch (error) {
         const msg = error.response?.data?.message || 'Não foi possível excluir.';
@@ -79,15 +82,15 @@ function NiveisList({ refresh, onEditClick, setNiveis, niveis }) {
               </td>
               <td className="px-4 py-5 text-right">
                 <div className="flex justify-end gap-2">
-                  <button 
-                    onClick={() => onEditClick(nivel)} 
+                  <button
+                    onClick={() => onEditClick(nivel)}
                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                     title="Editar"
                   >
                     <FaEdit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(nivel.id_nivel)} 
+                  <button
+                    onClick={() => handleDelete(nivel.id_nivel)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Excluir"
                   >

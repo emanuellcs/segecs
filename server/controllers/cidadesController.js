@@ -55,7 +55,7 @@ const updateCidade = async (req, res, next) => {
       throw error;
     }
 
-    res.json({ message: "Cidade atualizada com sucesso!", cidade: result.rows[0] });
+    res.json({ message: 'Cidade atualizada com sucesso!', cidade: result.rows[0] });
   } catch (err) {
     next(err);
   }
@@ -68,22 +68,22 @@ const deleteCidade = async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await query('DELETE FROM cad_cidades WHERE id_cidade = $1', [id]);
-    
+
     if (result.rowCount === 0) {
       const error = new Error('Cidade não encontrada');
       error.statusCode = 404;
       throw error;
     }
 
-    res.json({ message: "Cidade removida com sucesso!" });
+    res.json({ message: 'Cidade removida com sucesso!' });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { 
-  getCidades, 
-  createCidade, 
-  updateCidade, 
-  deleteCidade 
+module.exports = {
+  getCidades,
+  createCidade,
+  updateCidade,
+  deleteCidade,
 };

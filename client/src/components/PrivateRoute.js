@@ -8,7 +8,7 @@ const PrivateRoute = () => {
 
   // Se tiver token e user, renderiza a página interna (Outlet).
   // Se não tiver, chuta o usuário de volta para a raiz (Login).
-  return (token && user) ? <Outlet /> : <Navigate to="/" />;
+  return token && user ? <Outlet /> : <Navigate to="/" />;
 };
 
 export default PrivateRoute;

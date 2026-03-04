@@ -16,7 +16,7 @@ function CadastroCidades() {
         const res = await api.get('/cidades');
         setCidades(res.data);
       } catch (err) {
-        console.error("Erro ao carregar cidades:", err);
+        console.error('Erro ao carregar cidades:', err);
       } finally {
         setLoading(false);
       }
@@ -58,7 +58,7 @@ function CadastroCidades() {
           </h2>
           <CidadesForm
             onSuccess={handleSuccess}
-            cidadeParaEditar={cidades.find(c => c.id_cidade === editandoId)}
+            cidadeParaEditar={cidades.find((c) => c.id_cidade === editandoId)}
             onCancel={handleCancelEdit}
           />
         </section>

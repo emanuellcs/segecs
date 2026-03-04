@@ -16,7 +16,7 @@ function CadastroAlunos() {
         const res = await api.get('/alunos');
         setAlunos(res.data);
       } catch (err) {
-        console.error("Erro ao carregar alunos:", err);
+        console.error('Erro ao carregar alunos:', err);
       } finally {
         setLoading(false);
       }
@@ -58,7 +58,7 @@ function CadastroAlunos() {
           </h2>
           <AlunoForm
             onSuccess={handleSuccess}
-            alunoParaEditar={alunos.find(a => a.id_aluno === editandoId)}
+            alunoParaEditar={alunos.find((a) => a.id_aluno === editandoId)}
             onCancel={handleCancelEdit}
           />
         </section>
