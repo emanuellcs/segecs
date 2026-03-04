@@ -1,14 +1,15 @@
 import axios from 'axios';
 
-// Configuração base do axios para comunicação com a API
+// Em desenvolvimento, se o proxy estiver configurado no package.json,
+// podemos usar caminhos relativos. Caso contrário, usamos a URL da env.
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: process.env.REACT_APP_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor para adicionar token de autenticação (quando implementado)
+// Interceptor para adicionar token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -17,19 +18,19 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Interceptor para tratamento de erros
+// Interceptor para tratamento de erros global
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado ou inválido
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }

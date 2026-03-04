@@ -1,26 +1,29 @@
--- Seed data for development (opcional)
--- AVISO: Não execute em produção sem revisar os dados!
+-- SEGECS - Dados Iniciais (Seed)
+-- Scripts resilientes com ON CONFLICT
 
--- Limpar dados existentes (cuidado em produção!)
--- TRUNCATE TABLE reports CASCADE;
--- TRUNCATE TABLE internships CASCADE;
--- TRUNCATE TABLE users CASCADE;
+-- 1. Níveis de Acesso
+INSERT INTO sys_niveis_acesso (id_nivel, nivel, descricao) VALUES
+(1, 'Administrador', 'Acesso total ao sistema'),
+(2, 'Orientador de Estágio', 'Gestão de alunos e concedentes'),
+(3, 'Leitura', 'Apenas visualização de relatórios')
+ON CONFLICT (id_nivel) DO NOTHING;
 
--- Inserir dados de exemplo
--- Note: As senhas devem ser hasheadas com bcrypt antes de inserir
--- Exemplo de senha "password123" hasheada: $2a$10$rOzJqK9qJK9qJK9qJK9qJu...
+-- 2. Cidades Iniciais
+INSERT INTO cad_cidades (id_cidade, cidade, uf) VALUES
+(1, 'MUCAMBO', 'CE'),
+(2, 'GRAÇA', 'CE'),
+(3, 'PACUJÁ', 'CE')
+ON CONFLICT (id_cidade) DO NOTHING;
 
--- Cursos de exemplo
-INSERT INTO cad_cursos (nome_curso, eixo_curso, observacoes) VALUES
-('Técnico em Informática', 'Tecnologia da Informação', 'Curso focado em desenvolvimento de software e manutenção de sistemas'),
-('Técnico em Administração', 'Administração e Negócios', 'Curso para formação de profissionais em gestão empresarial'),
-('Técnico em Enfermagem', 'Saúde', 'Curso técnico na área da saúde com ênfase em cuidados básicos'),
-('Técnico em Mecânica', 'Engenharia', 'Curso para formação de técnicos em manutenção industrial');
+-- 3. Cursos de Exemplo
+INSERT INTO cad_cursos (nome_curso, eixo_curso) VALUES
+('Técnico em Informática', 'Informação e Comunicação'),
+('Técnico em Desenvolvimento de Sistemas', 'Informação e Comunicação'),
+('Técnico em Redes de Computadores', 'Informação e Comunicação')
+ON CONFLICT DO NOTHING;
 
--- Usuários de exemplo (você precisará gerar os hashes de senha)
--- INSERT INTO users (email, password, name, role) VALUES
--- ('admin@segecs.edu', '$2a$10$...', 'Administrador', 'admin'),
--- ('coordenador@segecs.edu', '$2a$10$...', 'Coordenador', 'coordinator'),
--- ('supervisor@example.com', '$2a$10$...', 'Supervisor', 'supervisor'),
--- ('aluno@example.com', '$2a$10$...', 'Aluno Teste', 'student');
-
+-- 4. Usuário Administrador Inicial (Senha: 123456)
+-- Hash bcrypt para '123456'
+INSERT INTO sys_usuarios (id_nivel, nome_completo, email, senha_hash, ativo) VALUES
+(1, 'Administrador do Sistema', 'admin@segecs.com', '$2a$10$VotkUpv/LBIhNK8baqGHJ.Jhoa8rsxFmJ5WnyTFpz3IACB6cDtDSW', true)
+ON CONFLICT (email) DO NOTHING;

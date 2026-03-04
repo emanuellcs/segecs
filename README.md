@@ -1,258 +1,107 @@
-# SEGECS - Sistema Escolar de Gestão do Estágio Curricular Supervisionado
+# SEGECS
 
-Aplicação web desenvolvida com PERN Stack (PostgreSQL, Express, React, Node.js) para gestão de estágios curriculares supervisionados.
+### Sistema Escolar de Gestão do Estágio Curricular Supervisionado
 
-## 🛠️ Tecnologias:
+O **SEGECS** é uma aplicação web desenvolvida para auxiliar instituições de ensino na organização e no acompanhamento de estágios curriculares supervisionados. O sistema centraliza o cadastro de alunos, cursos, escolas e responsáveis, facilitando o controle administrativo dos estágios em conformidade com as exigências acadêmicas.
 
-- **Frontend**: React 18
-- **Backend**: Node.js + Express
-- **Database**: PostgreSQL
-- **Package Manager**: npm
+## 🛠️ Características Técnicas
 
-## 📋 Pré-requisitos
+O projeto utiliza a stack PERN (PostgreSQL, Express, React e Node.js) e foi organizado de forma modular para facilitar a manutenção e o crescimento das funcionalidades.
 
-Antes de começar, certifique-se de ter instalado:
+### Organização do Código:
 
-- [Node.js](https://nodejs.org/) (v18 ou superior)
-- [npm](https://www.npmjs.com/) (vem com o Node.js)
-- [PostgreSQL](https://www.postgresql.org/download/) (v14 ou superior)
-- [Git](https://git-scm.com/) (opcional)
+- **Arquitetura por Funcionalidades**: O código é agrupado por domínios de negócio (Alunos, Usuários, Escolas, etc.), mantendo componentes, páginas e lógicas relacionadas próximos.
+- **Absolute Imports**: Utiliza aliases (`@/`) para referenciar diretórios a partir da raiz do `src`, evitando caminhos relativos extensos.
+- **Design System Base**: Componentes de interface reutilizáveis (`Button`, `Card`, `PageHeader`) centralizados para manter a consistência visual.
+- **Validação de Dados**: Camada de validação no backend com `express-validator` para garantir a integridade dos dados recebidos.
+- **Interface Responsiva**: Desenvolvida com Tailwind CSS, adaptando-se a diferentes tamanhos de tela.
 
-## 🚀 Instalação e Configuração
+### Estrutura de Diretórios
 
-### 1. Clone o repositório (se aplicável)
+```text
+.
+├── client/                     # Frontend React 18
+│   ├── src/
+│   │   ├── features/           # Componentes e páginas por domínio
+│   │   │   ├── alunos/
+│   │   │   ├── auth/
+│   │   │   └── ...
+│   │   ├── layouts/            # Estruturas de layout da aplicação
+│   │   ├── components/common/  # Componentes comuns de interface
+│   │   ├── services/           # Comunicação com a API
+│   │   └── utils/              # Funções auxiliares
+│   ├── craco.config.js         # Configuração de aliases de importação
+│   └── jsconfig.json           # Configuração de caminhos do VS Code
+├── server/                     # Backend Node.js + Express
+│   ├── modules/                # Controladores e rotas por domínio
+│   │   ├── alunos/
+│   │   ├── auth/
+│   │   └── ...
+│   ├── shared/                 # Configurações e middlewares globais
+│   │   ├── config/             # Configuração de banco de dados
+│   │   └── middleware/         # Autenticação e tratamento de erros
+│   └── server.js               # Ponto de entrada da API
+├── database/                   # Scripts SQL de schema e seed
+└── docker-compose.yml          # Configuração dos containers
+```
+
+## 💻 Tecnologias Utilizadas
+
+| Camada               | Tecnologia        | Versão |
+| :------------------- | :---------------- | :----- |
+| **Frontend**         | React             | 18     |
+| **Estilização**      | Tailwind CSS      | 3      |
+| **Backend**          | Node.js / Express | 18 / 4 |
+| **Banco de Dados**   | PostgreSQL        | 17     |
+| **Containers**       | Docker / Compose  | 3.8    |
+| **Linter/Formatter** | ESLint / Prettier | 10 / 3 |
+
+## 🐳 Execução com Docker
+
+Para rodar o ambiente completo (Frontend, Backend e Banco de Dados):
 
 ```bash
-git clone <repository-url>
-cd SEGECS
+docker-compose up --build
 ```
 
-### 2. Configurar o Banco de Dados
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **Backend API**: [http://localhost:5000](http://localhost:5000)
 
-1. Instale e inicie o PostgreSQL
-2. Crie um novo banco de dados:
+## ⚙️ Variáveis de Ambiente
 
-```sql
-CREATE DATABASE segecs_db;
-```
-
-3. Execute o script de schema para criar as tabelas:
-
-```bash
-psql -U postgres -d segecs_db -f database/schema.sql
-```
-
-Ou conecte-se ao banco e execute o conteúdo do arquivo `database/schema.sql` manualmente.
-
-### 3. Configurar o Backend (Server)
-
-1. Navegue para a pasta do servidor:
-
-```bash
-cd server
-```
-
-2. Instale as dependências:
-
-```bash
-npm install
-```
-
-3. Configure as variáveis de ambiente:
-
-Crie um arquivo `.env` na pasta `server/` (copie do `.env.example` na raiz):
+Crie um arquivo `.env` no diretório `server/` com as seguintes variáveis:
 
 ```env
+# Configuração do Servidor
 PORT=5000
 NODE_ENV=development
 
-DB_HOST=localhost
+# Configuração do Banco de Dados
+DB_HOST=db
 DB_PORT=5432
 DB_USER=postgres
-DB_PASSWORD=sua_senha_aqui
+DB_PASSWORD=password123
 DB_NAME=segecs_db
 
-JWT_SECRET=seu_jwt_secret_aqui
-CLIENT_URL=http://localhost:3000
+# Segurança
+JWT_SECRET=sua_chave_secreta_aqui
 ```
 
-**Importante**: Substitua `sua_senha_aqui` e `seu_jwt_secret_aqui` com valores reais.
+## 💎 Padronização de Código
 
-4. Inicie o servidor:
+Para garantir a qualidade do código, o projeto utiliza ESLint para análise estática e Prettier para formatação.
 
 ```bash
-# Modo desenvolvimento (com nodemon - reinicia automaticamente)
-npm run dev
+# No diretório /server
+npm run format    # Formata os arquivos
+npm run lint      # Verifica erros de estilo
 
-# Modo produção
-npm start
+# No diretório /client
+npx prettier --write .
 ```
-
-O servidor estará rodando em `http://localhost:5000`
-
-### 4. Configurar o Frontend (Client)
-
-1. Abra um novo terminal e navegue para a pasta do cliente:
-
-```bash
-cd client
-```
-
-2. Instale as dependências:
-
-```bash
-npm install
-```
-
-3. Inicie o servidor de desenvolvimento:
-
-```bash
-npm start
-```
-
-O frontend estará rodando em `http://localhost:3000` e abrirá automaticamente no navegador.
-
-## 📁 Estrutura do Projeto
-
-```
-SEGECS/
-├── client/                        # Frontend React
-│   ├── public/                    # Arquivos públicos
-│   │   └── index.html
-│   ├── src/                       # Código fonte
-│   │   ├── components/            # Componentes reutilizáveis
-│   │   │   ├── AlunoForm.js
-│   │   │   ├── AlunoList.js
-│   │   │   ├── CidadesForm.js
-│   │   │   ├── CidadesList.js
-│   │   │   ├── CursosForm.js
-│   │   │   ├── CursosList.js
-│   │   │   ├── EscolasForm.js
-│   │   │   ├── EscolasList.js
-│   │   │   ├── Layout.js
-│   │   │   ├── NiveisForm.js
-│   │   │   ├── NiveisList.js
-│   │   │   ├── PrivateRoute.js
-│   │   │   ├── ResponsaveisForm.js
-│   │   │   ├── ResponsaveisList.js
-│   │   │   ├── Sidebar.js
-│   │   │   ├── UsuariosForm.js
-│   │   │   └── UsuariosList.js
-│   │   ├── pages/                 # Páginas da aplicação
-│   │   │   ├── CadastroAlunos.js
-│   │   │   ├── CadastroCidades.js
-│   │   │   ├── CadastroCursos.js
-│   │   │   ├── CadastroEscolas.js
-│   │   │   ├── CadastroNiveis.js
-│   │   │   ├── CadastroResponsaveis.js
-│   │   │   ├── CadastroUsuarios.js
-│   │   │   ├── Dashboard.js
-│   │   │   ├── EditarUsuario.js
-│   │   │   ├── Home.js
-│   │   │   └── Login.js
-│   │   ├── services/              # Serviços de API
-│   │   │   └── api.js
-│   │   ├── utils/                 # Funções utilitárias
-│   │   │   ├── constants.js
-│   │   │   └── swalHelpers.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   ├── index.js
-│   │   └── index.css
-│   ├── build/                     # Build de produção
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   └── ...
-├── server/                        # Backend Node.js/Express
-│   ├── config/                    # Configurações
-│   │   └── db.js
-│   ├── controllers/               # Lógica de negócio
-│   │   ├── alunosController.js
-│   │   ├── authController.js
-│   │   ├── cidadesController.js
-│   │   ├── cursosController.js
-│   │   ├── escolasController.js
-│   │   ├── niveisController.js
-│   │   ├── responsaveisController.js
-│   │   └── usuariosController.js
-│   ├── middleware/                # Middlewares customizados
-│   │   └── errorHandler.js
-│   ├── routes/                    # Rotas da API
-│   │   ├── alunosRoutes.js
-│   │   ├── authRoutes.js
-│   │   ├── cidadesRoutes.js
-│   │   ├── cursosRoutes.js
-│   │   ├── dashboardRoutes.js
-│   │   ├── escolasRoutes.js
-│   │   ├── niveisRoutes.js
-│   │   ├── responsaveisRoutes.js
-│   │   ├── usuariosRoutes.js
-│   │   └── index.js
-│   ├── server.js                  # Arquivo principal do servidor
-│   ├── package.json
-│   └── ...
-├── database/                      # Scripts SQL
-│   ├── schema.sql                 # Schema do banco de dados
-│   ├── seed.sql                   # Dados de exemplo
-│   └── migration_add_social_fields.sql
-├── env.example                    # Exemplo de variáveis de ambiente
-├── SETUP.md                       # Instruções de configuração detalhadas
-├── .gitignore
-└── README.md
-```
-
-## 🔌 Endpoints da API
-
-### Status
-- `GET /api/health` - Verifica o status da API e conexão com o banco
-
-### (Endpoints adicionais serão documentados conforme o desenvolvimento)
-
-## 🧪 Testando a Aplicação
-
-1. Certifique-se de que o PostgreSQL está rodando
-2. Inicie o servidor backend (porta 5000)
-3. Inicie o frontend (porta 3000)
-4. Acesse `http://localhost:3000` no navegador
-5. A página inicial deve exibir o status da conexão com a API
-
-## 📝 Scripts Disponíveis
-
-### Backend
-- `npm start` - Inicia o servidor em modo produção
-- `npm run dev` - Inicia o servidor em modo desenvolvimento (com nodemon)
-
-### Frontend
-- `npm start` - Inicia o servidor de desenvolvimento
-- `npm run build` - Cria build de produção
-- `npm test` - Executa os testes
-
-## 🔒 Segurança
-
-- **Nunca** commite o arquivo `.env` no repositório
-- Use variáveis de ambiente para informações sensíveis
-- Gere um `JWT_SECRET` forte e único
-- Mantenha as dependências atualizadas
-
-## 🤝 Contribuindo
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença ISC.
-
-## 👥 Autor
-
-Prof. Raimundo N. de Sousa (Raiworld)
-
-## 📞 Suporte
 
 ---
 
-**Nota**: Este é um projeto inicial. A estrutura e funcionalidades serão expandidas conforme o desenvolvimento progride.
+## 👥 Autor
+
+**Prof. Raimundo N. de Sousa (Raiworld)**
