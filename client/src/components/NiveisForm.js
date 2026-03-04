@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaSave, FaPlus } from 'react-icons/fa';
+import { FaSave, FaTimes, FaPlus } from 'react-icons/fa';
 import { Toast } from '../utils/swalHelpers';
 import Swal from 'sweetalert2';
+import api from '../services/api';
 
 function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
-  const [formData, setFormData] = useState({ nivel: '', descricao: '' });
+  const [formData, setFormData] = useState({
+    nivel: '',
+    descricao: ''
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (nivelParaEditar) {
@@ -19,134 +24,81 @@ function NiveisForm({ onSuccess, nivelParaEditar, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validação local
-    if (!formData.nivel.trim()) {
-      Toast.fire({
-        icon: 'error',
-        title: 'Campo obrigatório!',
-        text: 'Por favor, preencha o Nome do Nível.'
-      });
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    const method = nivelParaEditar ? 'PUT' : 'POST';
-    const url = nivelParaEditar 
-      ? `/api/niveis/${nivelParaEditar.id_nivel}` 
-      : '/api/niveis';
+    setLoading(true);
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        Toast.fire({
-          icon: 'success',
-          title: nivelParaEditar ? 'Nível atualizado!' : 'Nível cadastrado!'
-        });
-        onSuccess();
+      if (nivelParaEditar) {
+        await api.put(`/niveis/${nivelParaEditar.id_nivel}`, formData);
+        Toast.fire({ icon: 'success', title: 'Nível atualizado com sucesso!' });
       } else {
-        const errorData = await response.json();
-        
-        let errorMessage = errorData.error || 'Não foi possível salvar os dados.';
-        
-        if (errorMessage.includes('já existe') || errorMessage.includes('existe outro')) {
-          errorMessage = 'Já existe um nível cadastrado com este nome.';
-        }
-        
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro no Cadastro',
-          text: errorMessage
-        });
+        await api.post('/niveis', formData);
+        Toast.fire({ icon: 'success', title: 'Nível cadastrado com sucesso!' });
       }
-    } catch (error) {
-      console.error("Erro de conexão:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Falha na Conexão',
-        text: 'Verifique se o servidor está online.'
-      });
+      onSuccess();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Erro ao processar solicitação.';
+      Swal.fire({ icon: 'error', title: 'Erro', text: msg });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className={`p-6 rounded-lg shadow-md mb-8 transition-all border-l-8 
-      ${nivelParaEditar ? 'bg-orange-50 border-orange-500' : 'bg-white border-blue-500'}`}>
-      
-      <h3 className={`font-bold text-lg mb-4 ${nivelParaEditar ? 'text-orange-700' : 'text-blue-700'}`}>
-        {nivelParaEditar ? '✏️ Editando Nível' : '➕ Cadastrar Novo Nível'}
-      </h3>
-
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          
-          {/* Nome do Nível */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">Nome do Nível *</label>
-            <input 
-              type="text" 
-              value={formData.nivel}
-              onChange={(e) => setFormData({...formData, nivel: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-              placeholder="Ex: Administrador"
-              required
-            />
-          </div>
-
-          {/* Descrição */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">Descrição</label>
-            <input 
-              type="text" 
-              value={formData.descricao}
-              onChange={(e) => setFormData({...formData, descricao: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-              placeholder="O que este nível pode fazer?"
-            />
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Nome do Nível</label>
+          <input 
+            type="text" 
+            value={formData.nivel}
+            onChange={(e) => setFormData({...formData, nivel: e.target.value})}
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+            placeholder="Ex: Administrador"
+            required
+          />
         </div>
 
-        {/* Botões */}
-        <div className="flex gap-2 justify-end">
-          {nivelParaEditar ? (
-            <>
-              <button 
-                type="submit"
-                className="px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded flex items-center gap-2"
-              >
-                <FaSave /> Salvar Alterações
-              </button>
-              <button 
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onCancel();
-                }}
-                className="px-6 bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 rounded flex items-center gap-2"
-              >
-                <FaTimes /> Cancelar
-              </button>
-            </>
-          ) : (
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Descrição</label>
+          <input 
+            type="text" 
+            value={formData.descricao}
+            onChange={(e) => setFormData({...formData, descricao: e.target.value})}
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+            placeholder="O que este nível pode fazer?"
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-4 justify-end pt-4">
+        {nivelParaEditar ? (
+          <>
             <button 
-              type="submit"
-              className="px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded flex items-center gap-2"
+              type="button" 
+              onClick={onCancel} 
+              className="px-6 py-3 border border-gray-200 text-gray-500 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
             >
-              <FaPlus /> Adicionar Nível
+              <FaTimes /> Cancelar
             </button>
-          )}
-        </div>
-      </form>
-    </div>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              <FaSave /> {loading ? 'Salvando...' : 'Salvar Alterações'}
+            </button>
+          </>
+        ) : (
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
+          >
+            <FaPlus /> {loading ? 'Cadastrando...' : 'Cadastrar Nível'}
+          </button>
+        )}
+      </div>
+    </form>
   );
 }
 

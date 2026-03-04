@@ -1,60 +1,89 @@
 const { query } = require('../config/db');
 
-// Listar Cidades
-const getCidades = async (req, res) => {
+/**
+ * Listar todas as cidades
+ */
+const getCidades = async (req, res, next) => {
   try {
     const result = await query('SELECT * FROM cad_cidades ORDER BY cidade ASC');
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao buscar cidades" });
+    next(err);
   }
 };
 
-// Criar Cidade
-const createCidade = async (req, res) => {
-  const { cidade, uf, observacoes } = req.body;
+/**
+ * Criar nova cidade
+ */
+const createCidade = async (req, res, next) => {
   try {
-    // Não passamos as datas, o banco define o DEFAULT
+    const { cidade, uf, observacoes } = req.body;
+
+    if (!cidade || !uf) {
+      const error = new Error('Campos obrigatórios: cidade e UF.');
+      error.statusCode = 400;
+      throw error;
+    }
+
     const sql = 'INSERT INTO cad_cidades (cidade, uf, observacoes) VALUES ($1, $2, $3) RETURNING *';
     const result = await query(sql, [cidade, uf, observacoes]);
-    res.json(result.rows[0]);
+    res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao cadastrar cidade" });
+    next(err);
   }
 };
 
-// Atualizar Cidade (A Lógica das Datas está aqui)
-const updateCidade = async (req, res) => {
-  const { id } = req.params;
-  const { cidade, uf, observacoes } = req.body;
-  
+/**
+ * Atualizar cidade
+ */
+const updateCidade = async (req, res, next) => {
   try {
-    // AQUI: Forçamos a atualização da data de modificação
+    const { id } = req.params;
+    const { cidade, uf, observacoes } = req.body;
+
     const sql = `
-        UPDATE cad_cidades 
-        SET cidade = $1, uf = $2, observacoes = $3, dt_atualizacao = CURRENT_TIMESTAMP 
-        WHERE id_cidade = $4
+      UPDATE cad_cidades 
+      SET cidade = $1, uf = $2, observacoes = $3, dt_atualizacao = CURRENT_TIMESTAMP 
+      WHERE id_cidade = $4
+      RETURNING *
     `;
-    await query(sql, [cidade, uf, observacoes, id]);
-    res.json({ message: "Cidade atualizada com sucesso" });
+    const result = await query(sql, [cidade, uf, observacoes, id]);
+
+    if (result.rowCount === 0) {
+      const error = new Error('Cidade não encontrada');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.json({ message: "Cidade atualizada com sucesso!", cidade: result.rows[0] });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao atualizar cidade" });
+    next(err);
   }
 };
 
-// Deletar Cidade
-const deleteCidade = async (req, res) => {
-  const { id } = req.params;
+/**
+ * Remover cidade
+ */
+const deleteCidade = async (req, res, next) => {
   try {
-    await query('DELETE FROM cad_cidades WHERE id_cidade = $1', [id]);
-    res.json({ message: "Cidade removida" });
+    const { id } = req.params;
+    const result = await query('DELETE FROM cad_cidades WHERE id_cidade = $1', [id]);
+    
+    if (result.rowCount === 0) {
+      const error = new Error('Cidade não encontrada');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.json({ message: "Cidade removida com sucesso!" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao deletar cidade" });
+    next(err);
   }
 };
 
-module.exports = { getCidades, createCidade, updateCidade, deleteCidade };
+module.exports = { 
+  getCidades, 
+  createCidade, 
+  updateCidade, 
+  deleteCidade 
+};

@@ -1,29 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaMapMarkerAlt } from 'react-icons/fa';
 import { confirmDelete } from '../utils/swalHelpers';
 import Swal from 'sweetalert2';
+import api from '../services/api';
 
 function CidadesList({ refresh, onEditClick, setCidades, cidades }) {
   const [loading, setLoading] = useState(true);
-
-  // Formata data para exibir bonitinho na tabela
-  const formatData = (isoString) => {
-    if (!isoString) return '-';
-    return new Date(isoString).toLocaleDateString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  };
 
   useEffect(() => {
     const fetchCidades = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const response = await fetch('/api/cidades', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        setCidades(data); // Atualiza pai
+        const response = await api.get('/cidades');
+        setCidades(response.data); 
       } catch (error) {
         console.error("Erro ao buscar cidades:", error);
       } finally {
@@ -34,76 +23,80 @@ function CidadesList({ refresh, onEditClick, setCidades, cidades }) {
   }, [refresh, setCidades]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Cidade?", "Essa ação não pode ser desfeita.");
+    const result = await confirmDelete("Excluir Cidade?", "Deseja realmente remover esta cidade?");
     if (result.isConfirmed) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/cidades/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          setCidades(cidades.filter(c => c.id_cidade !== id));
-          Swal.fire('Deletado!', 'Cidade removida.', 'success');
-        } else {
-          Swal.fire('Erro', 'Erro ao excluir (verifique se há vínculos).', 'error');
-        }
+        await api.delete(`/cidades/${id}`);
+        setCidades(cidades.filter(c => c.id_cidade !== id));
+        Swal.fire('Deletado!', 'Cidade removida com sucesso.', 'success');
       } catch (error) {
-        Swal.fire('Erro!', 'Falha de conexão.', 'error');
+        const msg = error.response?.data?.message || 'Não foi possível excluir.';
+        Swal.fire('Erro!', msg, 'error');
       }
     }
   };
 
-  if (loading) return <div className="text-center p-4 text-gray-500">Carregando cidades...</div>;
+  if (loading && cidades.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="text-gray-400 font-medium animate-pulse">Carregando cidades...</p>
+      </div>
+    );
+  }
+
+  if (cidades.length === 0) {
+    return (
+      <div className="text-center p-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+        <p className="text-gray-400 font-medium">Nenhuma cidade cadastrada.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-      <table className="w-full text-left border-collapse">
-        <thead className="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th className="p-4 text-gray-600 font-semibold w-20">ID</th>
-            <th className="p-4 text-gray-600 font-semibold">Cidade / UF</th>
-            <th className="p-4 text-gray-600 font-semibold">Observações</th>
-            <th className="p-4 text-gray-600 font-semibold text-xs uppercase">Última Atualização</th>
-            <th className="p-4 text-gray-600 font-semibold text-center w-32">Ações</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead>
+          <tr className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
+            <th className="px-4 py-4">Cidade / UF</th>
+            <th className="px-4 py-4">Observações</th>
+            <th className="px-4 py-4 text-right">Ações</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-50">
           {cidades.map((c) => (
-            <tr key={c.id_cidade} className="hover:bg-blue-50/40 transition-colors group">
-              <td className="p-4 text-gray-500 text-sm">#{c.id_cidade}</td>
-              <td className="p-4 font-bold text-gray-700">
-                {c.cidade} 
-                <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded ml-2">
-                  {c.uf}
-                </span>
+            <tr key={c.id_cidade} className="group hover:bg-gray-50/50 transition-all">
+              <td className="px-4 py-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    {c.uf}
+                  </div>
+                  <span className="font-bold text-gray-700">{c.cidade}</span>
+                </div>
               </td>
-              <td className="p-4 text-gray-600 text-sm italic">
-                {c.observacoes || '-'}
+              <td className="px-4 py-5 text-gray-500 font-medium text-sm">
+                {c.observacoes || <span className="text-gray-300 italic">Sem observações</span>}
               </td>
-              <td className="p-4 text-gray-500 text-xs">
-                {formatData(c.dt_atualizacao)}
-              </td>
-              <td className="p-4">
-                <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <button onClick={() => onEditClick(c)} className="p-2 text-yellow-600 hover:bg-yellow-100 rounded-lg" title="Editar">
-                    <FaEdit />
+              <td className="px-4 py-5 text-right">
+                <div className="flex justify-end gap-2">
+                  <button 
+                    onClick={() => onEditClick(c)} 
+                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                    title="Editar"
+                  >
+                    <FaEdit size={18} />
                   </button>
-                  <button onClick={() => handleDelete(c.id_cidade)} className="p-2 text-red-600 hover:bg-red-100 rounded-lg" title="Excluir">
-                    <FaTrash />
+                  <button 
+                    onClick={() => handleDelete(c.id_cidade)} 
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    title="Excluir"
+                  >
+                    <FaTrash size={18} />
                   </button>
                 </div>
               </td>
             </tr>
           ))}
-          {cidades.length === 0 && (
-            <tr>
-              <td colSpan="5" className="p-8 text-center text-gray-400">
-                Nenhuma cidade cadastrada.
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
     </div>

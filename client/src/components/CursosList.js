@@ -1,119 +1,109 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrash, FaBookOpen } from 'react-icons/fa';
-
 import { confirmDelete } from '../utils/swalHelpers';
 import Swal from 'sweetalert2';
+import api from '../services/api';
 
-
-
-function CursosList({ refresh, onEditClick }) {
-  const [cursos, setCursos] = useState([]);
+function CursosList({ refresh, onEditClick, setCursos, cursos }) {
   const [loading, setLoading] = useState(true);
 
-  // Carrega os cursos sempre que 'refresh' for alterado no pai
   useEffect(() => {
     const fetchCursos = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('/api/cursos', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        setCursos(data);
+        setLoading(true);
+        const response = await api.get('/cursos');
+        setCursos(response.data); 
       } catch (error) {
         console.error("Erro ao buscar cursos:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchCursos();
-  }, [refresh]);
+  }, [refresh, setCursos]);
 
   const handleDelete = async (id) => {
-    const result = await confirmDelete("Excluir Curso?", "Deseja realmente remover este curso do sistema?");
-  
+    const result = await confirmDelete("Excluir Curso?", "Deseja realmente remover este curso?");
     if (result.isConfirmed) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/cursos/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-  
-        if (response.ok) {
-          setCursos(cursos.filter(c => c.id_curso !== id));
-          Swal.fire('Deletado!', 'O curso foi removido.', 'success');
-        }
+        await api.delete(`/cursos/${id}`);
+        setCursos(cursos.filter(c => c.id_curso !== id));
+        Swal.fire('Deletado!', 'Curso removido com sucesso.', 'success');
       } catch (error) {
-        Swal.fire('Erro!', 'Não foi possível excluir o curso.', 'error');
+        const msg = error.response?.data?.message || 'Não foi possível excluir.';
+        Swal.fire('Erro!', msg, 'error');
       }
     }
   };
 
-  if (loading) return <div className="text-center p-4 text-gray-500">Carregando cursos...</div>;
+  if (loading && cursos.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="text-gray-400 font-medium animate-pulse">Carregando cursos...</p>
+      </div>
+    );
+  }
+
+  if (cursos.length === 0) {
+    return (
+      <div className="text-center p-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+        <p className="text-gray-400 font-medium">Nenhum curso cadastrado.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-      <table className="w-full text-left border-collapse">
-        <thead className="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th className="p-4 text-gray-600 font-semibold w-16 text-center">ID</th>
-            <th className="p-4 text-gray-600 font-semibold">Curso</th>
-            <th className="p-4 text-gray-600 font-semibold">Eixo Tecnológico</th>
-            <th className="p-4 text-gray-600 font-semibold text-center w-32">Ações</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead>
+          <tr className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
+            <th className="px-4 py-4">Curso</th>
+            <th className="px-4 py-4">Eixo Tecnológico</th>
+            <th className="px-4 py-4 text-right">Ações</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-50">
           {cursos.map((curso) => (
-            <tr key={curso.id_curso} className="hover:bg-blue-50/40 transition-colors group">
-              <td className="p-4 text-gray-400 text-sm text-center">#{curso.id_curso}</td>
-              <td className="p-4">
+            <tr key={curso.id_curso} className="group hover:bg-gray-50/50 transition-all">
+              <td className="px-4 py-5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 text-blue-600 rounded-full">
-                    <FaBookOpen size={14} />
+                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    <FaBookOpen size={16} />
                   </div>
                   <div>
-                    <div className="font-bold text-gray-700">{curso.nome_curso}</div>
-                    <div className="text-xs text-gray-400 italic truncate max-w-xs">
-                      {curso.observacoes || 'Sem descrição cadastrada'}
-                    </div>
+                    <span className="font-bold text-gray-700 block">{curso.nome_curso}</span>
+                    <span className="text-xs text-gray-400 italic">
+                      {curso.observacoes || 'Sem observações'}
+                    </span>
                   </div>
                 </div>
               </td>
-              <td className="p-4 text-gray-600 text-sm">
-                <span className="bg-gray-100 px-2 py-1 rounded border border-gray-200">
+              <td className="px-4 py-5">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 uppercase tracking-wider">
                   {curso.eixo_curso}
                 </span>
               </td>
-              <td className="p-4">
-                {/* O container abaixo fica invisível até o mouse passar na TR */}
-                <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <td className="px-4 py-5 text-right">
+                <div className="flex justify-end gap-2">
                   <button 
                     onClick={() => onEditClick(curso)} 
-                    className="p-2 text-yellow-600 hover:bg-yellow-100 rounded-lg transition-colors"
-                    title="Editar curso"
+                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                    title="Editar"
                   >
-                    <FaEdit />
+                    <FaEdit size={18} />
                   </button>
                   <button 
                     onClick={() => handleDelete(curso.id_curso)} 
-                    className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                    title="Excluir curso"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    title="Excluir"
                   >
-                    <FaTrash />
+                    <FaTrash size={18} />
                   </button>
                 </div>
               </td>
             </tr>
           ))}
-          {cursos.length === 0 && (
-            <tr>
-              <td colSpan="4" className="p-10 text-center text-gray-400 italic">
-                Nenhum curso encontrado no sistema.
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
     </div>

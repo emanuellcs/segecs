@@ -1,6 +1,9 @@
 const { query } = require('../config/db');
 
-const getResponsaveis = async (req, res) => {
+/**
+ * Listar todos os responsáveis
+ */
+const getResponsaveis = async (req, res, next) => {
   try {
     const todos = await query(`
       SELECT r.*, c.cidade, c.uf 
@@ -10,81 +13,88 @@ const getResponsaveis = async (req, res) => {
     `);
     res.json(todos.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Erro ao buscar responsáveis" });
+    next(err);
   }
 };
 
-const createResponsavel = async (req, res) => {
+/**
+ * Criar novo responsável
+ */
+const createResponsavel = async (req, res, next) => {
   try {
     const { nome, rg, cpf, telefone, id_cidade, bairro, observacoes } = req.body;
 
-    const novo = await query(
-      `INSERT INTO cad_responsaveis (nome, rg, cpf, telefone, id_cidade, bairro, observacoes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [nome, rg, cpf, telefone, id_cidade, bairro, observacoes]
-    );
-    res.json(novo.rows[0]);
+    if (!nome || !cpf) {
+      const error = new Error('Campos obrigatórios: nome e CPF.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const sql = `
+      INSERT INTO cad_responsaveis (nome, rg, cpf, telefone, id_cidade, bairro, observacoes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+    `;
+    
+    const result = await query(sql, [nome, rg, cpf, telefone, id_cidade, bairro, observacoes]);
+    res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error('Erro ao criar responsável:', err.message);
-    
-    // Tratamento de erros específicos
-    if (err.message.includes('cad_responsaveis_cpf_key')) {
-      return res.status(400).json({ error: 'Já existe um responsável cadastrado com este CPF.' });
-    }
-    
-    if (err.message.includes('not-null')) {
-      return res.status(400).json({ error: 'Preencha todos os campos obrigatórios.' });
-    }
-    
-    res.status(500).json({ error: "Erro ao cadastrar responsável" });
+    next(err);
   }
 };
 
-const updateResponsavel = async (req, res) => {
+/**
+ * Atualizar responsável
+ */
+const updateResponsavel = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { nome, rg, cpf, telefone, id_cidade, bairro, observacoes } = req.body;
 
-    const updateOp = await query(
-      `UPDATE cad_responsaveis
-       SET nome = $1, rg = $2, cpf = $3, telefone = $4, id_cidade = $5, 
-           bairro = $6, observacoes = $7, dt_atualizacao = CURRENT_TIMESTAMP
-       WHERE id_responsavel = $8`,
-      [nome, rg, cpf, telefone, id_cidade, bairro, observacoes, id]
-    );
+    const sql = `
+      UPDATE cad_responsaveis
+      SET nome = $1, rg = $2, cpf = $3, telefone = $4, id_cidade = $5, 
+          bairro = $6, observacoes = $7, dt_atualizacao = CURRENT_TIMESTAMP
+      WHERE id_responsavel = $8
+      RETURNING *
+    `;
 
-    if (updateOp.rowCount === 0) {
-      return res.status(404).json({ error: "Responsável não encontrado" });
+    const result = await query(sql, [nome, rg, cpf, telefone, id_cidade, bairro, observacoes, id]);
+
+    if (result.rowCount === 0) {
+      const error = new Error('Responsável não encontrado');
+      error.statusCode = 404;
+      throw error;
     }
 
-    res.json({ message: "Responsável atualizado com sucesso!" });
+    res.json({ message: "Responsável atualizado com sucesso!", responsavel: result.rows[0] });
   } catch (err) {
-    console.error('Erro ao atualizar responsável:', err.message);
-    
-    // Tratamento de erros específicos
-    if (err.message.includes('cad_responsaveis_cpf_key')) {
-      return res.status(400).json({ error: 'Já existe outro responsável cadastrado com este CPF.' });
-    }
-    
-    res.status(500).json({ error: "Erro ao atualizar responsável" });
+    next(err);
   }
 };
 
-const deleteResponsavel = async (req, res) => {
+/**
+ * Remover responsável
+ */
+const deleteResponsavel = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const deleteOp = await query("DELETE FROM cad_responsaveis WHERE id_responsavel = $1", [id]);
+    const result = await query("DELETE FROM cad_responsaveis WHERE id_responsavel = $1", [id]);
     
-    if (deleteOp.rowCount === 0) {
-      return res.status(404).json({ error: "Responsável não encontrado" });
+    if (result.rowCount === 0) {
+      const error = new Error('Responsável não encontrado');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.json({ message: "Responsável excluído com sucesso!" });
   } catch (err) {
-    console.error('Erro ao deletar responsável:', err.message);
-    res.status(500).json({ error: "Erro ao deletar responsável" });
+    next(err);
   }
 };
 
-module.exports = { getResponsaveis, createResponsavel, updateResponsavel, deleteResponsavel };
+module.exports = { 
+  getResponsaveis, 
+  createResponsavel, 
+  updateResponsavel, 
+  deleteResponsavel 
+};
