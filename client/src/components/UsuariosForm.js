@@ -2,158 +2,154 @@ import React, { useState, useEffect } from 'react';
 import { FaSave, FaTimes, FaPlus } from 'react-icons/fa';
 import { Toast } from '../utils/swalHelpers';
 import Swal from 'sweetalert2';
+import api from '../services/api';
 
 function UsuariosForm({ onSuccess, usuarioParaEditar, onCancel, niveis }) {
   const [formData, setFormData] = useState({
     nome_completo: '',
     email: '',
     senha: '',
-    id_nivel: ''
+    id_nivel: '',
+    ativo: true
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (usuarioParaEditar) {
       setFormData({
         nome_completo: usuarioParaEditar.nome_completo || '',
         email: usuarioParaEditar.email || '',
-        senha: '', // Senha geralmente não se preenche na edição por segurança
-        id_nivel: usuarioParaEditar.id_nivel || ''
+        senha: '', 
+        id_nivel: usuarioParaEditar.id_nivel || '',
+        ativo: usuarioParaEditar.ativo !== undefined ? usuarioParaEditar.ativo : true
       });
     } else {
-      setFormData({ nome_completo: '', email: '', senha: '', id_nivel: '' });
+      setFormData({ nome_completo: '', email: '', senha: '', id_nivel: '', ativo: true });
     }
   }, [usuarioParaEditar]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.nome_completo.trim() || !formData.email.trim() || (!usuarioParaEditar && !formData.senha)) {
-      Toast.fire({
-        icon: 'error',
-        title: 'Campos obrigatórios!',
-        text: 'Por favor, preencha todos os campos necessários.'
-      });
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    const method = usuarioParaEditar ? 'PUT' : 'POST';
-    const url = usuarioParaEditar 
-      ? `/api/usuarios/${usuarioParaEditar.id_usuario}` 
-      : '/api/usuarios';
+    setLoading(true);
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        Toast.fire({
-          icon: 'success',
-          title: usuarioParaEditar ? 'Usuário atualizado!' : 'Usuário cadastrado!'
-        });
-        onSuccess();
+      if (usuarioParaEditar) {
+        await api.put(`/usuarios/${usuarioParaEditar.id_usuario}`, formData);
+        Toast.fire({ icon: 'success', title: 'Usuário atualizado com sucesso!' });
       } else {
-        const errorData = await response.json();
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro no Servidor',
-          text: errorData.error || 'Não foi possível salvar os dados.'
-        });
+        await api.post('/usuarios', formData);
+        Toast.fire({ icon: 'success', title: 'Usuário cadastrado com sucesso!' });
       }
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Falha na Conexão',
-        text: 'Verifique se o servidor está online.'
-      });
+      onSuccess();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Erro ao processar solicitação.';
+      Swal.fire({ icon: 'error', title: 'Erro', text: msg });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className={`p-6 rounded-lg shadow-md mb-8 transition-all border-l-8 
-      ${usuarioParaEditar ? 'bg-orange-50 border-orange-500' : 'bg-white border-blue-500'}`}>
-      
-      <h3 className={`font-bold text-lg mb-4 ${usuarioParaEditar ? 'text-orange-700' : 'text-blue-700'}`}>
-        {usuarioParaEditar ? '✏️ Editando Usuário' : '➕ Cadastrar Novo Usuário'}
-      </h3>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Nome Completo</label>
+          <input 
+            type="text" 
+            value={formData.nome_completo}
+            onChange={(e) => setFormData({...formData, nome_completo: e.target.value})}
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+            placeholder="Ex: João da Silva"
+            required
+          />
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">Nome Completo *</label>
-            <input 
-              type="text" 
-              value={formData.nome_completo}
-              onChange={(e) => setFormData({...formData, nome_completo: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-              required
-            />
-          </div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Email (Login)</label>
+          <input 
+            type="email" 
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+            placeholder="exemplo@segecs.com"
+            required
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">Email (Login) *</label>
-            <input 
-              type="email" 
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-              required
-            />
-          </div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            {usuarioParaEditar ? 'Nova Senha (deixe em branco para manter)' : 'Senha'}
+          </label>
+          <input 
+            type="password" 
+            value={formData.senha}
+            onChange={(e) => setFormData({...formData, senha: e.target.value})}
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+            placeholder="••••••••"
+            required={!usuarioParaEditar}
+          />
+        </div>
 
-          {!usuarioParaEditar && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-600 mb-1">Senha *</label>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Nível de Acesso</label>
+          <select
+            value={formData.id_nivel}
+            onChange={(e) => setFormData({...formData, id_nivel: e.target.value})}
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all appearance-none"
+            required
+          >
+            <option value="">Selecione o perfil...</option>
+            {niveis.map(n => (
+              <option key={n.id_nivel} value={n.id_nivel}>{n.nivel}</option>
+            ))}
+          </select>
+        </div>
+
+        {usuarioParaEditar && (
+          <div className="flex items-center gap-3">
+             <label className="relative inline-flex items-center cursor-pointer">
               <input 
-                type="password" 
-                value={formData.senha}
-                onChange={(e) => setFormData({...formData, senha: e.target.value})}
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none"
-                required
+                type="checkbox" 
+                className="sr-only peer"
+                checked={formData.ativo}
+                onChange={(e) => setFormData({...formData, ativo: e.target.checked})}
               />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">Nível de Acesso *</label>
-            <select
-              value={formData.id_nivel}
-              onChange={(e) => setFormData({...formData, id_nivel: e.target.value})}
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 outline-none bg-white"
-              required
-            >
-              <option value="">Selecione...</option>
-              {niveis.map(n => (
-                <option key={n.id_nivel} value={n.id_nivel}>{n.nivel}</option>
-              ))}
-            </select>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span className="ml-3 text-sm font-bold text-gray-700 uppercase tracking-wider">Usuário Ativo</span>
+            </label>
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className="flex gap-2 justify-end">
-          {usuarioParaEditar ? (
-            <>
-              <button type="submit" className="px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded flex items-center justify-center gap-2">
-                <FaSave /> Salvar
-              </button>
-              <button type="button" onClick={onCancel} className="px-6 bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 rounded flex items-center justify-center gap-2">
-                <FaTimes /> Cancelar
-              </button>
-            </>
-          ) : (
-            <button type="submit" className="px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded flex items-center justify-center gap-2">
-              <FaPlus /> Adicionar
+      <div className="flex gap-4 justify-end pt-4">
+        {usuarioParaEditar ? (
+          <>
+            <button 
+              type="button" 
+              onClick={onCancel} 
+              className="px-6 py-3 border border-gray-200 text-gray-500 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
+            >
+              <FaTimes /> Cancelar
             </button>
-          )}
-        </div>
-      </form>
-    </div>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              <FaSave /> {loading ? 'Salvando...' : 'Salvar Alterações'}
+            </button>
+          </>
+        ) : (
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
+          >
+            <FaPlus /> {loading ? 'Cadastrando...' : 'Cadastrar Usuário'}
+          </button>
+        )}
+      </div>
+    </form>
   );
 }
 

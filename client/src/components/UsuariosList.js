@@ -1,29 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrash, FaUser } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaUser, FaCircle } from 'react-icons/fa';
 import { confirmDelete } from '../utils/swalHelpers';
 import Swal from 'sweetalert2';
+import api from '../services/api';
 
-// 1. Recebemos 'usuarios' (dados) e 'setUsuarios' (função para atualizar o pai)
 function UsuariosList({ refresh, onEditClick, setUsuarios, usuarios }) {
-  // 2. Definimos o loading localmente, pois ele controla apenas a visualização desta tabela
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        setLoading(true); // Inicia loading
-        const token = localStorage.getItem('token');
-        const response = await fetch('/api/usuarios', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        
-        // Atualiza a lista no componente PAI (CadastroUsuarios)
-        setUsuarios(data); 
+        setLoading(true);
+        const response = await api.get('/usuarios');
+        setUsuarios(response.data); 
       } catch (error) {
         console.error("Erro ao buscar usuários:", error);
       } finally {
-        setLoading(false); // Finaliza loading
+        setLoading(false);
       }
     };
     fetchUsuarios();
@@ -33,60 +26,85 @@ function UsuariosList({ refresh, onEditClick, setUsuarios, usuarios }) {
     const result = await confirmDelete("Excluir Usuário?", "Deseja realmente remover este usuário?");
     if (result.isConfirmed) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/usuarios/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) {
-          // Atualiza o estado do PAI filtrando o item removido
-          setUsuarios(usuarios.filter(u => u.id_usuario !== id));
-          Swal.fire('Deletado!', 'Usuário removido.', 'success');
-        }
+        await api.delete(`/usuarios/${id}`);
+        setUsuarios(usuarios.filter(u => u.id_usuario !== id));
+        Swal.fire('Deletado!', 'Usuário removido com sucesso.', 'success');
       } catch (error) {
-        Swal.fire('Erro!', 'Não foi possível excluir.', 'error');
+        const msg = error.response?.data?.message || 'Não foi possível excluir.';
+        Swal.fire('Erro!', msg, 'error');
       }
     }
   };
 
-  if (loading) return <div className="text-center p-4 text-gray-500">Carregando usuários...</div>;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="text-gray-400 font-medium animate-pulse">Carregando usuários...</p>
+      </div>
+    );
+  }
+
+  if (usuarios.length === 0) {
+    return (
+      <div className="text-center p-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+        <p className="text-gray-400 font-medium">Nenhum usuário cadastrado.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-      <table className="w-full text-left border-collapse">
-        <thead className="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th className="p-4 text-gray-600 font-semibold">Usuário</th>
-            <th className="p-4 text-gray-600 font-semibold">Email</th>
-            <th className="p-4 text-gray-600 font-semibold">Nível</th>
-            <th className="p-4 text-gray-600 font-semibold text-center w-32">Ações</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead>
+          <tr className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
+            <th className="px-4 py-4">Usuário</th>
+            <th className="px-4 py-4">Email</th>
+            <th className="px-4 py-4">Perfil</th>
+            <th className="px-4 py-4">Status</th>
+            <th className="px-4 py-4 text-right">Ações</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
-          {/* Agora 'usuarios' vem das props e não dará erro de undefined */}
+        <tbody className="divide-y divide-gray-50">
           {usuarios.map((user) => (
-            <tr key={user.id_usuario} className="hover:bg-blue-50/40 transition-colors group">
-              <td className="p-4">
+            <tr key={user.id_usuario} className="group hover:bg-gray-50/50 transition-all">
+              <td className="px-4 py-5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 text-blue-600 rounded-full">
-                    <FaUser size={14} />
+                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    {user.nome_completo.charAt(0)}
                   </div>
-                  <div className="font-bold text-gray-700">{user.nome_completo}</div>
+                  <span className="font-bold text-gray-700">{user.nome_completo}</span>
                 </div>
               </td>
-              <td className="p-4 text-gray-600 text-sm">{user.email}</td>
-              <td className="p-4 text-sm">
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold text-xs">
-                  {user.nome_nivel || user.id_nivel}
+              <td className="px-4 py-5 text-gray-500 font-medium text-sm">{user.email}</td>
+              <td className="px-4 py-5">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 uppercase tracking-wider">
+                  {user.nome_nivel}
                 </span>
               </td>
-              <td className="p-4">
-                <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <button onClick={() => onEditClick(user)} className="p-2 text-yellow-600 hover:bg-yellow-100 rounded-lg">
-                    <FaEdit />
+              <td className="px-4 py-5">
+                <div className="flex items-center gap-2">
+                  <FaCircle className={user.ativo ? "text-green-500" : "text-gray-300"} size={8} />
+                  <span className={`text-xs font-bold uppercase ${user.ativo ? "text-green-600" : "text-gray-400"}`}>
+                    {user.ativo ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+              </td>
+              <td className="px-4 py-5 text-right">
+                <div className="flex justify-end gap-2">
+                  <button 
+                    onClick={() => onEditClick(user)} 
+                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                    title="Editar"
+                  >
+                    <FaEdit size={18} />
                   </button>
-                  <button onClick={() => handleDelete(user.id_usuario)} className="p-2 text-red-600 hover:bg-red-100 rounded-lg">
-                    <FaTrash />
+                  <button 
+                    onClick={() => handleDelete(user.id_usuario)} 
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    title="Excluir"
+                  >
+                    <FaTrash size={18} />
                   </button>
                 </div>
               </td>
