@@ -2,6 +2,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
+/**
+ * Traduz erros técnicos do Supabase/Postgres para mensagens amigáveis em português.
+ */
+function translateError(error: any): string {
+  if (error.code === '23503') {
+    return 'Não é possível excluir este registro pois ele está vinculado a outros dados no sistema (ex: estágios, vagas ou avaliações).';
+  }
+  if (error.code === '23505') {
+    return 'Já existe um registro com estes dados únicos (CPF, CNPJ ou Matrícula).';
+  }
+  return error.message || 'Ocorreu um erro inesperado na operação.';
+}
+
 export function useSupabaseCrud<T extends { id: string }>(table: string, queryKey: string[]) {
   const queryClient = useQueryClient();
 
@@ -27,8 +40,8 @@ export function useSupabaseCrud<T extends { id: string }>(table: string, queryKe
       queryClient.invalidateQueries({ queryKey });
       toast.success('Registro criado com sucesso!');
     },
-    onError: (error: Error) => {
-      toast.error('Erro ao criar: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Erro ao criar: ' + translateError(error));
     },
   });
 
@@ -47,8 +60,8 @@ export function useSupabaseCrud<T extends { id: string }>(table: string, queryKe
       queryClient.invalidateQueries({ queryKey });
       toast.success('Registro atualizado com sucesso!');
     },
-    onError: (error: Error) => {
-      toast.error('Erro ao atualizar: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Erro ao atualizar: ' + translateError(error));
     },
   });
 
@@ -61,8 +74,11 @@ export function useSupabaseCrud<T extends { id: string }>(table: string, queryKe
       queryClient.invalidateQueries({ queryKey });
       toast.success('Registro excluído com sucesso!');
     },
-    onError: (error: Error) => {
-      toast.error('Erro ao excluir: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Não foi possível excluir', {
+        description: translateError(error),
+        duration: 5000,
+      });
     },
   });
 
