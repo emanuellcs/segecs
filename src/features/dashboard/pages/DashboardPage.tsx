@@ -9,6 +9,7 @@ import {
   ArrowRight,
   GraduationCap,
   Building2,
+  CheckCircle2,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -262,24 +263,54 @@ export default function DashboardPage() {
         {/* Sidebar Intelligence */}
         <div className="space-y-8">
           {/* Alertas Rápidos */}
-          <div className="bg-blue-900 p-8 rounded-3xl shadow-xl shadow-blue-900/30 text-white relative overflow-hidden group">
+          <div className={cn(
+            "p-8 rounded-3xl shadow-xl transition-all duration-500 relative overflow-hidden group",
+            (stats?.compliance.totalAlertas ?? 0) > 0 
+              ? "bg-blue-900 text-white shadow-blue-900/30" 
+              : "bg-green-600 text-white shadow-green-600/20"
+          )}>
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-500">
-              <AlertTriangle size={80} />
+              {(stats?.compliance.totalAlertas ?? 0) > 0 ? <AlertTriangle size={80} /> : <CheckCircle2 size={80} />}
             </div>
+            
             <h3 className="text-lg font-black mb-6 relative z-10 flex items-center gap-2">
-              Compliance <span className="bg-orange-500 text-[10px] px-2 py-0.5 rounded-full">{stats?.compliance.totalAlertas} ALERTAS</span>
+              Compliance 
+              {(stats?.compliance.totalAlertas ?? 0) > 0 ? (
+                <span className="bg-orange-500 text-[10px] px-2 py-0.5 rounded-full uppercase">
+                  {stats?.compliance.totalAlertas} ALERTAS
+                </span>
+              ) : (
+                <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full uppercase">
+                  SISTEMA OK
+                </span>
+              )}
             </h3>
+
             <div className="space-y-6 relative z-10">
-              <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-300 mb-1">Prazos</p>
-                <p className="text-sm font-bold">{stats?.compliance.vencendo} Contratos vencendo em 15 dias</p>
-                <button onClick={() => navigate('/estagios')} className="mt-3 text-[10px] font-black uppercase tracking-widest text-orange-400 hover:text-orange-300">Resolver Agora →</button>
-              </div>
-              <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-300 mb-1">Avaliações</p>
-                <p className="text-sm font-bold">{stats?.compliance.semAvaliacao} Estágios sem nota lançada</p>
-                <button onClick={() => navigate('/avaliacoes')} className="mt-3 text-[10px] font-black uppercase tracking-widest text-orange-400 hover:text-orange-300">Lançar Notas →</button>
-              </div>
+              {(stats?.compliance.totalAlertas ?? 0) > 0 ? (
+                <>
+                  {stats?.compliance.vencendo ? (
+                    <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-blue-300 mb-1">Prazos</p>
+                      <p className="text-sm font-bold">{stats.compliance.vencendo} Contratos vencendo em 15 dias</p>
+                      <button onClick={() => navigate('/estagios')} className="mt-3 text-[10px] font-black uppercase tracking-widest text-orange-400 hover:text-orange-300">Resolver Agora →</button>
+                    </div>
+                  ) : null}
+                  
+                  {stats?.compliance.semAvaliacao ? (
+                    <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-blue-300 mb-1">Avaliações</p>
+                      <p className="text-sm font-bold">{stats.compliance.semAvaliacao} Estágios sem nota lançada</p>
+                      <button onClick={() => navigate('/avaliacoes')} className="mt-3 text-[10px] font-black uppercase tracking-widest text-orange-400 hover:text-orange-300">Lançar Notas →</button>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm font-bold text-green-50">Tudo em ordem!</p>
+                  <p className="text-[10px] font-medium text-green-100/70 mt-1 uppercase tracking-widest">Nenhuma pendência crítica encontrada.</p>
+                </div>
+              )}
             </div>
           </div>
 
