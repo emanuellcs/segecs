@@ -7,4 +7,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase URL or Publishable Key missing. Check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+  auth: {
+    persistSession: true,
+    storage: window.sessionStorage, // Usa sessionStorage para que a sessão expire ao fechar a aba
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});

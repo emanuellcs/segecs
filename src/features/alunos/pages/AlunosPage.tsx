@@ -52,7 +52,7 @@ export default function AlunosPage() {
     formState: { errors },
   } = useForm<AlunoFormValues>({
     resolver: zodResolver(alunoSchema),
-    defaultValues: { status: 'pendente' }
+    defaultValues: { status: 'pendente' },
   });
 
   const onSubmit = async (data: AlunoFormValues) => {

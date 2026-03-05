@@ -22,8 +22,10 @@ import DashboardPage from '@/features/dashboard/pages/DashboardPage';
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Rota pública */}
       <Route path="/login" element={<LoginPage />} />
 
+      {/* Rotas privadas protegidas */}
       <Route
         element={
           <PrivateRoute>
@@ -48,6 +50,7 @@ export default function AppRoutes() {
         <Route path="/projetos" element={<ProjetosSociaisPage />} />
       </Route>
 
+      {/* Redirecionamentos padrão */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
