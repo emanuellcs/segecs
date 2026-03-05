@@ -16,6 +16,7 @@ import {
   Award,
   Heart,
   LogOut,
+  X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -58,22 +59,35 @@ const menuItems = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+  className?: string;
+}
+
+export default function Sidebar({ onClose, className }: SidebarProps) {
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await signOut();
     navigate('/login');
+    if (onClose) onClose();
   };
 
   return (
-    <aside className="w-64 bg-blue-900 text-white flex flex-col h-screen sticky top-0 shrink-0 shadow-xl">
-      <div className="p-6">
-        <h1 className="text-2xl font-black tracking-tighter">SEGECS</h1>
-        <p className="text-[10px] text-blue-300 font-bold uppercase tracking-widest mt-1">
-          EEEP - Ceará
-        </p>
+    <aside className={cn("flex flex-col h-full bg-blue-900 text-white shadow-xl", className)}>
+      <div className="p-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black tracking-tighter">SEGECS</h1>
+          <p className="text-[10px] text-blue-300 font-bold uppercase tracking-widest mt-1">
+            EEEP - Ceará
+          </p>
+        </div>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden p-2 hover:bg-blue-800 rounded-lg">
+            <X size={24} />
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 overflow-y-auto px-4 space-y-6 pb-8 custom-scrollbar">
@@ -87,6 +101,7 @@ export default function Sidebar() {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  onClick={onClose}
                   className={({ isActive }) =>
                     cn(
                       'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
