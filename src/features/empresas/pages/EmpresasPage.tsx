@@ -130,8 +130,8 @@ export default function EmpresasPage() {
   };
 
   const filteredEmpresas = empresas.filter(empresa => 
-    empresa.razao_social.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    empresa.cnpj.includes(searchTerm)
+    (empresa.razao_social?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (empresa.cnpj || '').includes(searchTerm)
   );
 
   return (

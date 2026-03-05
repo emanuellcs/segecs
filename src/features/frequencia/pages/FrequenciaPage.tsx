@@ -120,8 +120,8 @@ export default function FrequenciaPage() {
   const filteredFrequencias = frequencias.filter(freq => {
     const estagio = estagios.find(e => e.id === freq.estagio_id);
     const alunoNome = alunos.find(a => a.id === estagio?.aluno_id)?.nome || '';
-    const matchesSearch = alunoNome.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         freq.atividades.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                         (freq.atividades?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesEstagio = !selectedEstagioId || freq.estagio_id === selectedEstagioId;
     return matchesSearch && matchesEstagio;
   });

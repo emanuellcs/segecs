@@ -136,8 +136,8 @@ export default function EstagiosPage() {
     const vaga = vagas.find(v => v.id === estagio.vaga_id);
     const empresa = empresas.find(e => e.id === vaga?.empresa_id)?.razao_social || '';
     return (
-      aluno.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      empresa.toLowerCase().includes(searchTerm.toLowerCase())
+      (aluno?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (empresa?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
   });
 

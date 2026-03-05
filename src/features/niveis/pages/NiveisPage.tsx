@@ -91,7 +91,7 @@ export default function NiveisPage() {
   };
 
   const filteredNiveis = niveis.filter(nivel => 
-    nivel.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+    (nivel.descricao?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   return (

@@ -119,9 +119,9 @@ export default function AlunosPage() {
   };
 
   const filteredAlunos = alunos.filter(aluno => 
-    aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    aluno.matricula.includes(searchTerm) ||
-    aluno.cpf.includes(searchTerm)
+    (aluno.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (aluno.matricula || '').includes(searchTerm) ||
+    (aluno.cpf || '').includes(searchTerm)
   );
 
   return (

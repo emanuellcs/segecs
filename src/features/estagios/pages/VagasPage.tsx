@@ -118,9 +118,9 @@ export default function VagasPage() {
     const empresa = empresas.find(e => e.id === vaga.empresa_id)?.razao_social || '';
     const curso = cursos.find(c => c.id === vaga.curso_id)?.nome || '';
     return (
-      vaga.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      empresa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      curso.toLowerCase().includes(searchTerm.toLowerCase())
+      (vaga.titulo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (empresa?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (curso?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
   });
 

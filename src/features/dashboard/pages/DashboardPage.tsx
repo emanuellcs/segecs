@@ -11,8 +11,11 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
@@ -35,6 +38,58 @@ export default function DashboardPage() {
       };
     },
   });
+
+  const handleExportSICE = async () => {
+    try {
+      const { data: estagios, error } = await supabase
+        .from('estagios')
+        .select(`
+          id,
+          status,
+          created_at,
+          alunos (nome, matricula),
+          empresas (razao_social)
+        `);
+
+      if (error) throw error;
+
+      if (!estagios || estagios.length === 0) {
+        toast.error('Não há dados para exportar.');
+        return;
+      }
+
+      // Simples conversão para CSV
+      const headers = ['ID', 'Aluno', 'Matrícula', 'Empresa', 'Status', 'Data Início'];
+      const csvData = estagios.map(e => [
+        e.id,
+        (e.alunos as any)?.nome || '',
+        (e.alunos as any)?.matricula || '',
+        (e.empresas as any)?.razao_social || '',
+        e.status,
+        new Date(e.created_at).toLocaleDateString('pt-BR')
+      ]);
+
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => row.join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `relatorio_sice_${new Date().getTime()}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Relatório SICE exportado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar:', error);
+      toast.error('Erro ao gerar relatório SICE.');
+    }
+  };
 
   const cards = [
     {
@@ -132,7 +187,10 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <button className="w-full sm:w-auto px-4 py-2 bg-white text-[10px] font-black text-orange-600 rounded-lg shadow-sm border border-orange-200 hover:bg-orange-100 transition-all uppercase tracking-widest">
+              <button 
+                onClick={() => navigate('/estagios')}
+                className="w-full sm:w-auto px-4 py-2 bg-white text-[10px] font-black text-orange-600 rounded-lg shadow-sm border border-orange-200 hover:bg-orange-100 transition-all uppercase tracking-widest"
+              >
                 VER ALUNOS
               </button>
             </div>
@@ -149,7 +207,10 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <button className="w-full sm:w-auto px-4 py-2 bg-white text-[10px] font-black text-blue-600 rounded-lg shadow-sm border border-blue-200 hover:bg-blue-100 transition-all uppercase tracking-widest">
+              <button 
+                onClick={() => navigate('/avaliacoes')}
+                className="w-full sm:w-auto px-4 py-2 bg-white text-[10px] font-black text-blue-600 rounded-lg shadow-sm border border-blue-200 hover:bg-blue-100 transition-all uppercase tracking-widest"
+              >
                 LANÇAR
               </button>
             </div>
@@ -188,7 +249,10 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <button className="w-full mt-6 flex items-center justify-center gap-3 py-4 border-2 border-dashed border-gray-200 text-gray-500 rounded-2xl hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all font-black text-xs uppercase tracking-widest">
+            <button 
+              onClick={handleExportSICE}
+              className="w-full mt-6 flex items-center justify-center gap-3 py-4 border-2 border-dashed border-gray-200 text-gray-500 rounded-2xl hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all font-black text-xs uppercase tracking-widest"
+            >
               <FileSpreadsheet size={18} /> Exportar Relatório SICE
             </button>
           </div>

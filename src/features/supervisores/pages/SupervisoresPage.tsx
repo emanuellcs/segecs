@@ -110,8 +110,8 @@ export default function SupervisoresPage() {
   };
 
   const filteredSupervisores = supervisores.filter(supervisor => 
-    supervisor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    supervisor.cargo?.toLowerCase().includes(searchTerm.toLowerCase())
+    (supervisor.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (supervisor.cargo?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   return (

@@ -110,8 +110,8 @@ export default function OrientadoresPage() {
   };
 
   const filteredOrientadores = orientadores.filter(orientador => 
-    orientador.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    orientador.cpf?.includes(searchTerm)
+    (orientador.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (orientador.cpf || '').includes(searchTerm)
   );
 
   return (

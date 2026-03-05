@@ -99,8 +99,8 @@ export default function ResponsaveisPage() {
   };
 
   const filteredResponsaveis = responsaveis.filter(resp => 
-    resp.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    resp.cpf.includes(searchTerm)
+    (resp.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (resp.cpf || '').includes(searchTerm)
   );
 
   return (

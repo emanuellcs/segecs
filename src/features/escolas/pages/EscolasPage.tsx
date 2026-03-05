@@ -99,8 +99,8 @@ export default function EscolasPage() {
   };
 
   const filteredEscolas = escolas.filter(escola => 
-    escola.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    escola.inep?.includes(searchTerm)
+    (escola.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (escola.inep || '').includes(searchTerm)
   );
 
   return (

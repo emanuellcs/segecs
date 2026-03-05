@@ -95,8 +95,8 @@ export default function CidadesPage() {
   };
 
   const filteredCidades = cidades.filter(cidade => 
-    cidade.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cidade.uf.toLowerCase().includes(searchTerm.toLowerCase())
+    (cidade.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (cidade.uf?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   return (

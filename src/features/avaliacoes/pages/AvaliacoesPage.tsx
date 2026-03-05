@@ -113,7 +113,7 @@ export default function AvaliacoesPage() {
   const filteredAvaliacoes = avaliacoes.filter(aval => {
     const estagio = estagios.find(e => e.id === aval.estagio_id);
     const alunoNome = alunos.find(a => a.id === estagio?.aluno_id)?.nome || '';
-    const matchesSearch = alunoNome.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesEstagio = !selectedEstagioId || aval.estagio_id === selectedEstagioId;
     return matchesSearch && matchesEstagio;
   });

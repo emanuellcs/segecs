@@ -100,7 +100,7 @@ export default function CursosPage() {
   };
 
   const filteredCursos = cursos.filter(curso => 
-    curso.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    (curso.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   return (

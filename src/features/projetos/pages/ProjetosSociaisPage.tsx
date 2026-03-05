@@ -116,8 +116,8 @@ export default function ProjetosSociaisPage() {
   const filteredProjetos = projetos.filter(proj => {
     const alunoNome = alunos.find(a => a.id === proj.aluno_id)?.nome || '';
     return (
-      proj.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      alunoNome.toLowerCase().includes(searchTerm.toLowerCase())
+      (proj.titulo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
   });
 
