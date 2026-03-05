@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Award, Plus, Edit2, Trash2, Search, TrendingUp, User, Calendar, MessageSquare } from 'lucide-react';
+import {
+  Award,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  TrendingUp,
+  User,
+  Calendar,
+  MessageSquare,
+} from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -45,7 +55,7 @@ export default function AvaliacoesPage() {
     update,
     remove,
   } = useSupabaseCrud<Avaliacao>('avaliacoes', ['avaliacoes']);
-  
+
   const { items: estagios } = useSupabaseCrud<any>('estagios', ['estagios']);
   const { items: alunos } = useSupabaseCrud<any>('alunos', ['alunos']);
 
@@ -56,9 +66,9 @@ export default function AvaliacoesPage() {
     formState: { errors, isSubmitting },
   } = useForm<AvaliacaoFormValues>({
     resolver: zodResolver(avaliacaoSchema),
-    defaultValues: { 
-      tipo: 1, 
-      data_avaliacao: new Date().toISOString().split('T')[0] 
+    defaultValues: {
+      tipo: 1,
+      data_avaliacao: new Date().toISOString().split('T')[0],
     },
   });
 
@@ -112,17 +122,20 @@ export default function AvaliacoesPage() {
     reset();
   };
 
-  const filteredAvaliacoes = avaliacoes.filter(aval => {
-    const estagio = estagios.find(e => e.id === aval.estagio_id);
-    const alunoNome = alunos.find(a => a.id === estagio?.aluno_id)?.nome || '';
+  const filteredAvaliacoes = avaliacoes.filter((aval) => {
+    const estagio = estagios.find((e) => e.id === aval.estagio_id);
+    const alunoNome = alunos.find((a) => a.id === estagio?.aluno_id)?.nome || '';
     const matchesSearch = (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesEstagio = !selectedEstagioId || aval.estagio_id === selectedEstagioId;
     return matchesSearch && matchesEstagio;
   });
 
-  const mediaGeral = filteredAvaliacoes.length > 0
-    ? (filteredAvaliacoes.reduce((acc, a) => acc + a.nota, 0) / filteredAvaliacoes.length).toFixed(1)
-    : '0.0';
+  const mediaGeral =
+    filteredAvaliacoes.length > 0
+      ? (
+          filteredAvaliacoes.reduce((acc, a) => acc + a.nota, 0) / filteredAvaliacoes.length
+        ).toFixed(1)
+      : '0.0';
 
   const { listLayout } = useListLayout();
 
@@ -147,7 +160,9 @@ export default function AvaliacoesPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Filtrar por Estágio</label>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Filtrar por Estágio
+          </label>
           <select
             className="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             value={selectedEstagioId}
@@ -161,10 +176,12 @@ export default function AvaliacoesPage() {
             ))}
           </select>
         </div>
-        
+
         <div className="bg-orange-500 p-6 rounded-2xl shadow-lg shadow-orange-100 flex justify-between items-center text-white">
           <div>
-            <p className="text-orange-100 text-xs font-black uppercase tracking-widest mb-1">Média de Notas</p>
+            <p className="text-orange-100 text-xs font-black uppercase tracking-widest mb-1">
+              Média de Notas
+            </p>
             <h2 className="text-4xl font-black">{mediaGeral}</h2>
           </div>
           <div className="bg-orange-400/30 p-3 rounded-xl">
@@ -174,7 +191,9 @@ export default function AvaliacoesPage() {
 
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
           <div>
-            <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">Total de Lançamentos</p>
+            <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">
+              Total de Lançamentos
+            </p>
             <h2 className="text-4xl font-black text-gray-800">{filteredAvaliacoes.length}</h2>
           </div>
           <div className="bg-blue-50 p-3 rounded-xl text-blue-500">
@@ -186,7 +205,10 @@ export default function AvaliacoesPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por nome do aluno..."
@@ -199,10 +221,12 @@ export default function AvaliacoesPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando avaliações...
@@ -213,11 +237,14 @@ export default function AvaliacoesPage() {
           </div>
         ) : (
           filteredAvaliacoes.map((aval) => {
-            const estagio = estagios.find(e => e.id === aval.estagio_id);
-            const aluno = alunos.find(a => a.id === estagio?.aluno_id);
+            const estagio = estagios.find((e) => e.id === aval.estagio_id);
+            const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
             return (
-              <div key={aval.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+              <div
+                key={aval.id}
+                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+              >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -225,20 +252,22 @@ export default function AvaliacoesPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 leading-tight">{aluno?.nome}</h3>
-                      <p className="text-xs text-gray-500 font-medium">{new Date(aval.data_avaliacao).toLocaleDateString('pt-BR')}</p>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {new Date(aval.data_avaliacao).toLocaleDateString('pt-BR')}
+                      </p>
                     </div>
                   </div>
                   <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-black uppercase tracking-wider text-gray-600">
                     {aval.tipo}ª NOTA
                   </span>
                 </div>
-                
+
                 <div className="flex items-center justify-between pt-2">
-                   <div className="flex items-center gap-2 text-blue-900 font-black text-2xl">
-                      <TrendingUp size={20} className="text-orange-500" />
-                      <span>{aval.nota.toFixed(1)}</span>
-                   </div>
-                   <div className="flex gap-2">
+                  <div className="flex items-center gap-2 text-blue-900 font-black text-2xl">
+                    <TrendingUp size={20} className="text-orange-500" />
+                    <span>{aval.nota.toFixed(1)}</span>
+                  </div>
+                  <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(aval)}
                       className="p-2.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
@@ -265,17 +294,30 @@ export default function AvaliacoesPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Aluno</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Avaliação</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Data</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Nota</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Aluno
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Avaliação
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Data
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">
+                  Nota
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de avaliações...
                   </td>
                 </tr>
@@ -287,8 +329,8 @@ export default function AvaliacoesPage() {
                 </tr>
               ) : (
                 filteredAvaliacoes.map((aval) => {
-                  const estagio = estagios.find(e => e.id === aval.estagio_id);
-                  const aluno = alunos.find(a => a.id === estagio?.aluno_id);
+                  const estagio = estagios.find((e) => e.id === aval.estagio_id);
+                  const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
                   return (
                     <tr key={aval.id} className="hover:bg-blue-50/30 transition-colors group">
@@ -352,12 +394,17 @@ export default function AvaliacoesPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Estágio / Aluno</label>
               <div className="relative mt-1">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <User
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('estagio_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                    errors.estagio_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    errors.estagio_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione o estágio...</option>
@@ -368,7 +415,11 @@ export default function AvaliacoesPage() {
                   ))}
                 </select>
               </div>
-              {errors.estagio_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.estagio_id.message}</p>}
+              {errors.estagio_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.estagio_id.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -386,34 +437,52 @@ export default function AvaliacoesPage() {
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Nota (0 a 10)</label>
               <div className="relative mt-1">
-                <TrendingUp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <TrendingUp
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="number"
                   step="0.1"
                   {...register('nota', { valueAsNumber: true })}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.nota ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.nota
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 />
               </div>
-              {errors.nota && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.nota.message}</p>}
+              {errors.nota && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.nota.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Data da Avaliação</label>
               <div className="relative mt-1">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Calendar
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="date"
                   {...register('data_avaliacao')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.data_avaliacao ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.data_avaliacao
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 />
               </div>
-              {errors.data_avaliacao && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.data_avaliacao.message}</p>}
+              {errors.data_avaliacao && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.data_avaliacao.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">

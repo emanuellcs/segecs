@@ -10,10 +10,10 @@ export function ListLayoutToggle() {
       <button
         onClick={() => setListLayout('table')}
         className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-bold text-xs",
-          listLayout === 'table' 
-            ? "bg-white text-blue-600 shadow-sm" 
-            : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+          'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-bold text-xs',
+          listLayout === 'table'
+            ? 'bg-white text-blue-600 shadow-sm'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
         )}
         title="Layout de Tabela"
       >
@@ -23,10 +23,10 @@ export function ListLayoutToggle() {
       <button
         onClick={() => setListLayout('cards')}
         className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-bold text-xs",
-          listLayout === 'cards' 
-            ? "bg-white text-blue-600 shadow-sm" 
-            : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+          'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-bold text-xs',
+          listLayout === 'cards'
+            ? 'bg-white text-blue-600 shadow-sm'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
         )}
         title="Layout de Cards"
       >

@@ -87,31 +87,34 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
   };
 
   return (
-    <aside 
+    <aside
       className={cn(
-        "flex flex-col h-full bg-blue-900 text-white shadow-xl transition-all duration-300",
-        isCollapsed ? "w-20" : "w-64",
+        'flex flex-col h-full bg-blue-900 text-white shadow-xl transition-all duration-300',
+        isCollapsed ? 'w-20' : 'w-64',
         className
       )}
     >
       {/* Header - Apenas para Mobile */}
       {!isCollapsed && onClose && (
         <div className="p-4 flex items-center justify-end lg:hidden">
-          <button onClick={onClose} className="p-2 hover:bg-blue-800 rounded-lg text-blue-200 transition-colors">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-blue-800 rounded-lg text-blue-200 transition-colors"
+          >
             <X size={24} />
           </button>
         </div>
       )}
 
       {/* Espaçador para Desktop quando não tem header */}
-      <div className={cn("hidden lg:block", isCollapsed ? "h-6" : "h-6")} />
+      <div className={cn('hidden lg:block', isCollapsed ? 'h-6' : 'h-6')} />
 
       <nav className="flex-1 overflow-y-auto px-4 space-y-6 pb-8 custom-scrollbar">
         {menuItems.map((group, idx) => (
           <div key={idx} className="transition-all duration-300">
             <AnimatePresence mode="wait">
               {!isCollapsed && (
-                <motion.h3 
+                <motion.h3
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
@@ -134,7 +137,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
                       isActive
                         ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50 font-semibold'
                         : 'text-blue-100 hover:bg-blue-800 hover:text-white',
-                      isCollapsed && "justify-center px-0"
+                      isCollapsed && 'justify-center px-0'
                     )
                   }
                 >
@@ -155,7 +158,12 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
         ))}
       </nav>
 
-      <div className={cn("p-4 bg-blue-950/50 border-t border-blue-800 transition-all", isCollapsed && "items-center px-2")}>
+      <div
+        className={cn(
+          'p-4 bg-blue-950/50 border-t border-blue-800 transition-all',
+          isCollapsed && 'items-center px-2'
+        )}
+      >
         {!isCollapsed ? (
           <div className="flex items-center gap-3 mb-4 px-2">
             <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-xs uppercase shrink-0">
@@ -170,34 +178,41 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
           </div>
         ) : (
           <div className="flex justify-center mb-4">
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-xs uppercase" title={profile?.full_name}>
+            <div
+              className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-xs uppercase"
+              title={profile?.full_name}
+            >
               {profile?.full_name?.substring(0, 2) || 'U'}
             </div>
           </div>
         )}
-        
+
         <button
           onClick={() => setIsAboutOpen(true)}
-          title={isCollapsed ? "Sobre o Sistema" : undefined}
+          title={isCollapsed ? 'Sobre o Sistema' : undefined}
           className={cn(
-            "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-blue-300 hover:bg-blue-400/10 rounded-xl transition-all mb-1",
-            isCollapsed && "px-0"
+            'w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-blue-300 hover:bg-blue-400/10 rounded-xl transition-all mb-1',
+            isCollapsed && 'px-0'
           )}
         >
           <Info size={18} />
-          {!isCollapsed && <span className="uppercase tracking-widest text-xs font-bold">Sobre</span>}
+          {!isCollapsed && (
+            <span className="uppercase tracking-widest text-xs font-bold">Sobre</span>
+          )}
         </button>
-        
+
         <button
           onClick={handleLogout}
-          title={isCollapsed ? "Sair do Sistema" : undefined}
+          title={isCollapsed ? 'Sair do Sistema' : undefined}
           className={cn(
-            "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-all",
-            isCollapsed && "px-0"
+            'w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-all',
+            isCollapsed && 'px-0'
           )}
         >
           <LogOut size={18} />
-          {!isCollapsed && <span className="uppercase tracking-widest text-xs font-bold">Sair</span>}
+          {!isCollapsed && (
+            <span className="uppercase tracking-widest text-xs font-bold">Sair</span>
+          )}
         </button>
 
         <AboutModal isOpen={isAboutOpen} onOpenChange={setIsAboutOpen} />

@@ -48,7 +48,7 @@ export default function ProjetosSociaisPage() {
     update,
     remove,
   } = useSupabaseCrud<ProjetoSocial>('projetos_sociais', ['projetos_sociais']);
-  
+
   const { items: alunos } = useSupabaseCrud<any>('alunos', ['alunos']);
 
   const {
@@ -58,9 +58,9 @@ export default function ProjetosSociaisPage() {
     formState: { errors, isSubmitting },
   } = useForm<ProjetoFormValues>({
     resolver: zodResolver(projetoSchema),
-    defaultValues: { 
-      horas_estimadas: 30, 
-      status: 'planejado' 
+    defaultValues: {
+      horas_estimadas: 30,
+      status: 'planejado',
     },
   });
 
@@ -115,8 +115,8 @@ export default function ProjetosSociaisPage() {
     reset();
   };
 
-  const filteredProjetos = projetos.filter(proj => {
-    const alunoNome = alunos.find(a => a.id === proj.aluno_id)?.nome || '';
+  const filteredProjetos = projetos.filter((proj) => {
+    const alunoNome = alunos.find((a) => a.id === proj.aluno_id)?.nome || '';
     return (
       (proj.titulo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase())
@@ -146,7 +146,10 @@ export default function ProjetosSociaisPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por título ou nome do aluno..."
@@ -159,10 +162,12 @@ export default function ProjetosSociaisPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando projetos...
@@ -173,10 +178,13 @@ export default function ProjetosSociaisPage() {
           </div>
         ) : (
           filteredProjetos.map((proj) => {
-            const aluno = alunos.find(a => a.id === proj.aluno_id);
+            const aluno = alunos.find((a) => a.id === proj.aluno_id);
 
             return (
-              <div key={proj.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+              <div
+                key={proj.id}
+                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+              >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500">
@@ -187,18 +195,26 @@ export default function ProjetosSociaisPage() {
                       <p className="text-xs text-gray-500 font-medium">{aluno?.nome}</p>
                     </div>
                   </div>
-                  <span className={cn(
-                    'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                    proj.status === 'executado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                  )}>
+                  <span
+                    className={cn(
+                      'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                      proj.status === 'executado'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    )}
+                  >
                     {proj.status}
                   </span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Calendar size={14} className="text-blue-500" />
-                    <span className="truncate">{proj.data_execucao ? new Date(proj.data_execucao).toLocaleDateString('pt-BR') : 'Não executado'}</span>
+                    <span className="truncate">
+                      {proj.data_execucao
+                        ? new Date(proj.data_execucao).toLocaleDateString('pt-BR')
+                        : 'Não executado'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Clock size={14} className="text-blue-500" />
@@ -232,17 +248,30 @@ export default function ProjetosSociaisPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Título / Aluno</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Horas</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Data Execução</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Título / Aluno
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Horas
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Data Execução
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de projetos...
                   </td>
                 </tr>
@@ -254,7 +283,7 @@ export default function ProjetosSociaisPage() {
                 </tr>
               ) : (
                 filteredProjetos.map((proj) => {
-                  const aluno = alunos.find(a => a.id === proj.aluno_id);
+                  const aluno = alunos.find((a) => a.id === proj.aluno_id);
 
                   return (
                     <tr key={proj.id} className="hover:bg-blue-50/30 transition-colors group">
@@ -264,17 +293,21 @@ export default function ProjetosSociaisPage() {
                           <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-600 font-bold">
-                        {proj.horas_estimadas}h
-                      </td>
+                      <td className="px-6 py-4 text-gray-600 font-bold">{proj.horas_estimadas}h</td>
                       <td className="px-6 py-4 text-gray-600 font-medium text-sm">
-                        {proj.data_execucao ? new Date(proj.data_execucao).toLocaleDateString('pt-BR') : '-'}
+                        {proj.data_execucao
+                          ? new Date(proj.data_execucao).toLocaleDateString('pt-BR')
+                          : '-'}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={cn(
-                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                          proj.status === 'executado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                        )}>
+                        <span
+                          className={cn(
+                            'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                            proj.status === 'executado'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          )}
+                        >
                           {proj.status}
                         </span>
                       </td>
@@ -317,59 +350,91 @@ export default function ProjetosSociaisPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Título do Projeto</label>
               <div className="relative mt-1">
-                <Heart className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Heart
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('titulo')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.titulo ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.titulo
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: Doação de Alimentos"
                 />
               </div>
-              {errors.titulo && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.titulo.message}</p>}
+              {errors.titulo && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.titulo.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Aluno Responsável</label>
               <div className="relative mt-1">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <User
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('aluno_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                    errors.aluno_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    errors.aluno_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione o aluno...</option>
                   {alunos.map((a: any) => (
-                    <option key={a.id} value={a.id}>{a.nome}</option>
+                    <option key={a.id} value={a.id}>
+                      {a.nome}
+                    </option>
                   ))}
                 </select>
               </div>
-              {errors.aluno_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.aluno_id.message}</p>}
+              {errors.aluno_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.aluno_id.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Horas Estimadas</label>
               <div className="relative mt-1">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Clock
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="number"
                   {...register('horas_estimadas', { valueAsNumber: true })}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.horas_estimadas ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.horas_estimadas
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 />
               </div>
-              {errors.horas_estimadas && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.horas_estimadas.message}</p>}
+              {errors.horas_estimadas && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.horas_estimadas.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Data de Execução</label>
               <div className="relative mt-1">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Calendar
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="date"
                   {...register('data_execucao')}
@@ -416,7 +481,11 @@ export default function ProjetosSociaisPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedProj ? 'Salvar Alterações' : 'Confirmar Projeto'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedProj
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Projeto'}
             </button>
           </div>
         </form>

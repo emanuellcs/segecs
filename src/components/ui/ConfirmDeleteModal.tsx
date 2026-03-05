@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -23,8 +22,8 @@ export function ConfirmDeleteModal({
   isOpen,
   onOpenChange,
   onConfirm,
-  title = "Excluir Registro",
-  description = "Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.",
+  title = 'Excluir Registro',
+  description = 'Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.',
   itemName,
   isLoading = false,
 }: ConfirmDeleteModalProps) {
@@ -38,11 +37,7 @@ export function ConfirmDeleteModal({
           <DialogTitle className="text-xl font-bold text-gray-900">{title}</DialogTitle>
           <DialogDescription className="text-center sm:text-left">
             {description}
-            {itemName && (
-              <span className="block mt-2 font-bold text-red-600">
-                "{itemName}"
-              </span>
-            )}
+            {itemName && <span className="block mt-2 font-bold text-red-600">"{itemName}"</span>}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-6 gap-2 sm:gap-0">

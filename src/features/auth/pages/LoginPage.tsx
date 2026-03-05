@@ -64,47 +64,67 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <h1 className="text-4xl font-black text-center text-blue-900 tracking-tighter mb-2">SEGECS</h1>
+        <h1 className="text-4xl font-black text-center text-blue-900 tracking-tighter mb-2">
+          SEGECS
+        </h1>
         <p className="text-center text-gray-400 mb-10 font-black uppercase tracking-[0.2em] text-[10px]">
           Sistema Escolar de Gestão do Estágio Curricular Supervisionado
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-1">
-            <label className="block text-blue-950 text-xs font-black mb-2 uppercase tracking-widest ml-1">E-mail Institucional</label>
+            <label className="block text-blue-950 text-xs font-black mb-2 uppercase tracking-widest ml-1">
+              E-mail Institucional
+            </label>
             <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+              <Mail
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors"
+                size={18}
+              />
               <input
                 {...register('email')}
                 type="email"
                 placeholder="seu@email.com"
                 className={cn(
-                  "w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium",
-                  errors.email ? "border-red-200 focus:ring-red-100" : "border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200"
+                  'w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium',
+                  errors.email
+                    ? 'border-red-200 focus:ring-red-100'
+                    : 'border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200'
                 )}
               />
             </div>
             {errors.email && (
-              <p className="text-red-500 text-[10px] font-black uppercase mt-1 ml-1 tracking-wider">{errors.email.message}</p>
+              <p className="text-red-500 text-[10px] font-black uppercase mt-1 ml-1 tracking-wider">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
           <div className="space-y-1">
-            <label className="block text-blue-950 text-xs font-black mb-2 uppercase tracking-widest ml-1">Senha de Acesso</label>
+            <label className="block text-blue-950 text-xs font-black mb-2 uppercase tracking-widest ml-1">
+              Senha de Acesso
+            </label>
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+              <Lock
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors"
+                size={18}
+              />
               <input
                 {...register('password')}
                 type="password"
                 placeholder="••••••••"
                 className={cn(
-                  "w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium",
-                  errors.password ? "border-red-200 focus:ring-red-100" : "border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200"
+                  'w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium',
+                  errors.password
+                    ? 'border-red-200 focus:ring-red-100'
+                    : 'border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200'
                 )}
               />
             </div>
             {errors.password && (
-              <p className="text-red-500 text-[10px] font-black uppercase mt-1 ml-1 tracking-wider">{errors.password.message}</p>
+              <p className="text-red-500 text-[10px] font-black uppercase mt-1 ml-1 tracking-wider">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -128,19 +148,21 @@ export default function LoginPage() {
             &copy; {new Date().getFullYear()} SEGECS
           </p>
           <div className="flex flex-col gap-1">
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Desenvolvido por:</p>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+              Desenvolvido por:
+            </p>
             <div className="flex justify-center gap-4">
-              <a 
-                href="https://github.com/prof-raimundo" 
-                target="_blank" 
+              <a
+                href="https://github.com/prof-raimundo"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-[10px] font-black text-blue-900 hover:text-blue-600 transition-colors uppercase tracking-tighter"
               >
                 Prof. Raimundo Nonato
               </a>
-              <a 
-                href="https://github.com/emanuellcs" 
-                target="_blank" 
+              <a
+                href="https://github.com/emanuellcs"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-[10px] font-black text-blue-900 hover:text-blue-600 transition-colors uppercase tracking-tighter"
               >

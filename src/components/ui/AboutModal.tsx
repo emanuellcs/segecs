@@ -4,8 +4,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/Dialog";
-import { Github, ExternalLink, ShieldCheck } from "lucide-react";
+} from '@/components/ui/Dialog';
+import { Github, ExternalLink, ShieldCheck } from 'lucide-react';
 
 interface AboutModalProps {
   isOpen: boolean;

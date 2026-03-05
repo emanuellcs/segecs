@@ -92,7 +92,7 @@ export default function NiveisPage() {
     reset();
   };
 
-  const filteredNiveis = niveis.filter(nivel => 
+  const filteredNiveis = niveis.filter((nivel) =>
     (nivel.descricao?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
@@ -119,7 +119,10 @@ export default function NiveisPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por descrição..."
@@ -132,10 +135,12 @@ export default function NiveisPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando níveis...
@@ -146,7 +151,10 @@ export default function NiveisPage() {
           </div>
         ) : (
           filteredNiveis.map((nivel) => (
-            <div key={nivel.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div
+              key={nivel.id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -157,7 +165,7 @@ export default function NiveisPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-2 pt-2 border-t border-gray-50">
                 <button
                   onClick={() => handleEdit(nivel)}
@@ -183,14 +191,21 @@ export default function NiveisPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Descrição</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Descrição
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={2} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={2}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de níveis...
                   </td>
                 </tr>
@@ -249,17 +264,26 @@ export default function NiveisPage() {
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Descrição</label>
               <div className="relative mt-1">
-                <Layers className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Layers
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('descricao')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.descricao ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.descricao
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: Ensino Médio Integrado"
                 />
               </div>
-              {errors.descricao && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.descricao.message}</p>}
+              {errors.descricao && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.descricao.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -276,7 +300,11 @@ export default function NiveisPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedNivel ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedNivel
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Cadastro'}
             </button>
           </div>
         </form>

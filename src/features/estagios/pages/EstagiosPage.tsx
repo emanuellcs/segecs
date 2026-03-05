@@ -1,5 +1,16 @@
 import { useState } from 'react';
-import { ClipboardCheck, Plus, Edit2, Trash2, Search, FileText, User, Building2, Calendar, Clock } from 'lucide-react';
+import {
+  ClipboardCheck,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  FileText,
+  User,
+  Building2,
+  Calendar,
+  Clock,
+} from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -54,7 +65,7 @@ export default function EstagiosPage() {
     update,
     remove,
   } = useSupabaseCrud<Estagio>('estagios', ['estagios']);
-  
+
   const { items: alunos } = useSupabaseCrud<any>('alunos', ['alunos']);
   const { items: vagas } = useSupabaseCrud<any>('vagas', ['vagas']);
   const { items: orientadores } = useSupabaseCrud<any>('orientadores', ['orientadores']);
@@ -68,10 +79,10 @@ export default function EstagiosPage() {
     formState: { errors, isSubmitting },
   } = useForm<EstagioFormValues>({
     resolver: zodResolver(estagioSchema),
-    defaultValues: { 
-      carga_horaria_total: 400, 
-      carga_horaria_diaria: 6, 
-      status: 'ativo' 
+    defaultValues: {
+      carga_horaria_total: 400,
+      carga_horaria_diaria: 6,
+      status: 'ativo',
     },
   });
 
@@ -130,13 +141,13 @@ export default function EstagiosPage() {
   };
 
   const generateTCE = (estagio: Estagio) => {
-    toast.info(`Geração de TCE para ${alunos.find(a => a.id === estagio.aluno_id)?.nome}...`);
+    toast.info(`Geração de TCE para ${alunos.find((a) => a.id === estagio.aluno_id)?.nome}...`);
   };
 
-  const filteredEstagios = estagios.filter(estagio => {
-    const aluno = alunos.find(a => a.id === estagio.aluno_id)?.nome || '';
-    const vaga = vagas.find(v => v.id === estagio.vaga_id);
-    const empresa = empresas.find(e => e.id === vaga?.empresa_id)?.razao_social || '';
+  const filteredEstagios = estagios.filter((estagio) => {
+    const aluno = alunos.find((a) => a.id === estagio.aluno_id)?.nome || '';
+    const vaga = vagas.find((v) => v.id === estagio.vaga_id);
+    const empresa = empresas.find((e) => e.id === vaga?.empresa_id)?.razao_social || '';
     return (
       (aluno?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (empresa?.toLowerCase() || '').includes(searchTerm.toLowerCase())
@@ -166,7 +177,10 @@ export default function EstagiosPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por aluno ou empresa..."
@@ -179,10 +193,12 @@ export default function EstagiosPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando estágios...
@@ -193,12 +209,15 @@ export default function EstagiosPage() {
           </div>
         ) : (
           filteredEstagios.map((est) => {
-            const aluno = alunos.find(a => a.id === est.aluno_id);
-            const vaga = vagas.find(v => v.id === est.vaga_id);
-            const empresa = empresas.find(e => e.id === vaga?.empresa_id);
-            
+            const aluno = alunos.find((a) => a.id === est.aluno_id);
+            const vaga = vagas.find((v) => v.id === est.vaga_id);
+            const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
+
             return (
-              <div key={est.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+              <div
+                key={est.id}
+                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+              >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -209,21 +228,26 @@ export default function EstagiosPage() {
                       <p className="text-xs text-gray-500 font-medium">{empresa?.razao_social}</p>
                     </div>
                   </div>
-                  <span className={cn(
-                    'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                    est.status === 'ativo' ? 'bg-green-100 text-green-700' :
-                    est.status === 'concluido' ? 'bg-blue-100 text-blue-700' :
-                    'bg-gray-100 text-gray-700'
-                  )}>
+                  <span
+                    className={cn(
+                      'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                      est.status === 'ativo'
+                        ? 'bg-green-100 text-green-700'
+                        : est.status === 'concluido'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-700'
+                    )}
+                  >
                     {est.status}
                   </span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Calendar size={14} className="text-blue-500" />
                     <span className="truncate">
-                      {new Date(est.data_inicio).toLocaleDateString('pt-BR')} - {new Date(est.data_fim).toLocaleDateString('pt-BR')}
+                      {new Date(est.data_inicio).toLocaleDateString('pt-BR')} -{' '}
+                      {new Date(est.data_fim).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
@@ -265,17 +289,30 @@ export default function EstagiosPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Aluno</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Empresa / Vaga</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Período</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Aluno
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Empresa / Vaga
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">
+                  Período
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de estágios...
                   </td>
                 </tr>
@@ -287,9 +324,9 @@ export default function EstagiosPage() {
                 </tr>
               ) : (
                 filteredEstagios.map((est) => {
-                  const aluno = alunos.find(a => a.id === est.aluno_id);
-                  const vaga = vagas.find(v => v.id === est.vaga_id);
-                  const empresa = empresas.find(e => e.id === vaga?.empresa_id);
+                  const aluno = alunos.find((a) => a.id === est.aluno_id);
+                  const vaga = vagas.find((v) => v.id === est.vaga_id);
+                  const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
 
                   return (
                     <tr key={est.id} className="hover:bg-blue-50/30 transition-colors group">
@@ -308,15 +345,20 @@ export default function EstagiosPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-600 font-medium text-center text-sm">
-                        {new Date(est.data_inicio).toLocaleDateString('pt-BR')} - {new Date(est.data_fim).toLocaleDateString('pt-BR')}
+                        {new Date(est.data_inicio).toLocaleDateString('pt-BR')} -{' '}
+                        {new Date(est.data_fim).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={cn(
-                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                          est.status === 'ativo' ? 'bg-green-100 text-green-700' :
-                          est.status === 'concluido' ? 'bg-blue-100 text-blue-700' :
-                          'bg-gray-100 text-gray-700'
-                        )}>
+                        <span
+                          className={cn(
+                            'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                            est.status === 'ativo'
+                              ? 'bg-green-100 text-green-700'
+                              : est.status === 'concluido'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-gray-100 text-gray-700'
+                          )}
+                        >
                           {est.status}
                         </span>
                       </td>
@@ -366,32 +408,48 @@ export default function EstagiosPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Aluno</label>
               <div className="relative mt-1">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <User
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('aluno_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                    errors.aluno_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    errors.aluno_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione o aluno...</option>
                   {alunos.map((a: any) => (
-                    <option key={a.id} value={a.id}>{a.nome}</option>
+                    <option key={a.id} value={a.id}>
+                      {a.nome}
+                    </option>
                   ))}
                 </select>
               </div>
-              {errors.aluno_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.aluno_id.message}</p>}
+              {errors.aluno_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.aluno_id.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Vaga / Empresa</label>
               <div className="relative mt-1">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Building2
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('vaga_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                    errors.vaga_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    errors.vaga_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione a vaga...</option>
@@ -405,7 +463,11 @@ export default function EstagiosPage() {
                   })}
                 </select>
               </div>
-              {errors.vaga_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.vaga_id.message}</p>}
+              {errors.vaga_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.vaga_id.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -413,13 +475,17 @@ export default function EstagiosPage() {
               <select
                 {...register('orientador_id')}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                  errors.orientador_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  errors.orientador_id
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
               >
                 <option value="">Selecione...</option>
                 {orientadores.map((o: any) => (
-                  <option key={o.id} value={o.id}>{o.nome}</option>
+                  <option key={o.id} value={o.id}>
+                    {o.nome}
+                  </option>
                 ))}
               </select>
             </div>
@@ -429,15 +495,19 @@ export default function EstagiosPage() {
               <select
                 {...register('supervisor_id')}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                  errors.supervisor_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  errors.supervisor_id
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
               >
                 <option value="">Selecione...</option>
                 {supervisores.map((s: any) => {
                   const emp = empresas.find((e: any) => e.id === s.empresa_id);
                   return (
-                    <option key={s.id} value={s.id}>{s.nome} ({emp?.razao_social})</option>
+                    <option key={s.id} value={s.id}>
+                      {s.nome} ({emp?.razao_social})
+                    </option>
                   );
                 })}
               </select>
@@ -449,8 +519,10 @@ export default function EstagiosPage() {
                 type="date"
                 {...register('data_inicio')}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                  errors.data_inicio ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  errors.data_inicio
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
               />
             </div>
@@ -461,8 +533,10 @@ export default function EstagiosPage() {
                 type="date"
                 {...register('data_fim')}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                  errors.data_fim ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  errors.data_fim
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
               />
             </div>
@@ -511,7 +585,11 @@ export default function EstagiosPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedEstagio ? 'Salvar Alterações' : 'Confirmar Alocação'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedEstagio
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Alocação'}
             </button>
           </div>
         </form>

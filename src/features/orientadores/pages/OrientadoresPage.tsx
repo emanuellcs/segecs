@@ -43,7 +43,7 @@ export default function OrientadoresPage() {
     update,
     remove,
   } = useSupabaseCrud<Orientador>('orientadores', ['orientadores']);
-  
+
   const { items: escolas } = useSupabaseCrud<any>('escolas', ['escolas']);
 
   const {
@@ -58,8 +58,8 @@ export default function OrientadoresPage() {
       nome: '',
       cpf: '',
       telefone: '',
-      escola_id: ''
-    }
+      escola_id: '',
+    },
   });
 
   const onSubmit = async (data: any) => {
@@ -111,9 +111,10 @@ export default function OrientadoresPage() {
     reset();
   };
 
-  const filteredOrientadores = orientadores.filter(orientador => 
-    (orientador.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (orientador.cpf || '').includes(searchTerm)
+  const filteredOrientadores = orientadores.filter(
+    (orientador) =>
+      (orientador.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (orientador.cpf || '').includes(searchTerm)
   );
 
   const { listLayout } = useListLayout();
@@ -139,7 +140,10 @@ export default function OrientadoresPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por nome ou CPF..."
@@ -152,10 +156,12 @@ export default function OrientadoresPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando orientadores...
@@ -166,7 +172,10 @@ export default function OrientadoresPage() {
           </div>
         ) : (
           filteredOrientadores.map((orientador) => (
-            <div key={orientador.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div
+              key={orientador.id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -174,15 +183,19 @@ export default function OrientadoresPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900 leading-tight">{orientador.nome}</h3>
-                    <p className="text-xs text-gray-500 font-medium">CPF: {orientador.cpf || 'N/A'}</p>
+                    <p className="text-xs text-gray-500 font-medium">
+                      CPF: {orientador.cpf || 'N/A'}
+                    </p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex flex-col gap-2 pt-2">
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <School size={14} className="text-blue-500" />
-                  <span className="truncate">{escolas.find((e: any) => e.id === orientador.escola_id)?.nome || 'N/A'}</span>
+                  <span className="truncate">
+                    {escolas.find((e: any) => e.id === orientador.escola_id)?.nome || 'N/A'}
+                  </span>
                 </div>
                 {orientador.telefone && (
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
@@ -217,17 +230,30 @@ export default function OrientadoresPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Orientador</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">CPF</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Escola</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Telefone</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Orientador
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  CPF
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Escola
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Telefone
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de orientadores...
                   </td>
                 </tr>
@@ -252,7 +278,9 @@ export default function OrientadoresPage() {
                     <td className="px-6 py-4 text-gray-600 font-medium">
                       {escolas.find((e: any) => e.id === orientador.escola_id)?.nome || 'N/A'}
                     </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{orientador.telefone || '-'}</td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {orientador.telefone || '-'}
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -291,17 +319,26 @@ export default function OrientadoresPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
               <div className="relative mt-1">
-                <UserCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <UserCheck
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('nome')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.nome ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.nome
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: Prof. Dr. Carlos Silva"
                 />
               </div>
-              {errors.nome && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.nome.message}</p>}
+              {errors.nome && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.nome.message}
+                </p>
+              )}
             </div>
 
             <Controller
@@ -337,21 +374,32 @@ export default function OrientadoresPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Escola de Vínculo</label>
               <div className="relative mt-1">
-                <School className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <School
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('escola_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium",
-                    errors.escola_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium',
+                    errors.escola_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione a escola...</option>
                   {escolas.map((e: any) => (
-                    <option key={e.id} value={e.id}>{e.nome}</option>
+                    <option key={e.id} value={e.id}>
+                      {e.nome}
+                    </option>
                   ))}
                 </select>
               </div>
-              {errors.escola_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.escola_id.message}</p>}
+              {errors.escola_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.escola_id.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -368,7 +416,11 @@ export default function OrientadoresPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedOrientador ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedOrientador
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Cadastro'}
             </button>
           </div>
         </form>

@@ -96,9 +96,10 @@ export default function CidadesPage() {
     reset();
   };
 
-  const filteredCidades = cidades.filter(cidade => 
-    (cidade.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (cidade.uf?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  const filteredCidades = cidades.filter(
+    (cidade) =>
+      (cidade.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (cidade.uf?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   const { listLayout } = useListLayout();
@@ -124,7 +125,10 @@ export default function CidadesPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por nome ou UF..."
@@ -137,10 +141,12 @@ export default function CidadesPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando cidades...
@@ -151,7 +157,10 @@ export default function CidadesPage() {
           </div>
         ) : (
           filteredCidades.map((cidade) => (
-            <div key={cidade.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div
+              key={cidade.id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold">
@@ -163,7 +172,7 @@ export default function CidadesPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-2 pt-2 border-t border-gray-50">
                 <button
                   onClick={() => handleEdit(cidade)}
@@ -189,15 +198,24 @@ export default function CidadesPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Cidade</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">UF</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Cidade
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  UF
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={3}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de cidades...
                   </td>
                 </tr>
@@ -257,17 +275,26 @@ export default function CidadesPage() {
             <div className="md:col-span-3">
               <label className="text-sm font-bold text-gray-700 ml-1">Nome da Cidade</label>
               <div className="relative mt-1">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <MapPin
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('nome')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.nome ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.nome
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: Fortaleza"
                 />
               </div>
-              {errors.nome && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.nome.message}</p>}
+              {errors.nome && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.nome.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-1">
@@ -278,13 +305,17 @@ export default function CidadesPage() {
                   {...register('uf')}
                   maxLength={2}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all uppercase",
-                    errors.uf ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all uppercase',
+                    errors.uf
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="CE"
                 />
               </div>
-              {errors.uf && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.uf.message}</p>}
+              {errors.uf && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.uf.message}</p>
+              )}
             </div>
           </div>
 
@@ -301,7 +332,11 @@ export default function CidadesPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedCidade ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedCidade
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Cadastro'}
             </button>
           </div>
         </form>

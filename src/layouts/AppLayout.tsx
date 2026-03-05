@@ -46,7 +46,7 @@ export default function AppLayout() {
   return (
     <div className="flex min-h-screen bg-gray-50/50 text-slate-900 overflow-x-hidden">
       {/* Sidebar Desktop - Container Fixo Animado */}
-      <motion.div 
+      <motion.div
         initial={false}
         animate={{ width: isSidebarCollapsed ? 80 : 256 }}
         transition={sidebarTransition}
@@ -56,7 +56,7 @@ export default function AppLayout() {
       </motion.div>
 
       {/* Espaçador Desktop - Move o conteúdo principal em sincronia */}
-      <motion.div 
+      <motion.div
         initial={false}
         animate={{ width: isSidebarCollapsed ? 80 : 256 }}
         transition={sidebarTransition}
@@ -105,14 +105,14 @@ export default function AppLayout() {
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               className="hidden lg:flex p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
-              title={isSidebarCollapsed ? "Expandir menu" : "Recolher menu"}
+              title={isSidebarCollapsed ? 'Expandir menu' : 'Recolher menu'}
             >
               {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
             </button>
 
             {/* Título Central/Header */}
-            <Link 
-              to="/dashboard" 
+            <Link
+              to="/dashboard"
               className="flex flex-col group transition-transform active:scale-95"
             >
               <h1 className="text-xl font-bold tracking-tight text-blue-900 leading-none group-hover:text-blue-700 transition-colors">
@@ -129,7 +129,7 @@ export default function AppLayout() {
               onClick={handleSync}
               disabled={isRefreshing}
               className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 border shadow-sm",
+                'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 border shadow-sm',
                 isRefreshing
                   ? 'bg-blue-50 text-blue-400 border-blue-100'
                   : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-400 active:scale-95'
@@ -137,7 +137,9 @@ export default function AppLayout() {
               title="Sincronizar com Banco de Dados"
             >
               <RefreshCcw size={14} className={isRefreshing ? 'animate-spin' : ''} />
-              <span className="hidden sm:inline uppercase tracking-wide text-[10px]">Sincronizar</span>
+              <span className="hidden sm:inline uppercase tracking-wide text-[10px]">
+                Sincronizar
+              </span>
             </button>
           </div>
         </header>

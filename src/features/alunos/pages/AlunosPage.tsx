@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { GraduationCap, Plus, Edit2, Trash2, Search, User, BookOpen, Fingerprint, Calendar } from 'lucide-react';
+import {
+  GraduationCap,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  User,
+  BookOpen,
+  Fingerprint,
+  Calendar,
+} from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,7 +61,7 @@ export default function AlunosPage() {
     update,
     remove,
   } = useSupabaseCrud<Aluno>('alunos', ['alunos']);
-  
+
   const { items: cursos } = useSupabaseCrud<any>('cursos', ['cursos']);
   const { items: responsaveis } = useSupabaseCrud<any>('responsaveis', ['responsaveis']);
 
@@ -120,10 +130,11 @@ export default function AlunosPage() {
     reset();
   };
 
-  const filteredAlunos = alunos.filter(aluno => 
-    (aluno.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (aluno.matricula || '').includes(searchTerm) ||
-    (aluno.cpf || '').includes(searchTerm)
+  const filteredAlunos = alunos.filter(
+    (aluno) =>
+      (aluno.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (aluno.matricula || '').includes(searchTerm) ||
+      (aluno.cpf || '').includes(searchTerm)
   );
 
   const { listLayout } = useListLayout();
@@ -149,7 +160,10 @@ export default function AlunosPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por nome, matrícula ou CPF..."
@@ -162,10 +176,12 @@ export default function AlunosPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando alunos...
@@ -176,7 +192,10 @@ export default function AlunosPage() {
           </div>
         ) : (
           filteredAlunos.map((aluno) => (
-            <div key={aluno.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div
+              key={aluno.id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -184,23 +203,31 @@ export default function AlunosPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900 leading-tight">{aluno.nome}</h3>
-                    <p className="text-xs text-gray-500 font-medium">Matrícula: {aluno.matricula}</p>
+                    <p className="text-xs text-gray-500 font-medium">
+                      Matrícula: {aluno.matricula}
+                    </p>
                   </div>
                 </div>
-                <span className={cn(
-                  'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                  aluno.status === 'estagiando' ? 'bg-green-100 text-green-700' :
-                  aluno.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-gray-100 text-gray-700'
-                )}>
+                <span
+                  className={cn(
+                    'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                    aluno.status === 'estagiando'
+                      ? 'bg-green-100 text-green-700'
+                      : aluno.status === 'pendente'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-gray-100 text-gray-700'
+                  )}
+                >
                   {aluno.status}
                 </span>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <BookOpen size={14} className="text-blue-500" />
-                  <span className="truncate">{cursos.find((c: any) => c.id === aluno.curso_id)?.nome || 'N/A'}</span>
+                  <span className="truncate">
+                    {cursos.find((c: any) => c.id === aluno.curso_id)?.nome || 'N/A'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <Fingerprint size={14} className="text-blue-500" />
@@ -233,17 +260,30 @@ export default function AlunosPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Aluno</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Matrícula</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Curso</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Aluno
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Matrícula
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Curso
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de alunos...
                   </td>
                 </tr>
@@ -269,12 +309,16 @@ export default function AlunosPage() {
                       {cursos.find((c: any) => c.id === aluno.curso_id)?.nome || 'N/A'}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={cn(
-                        'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                        aluno.status === 'estagiando' ? 'bg-green-100 text-green-700' :
-                        aluno.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-gray-100 text-gray-700'
-                      )}>
+                      <span
+                        className={cn(
+                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                          aluno.status === 'estagiando'
+                            ? 'bg-green-100 text-green-700'
+                            : aluno.status === 'pendente'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-gray-100 text-gray-700'
+                        )}
+                      >
                         {aluno.status}
                       </span>
                     </td>
@@ -316,17 +360,26 @@ export default function AlunosPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
               <div className="relative mt-1">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <User
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('nome')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.nome ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.nome
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: João Silva Sauro"
                 />
               </div>
-              {errors.nome && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.nome.message}</p>}
+              {errors.nome && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.nome.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -334,12 +387,18 @@ export default function AlunosPage() {
               <input
                 {...register('matricula')}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                  errors.matricula ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  errors.matricula
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
                 placeholder="000000"
               />
-              {errors.matricula && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.matricula.message}</p>}
+              {errors.matricula && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.matricula.message}
+                </p>
+              )}
             </div>
 
             <Controller
@@ -362,16 +421,24 @@ export default function AlunosPage() {
               <select
                 {...register('curso_id')}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                  errors.curso_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  errors.curso_id
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
               >
                 <option value="">Selecione o curso...</option>
                 {cursos.map((c: any) => (
-                  <option key={c.id} value={c.id}>{c.nome}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
                 ))}
               </select>
-              {errors.curso_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.curso_id.message}</p>}
+              {errors.curso_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.curso_id.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
@@ -379,32 +446,49 @@ export default function AlunosPage() {
               <select
                 {...register('responsavel_id')}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                  errors.responsavel_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  errors.responsavel_id
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
               >
                 <option value="">Selecione o responsável...</option>
                 {responsaveis.map((r: any) => (
-                  <option key={r.id} value={r.id}>{r.nome}</option>
+                  <option key={r.id} value={r.id}>
+                    {r.nome}
+                  </option>
                 ))}
               </select>
-              {errors.responsavel_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.responsavel_id.message}</p>}
+              {errors.responsavel_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.responsavel_id.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Nascimento</label>
               <div className="relative mt-1">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Calendar
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="date"
                   {...register('data_nascimento')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.data_nascimento ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.data_nascimento
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 />
               </div>
-              {errors.data_nascimento && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.data_nascimento.message}</p>}
+              {errors.data_nascimento && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.data_nascimento.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -434,7 +518,11 @@ export default function AlunosPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedAluno ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedAluno
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Cadastro'}
             </button>
           </div>
         </form>

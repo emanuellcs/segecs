@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { UserCog, Plus, Edit2, Trash2, Search, Building2, Briefcase, GraduationCap, Phone } from 'lucide-react';
+import {
+  UserCog,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  Building2,
+  Briefcase,
+  GraduationCap,
+  Phone,
+} from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,7 +57,7 @@ export default function SupervisoresPage() {
     update,
     remove,
   } = useSupabaseCrud<Supervisor>('supervisores', ['supervisores']);
-  
+
   const { items: empresas } = useSupabaseCrud<any>('empresas', ['empresas']);
 
   const {
@@ -111,9 +121,10 @@ export default function SupervisoresPage() {
     reset();
   };
 
-  const filteredSupervisores = supervisores.filter(supervisor => 
-    (supervisor.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (supervisor.cargo?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  const filteredSupervisores = supervisores.filter(
+    (supervisor) =>
+      (supervisor.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (supervisor.cargo?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   const { listLayout } = useListLayout();
@@ -139,7 +150,10 @@ export default function SupervisoresPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por nome ou cargo..."
@@ -152,10 +166,12 @@ export default function SupervisoresPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando supervisores...
@@ -166,7 +182,10 @@ export default function SupervisoresPage() {
           </div>
         ) : (
           filteredSupervisores.map((supervisor) => (
-            <div key={supervisor.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div
+              key={supervisor.id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -178,11 +197,14 @@ export default function SupervisoresPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 gap-2 pt-2">
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <Building2 size={14} className="text-blue-500" />
-                  <span className="truncate">{empresas.find((e: any) => e.id === supervisor.empresa_id)?.razao_social || 'N/A'}</span>
+                  <span className="truncate">
+                    {empresas.find((e: any) => e.id === supervisor.empresa_id)?.razao_social ||
+                      'N/A'}
+                  </span>
                 </div>
                 {supervisor.telefone && (
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
@@ -217,16 +239,27 @@ export default function SupervisoresPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Supervisor</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Cargo</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Empresa</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Supervisor
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Cargo
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Empresa
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={4}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de supervisores...
                   </td>
                 </tr>
@@ -249,7 +282,8 @@ export default function SupervisoresPage() {
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-medium">{supervisor.cargo}</td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {empresas.find((e: any) => e.id === supervisor.empresa_id)?.razao_social || 'N/A'}
+                      {empresas.find((e: any) => e.id === supervisor.empresa_id)?.razao_social ||
+                        'N/A'}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -289,17 +323,26 @@ export default function SupervisoresPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
               <div className="relative mt-1">
-                <UserCog className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <UserCog
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('nome')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.nome ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.nome
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: João Silva"
                 />
               </div>
-              {errors.nome && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.nome.message}</p>}
+              {errors.nome && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.nome.message}
+                </p>
+              )}
             </div>
 
             <Controller
@@ -335,43 +378,66 @@ export default function SupervisoresPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Empresa</label>
               <div className="relative mt-1">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Building2
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('empresa_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium",
-                    errors.empresa_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium',
+                    errors.empresa_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione a empresa...</option>
                   {empresas.map((e: any) => (
-                    <option key={e.id} value={e.id}>{e.razao_social}</option>
+                    <option key={e.id} value={e.id}>
+                      {e.razao_social}
+                    </option>
                   ))}
                 </select>
               </div>
-              {errors.empresa_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.empresa_id.message}</p>}
+              {errors.empresa_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.empresa_id.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Cargo/Função</label>
               <div className="relative mt-1">
-                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Briefcase
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('cargo')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.cargo ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.cargo
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: Gerente de TI"
                 />
               </div>
-              {errors.cargo && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.cargo.message}</p>}
+              {errors.cargo && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.cargo.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Formação</label>
               <div className="relative mt-1">
-                <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <GraduationCap
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('formacao')}
                   className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
@@ -394,7 +460,11 @@ export default function SupervisoresPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedSupervisor ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedSupervisor
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Cadastro'}
             </button>
           </div>
         </form>

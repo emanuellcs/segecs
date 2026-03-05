@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Clock, Plus, Edit2, Trash2, Search, CheckCircle2, User, Calendar, Activity } from 'lucide-react';
+import {
+  Clock,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  CheckCircle2,
+  User,
+  Calendar,
+  Activity,
+} from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,7 +57,7 @@ export default function FrequenciaPage() {
     update,
     remove,
   } = useSupabaseCrud<Frequencia>('frequencias', ['frequencias']);
-  
+
   const { items: estagios } = useSupabaseCrud<any>('estagios', ['estagios']);
   const { items: alunos } = useSupabaseCrud<any>('alunos', ['alunos']);
 
@@ -58,13 +68,13 @@ export default function FrequenciaPage() {
     formState: { errors, isSubmitting },
   } = useForm<FrequenciaFormValues>({
     resolver: zodResolver(frequenciaSchema) as any,
-    defaultValues: { 
-      horas_realizadas: 6, 
-      validado_supervisor: false, 
+    defaultValues: {
+      horas_realizadas: 6,
+      validado_supervisor: false,
       validado_orientador: false,
       data: new Date().toISOString().split('T')[0],
       atividades: '',
-      estagio_id: ''
+      estagio_id: '',
     },
   });
 
@@ -119,11 +129,12 @@ export default function FrequenciaPage() {
     reset();
   };
 
-  const filteredFrequencias = frequencias.filter(freq => {
-    const estagio = estagios.find(e => e.id === freq.estagio_id);
-    const alunoNome = alunos.find(a => a.id === estagio?.aluno_id)?.nome || '';
-    const matchesSearch = (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-                         (freq.atividades?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+  const filteredFrequencias = frequencias.filter((freq) => {
+    const estagio = estagios.find((e) => e.id === freq.estagio_id);
+    const alunoNome = alunos.find((a) => a.id === estagio?.aluno_id)?.nome || '';
+    const matchesSearch =
+      (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (freq.atividades?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesEstagio = !selectedEstagioId || freq.estagio_id === selectedEstagioId;
     return matchesSearch && matchesEstagio;
   });
@@ -153,24 +164,30 @@ export default function FrequenciaPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Filtrar por Estágio</label>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Filtrar por Estágio
+          </label>
           <select
             className="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             value={selectedEstagioId}
             onChange={(e) => setSelectedEstagioId(e.target.value)}
           >
             <option value="">Todos os alunos ativos</option>
-            {estagios.filter((e: any) => e.status === 'ativo').map((est: any) => (
-              <option key={est.id} value={est.id}>
-                {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
-              </option>
-            ))}
+            {estagios
+              .filter((e: any) => e.status === 'ativo')
+              .map((est: any) => (
+                <option key={est.id} value={est.id}>
+                  {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
+                </option>
+              ))}
           </select>
         </div>
-        
+
         <div className="bg-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-100 flex justify-between items-center text-white">
           <div>
-            <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-1">Total Acumulado</p>
+            <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-1">
+              Total Acumulado
+            </p>
             <h2 className="text-4xl font-black">{totalHoras}h</h2>
           </div>
           <div className="bg-blue-500/30 p-3 rounded-xl">
@@ -180,7 +197,9 @@ export default function FrequenciaPage() {
 
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
           <div>
-            <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">Meta Obrigatória</p>
+            <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">
+              Meta Obrigatória
+            </p>
             <h2 className="text-4xl font-black text-gray-800">400h</h2>
           </div>
           <div className="bg-green-50 p-3 rounded-xl text-green-500">
@@ -192,7 +211,10 @@ export default function FrequenciaPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por atividades ou nome do aluno..."
@@ -205,10 +227,12 @@ export default function FrequenciaPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando registros...
@@ -219,11 +243,14 @@ export default function FrequenciaPage() {
           </div>
         ) : (
           filteredFrequencias.map((freq) => {
-            const estagio = estagios.find(e => e.id === freq.estagio_id);
-            const aluno = alunos.find(a => a.id === estagio?.aluno_id);
+            const estagio = estagios.find((e) => e.id === freq.estagio_id);
+            const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
             return (
-              <div key={freq.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+              <div
+                key={freq.id}
+                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+              >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -231,31 +258,45 @@ export default function FrequenciaPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 leading-tight">{aluno?.nome}</h3>
-                      <p className="text-xs text-gray-500 font-medium">{new Date(freq.data).toLocaleDateString('pt-BR')}</p>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {new Date(freq.data).toLocaleDateString('pt-BR')}
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <span className={cn(
-                      "px-1.5 py-0.5 rounded text-[8px] font-black border",
-                      freq.validado_supervisor ? "bg-green-50 text-green-700 border-green-100" : "bg-gray-50 text-gray-400 border-gray-100"
-                    )}>SUP</span>
-                    <span className={cn(
-                      "px-1.5 py-0.5 rounded text-[8px] font-black border",
-                      freq.validado_orientador ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-gray-50 text-gray-400 border-gray-100"
-                    )}>ORI</span>
+                    <span
+                      className={cn(
+                        'px-1.5 py-0.5 rounded text-[8px] font-black border',
+                        freq.validado_supervisor
+                          ? 'bg-green-50 text-green-700 border-green-100'
+                          : 'bg-gray-50 text-gray-400 border-gray-100'
+                      )}
+                    >
+                      SUP
+                    </span>
+                    <span
+                      className={cn(
+                        'px-1.5 py-0.5 rounded text-[8px] font-black border',
+                        freq.validado_orientador
+                          ? 'bg-blue-50 text-blue-700 border-blue-100'
+                          : 'bg-gray-50 text-gray-400 border-gray-100'
+                      )}
+                    >
+                      ORI
+                    </span>
                   </div>
                 </div>
-                
+
                 <p className="text-sm text-gray-600 line-clamp-2 bg-gray-50 p-3 rounded-xl border border-gray-100 italic">
                   "{freq.atividades}"
                 </p>
 
                 <div className="flex items-center justify-between pt-2">
-                   <div className="flex items-center gap-2 text-blue-700 font-black">
-                      <Clock size={16} />
-                      <span>{freq.horas_realizadas}h realizadas</span>
-                   </div>
-                   <div className="flex gap-2">
+                  <div className="flex items-center gap-2 text-blue-700 font-black">
+                    <Clock size={16} />
+                    <span>{freq.horas_realizadas}h realizadas</span>
+                  </div>
+                  <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(freq)}
                       className="p-2.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
@@ -282,17 +323,30 @@ export default function FrequenciaPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Data / Aluno</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Atividades</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Horas</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Validação</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Data / Aluno
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Atividades
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">
+                  Horas
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">
+                  Validação
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de frequências...
                   </td>
                 </tr>
@@ -304,19 +358,24 @@ export default function FrequenciaPage() {
                 </tr>
               ) : (
                 filteredFrequencias.map((freq) => {
-                  const estagio = estagios.find(e => e.id === freq.estagio_id);
-                  const aluno = alunos.find(a => a.id === estagio?.aluno_id);
+                  const estagio = estagios.find((e) => e.id === freq.estagio_id);
+                  const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
                   return (
                     <tr key={freq.id} className="hover:bg-blue-50/30 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-gray-900 font-bold">{new Date(freq.data).toLocaleDateString('pt-BR')}</span>
+                          <span className="text-gray-900 font-bold">
+                            {new Date(freq.data).toLocaleDateString('pt-BR')}
+                          </span>
                           <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-gray-600 text-sm max-w-md truncate" title={freq.atividades}>
+                        <p
+                          className="text-gray-600 text-sm max-w-md truncate"
+                          title={freq.atividades}
+                        >
                           {freq.atividades}
                         </p>
                       </td>
@@ -327,14 +386,26 @@ export default function FrequenciaPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-center gap-2">
-                          <span className={cn(
-                            "px-2 py-1 rounded text-[9px] font-black border",
-                            freq.validado_supervisor ? "bg-green-50 text-green-700 border-green-100" : "bg-gray-50 text-gray-400 border-gray-100"
-                          )}>SUP</span>
-                          <span className={cn(
-                            "px-2 py-1 rounded text-[9px] font-black border",
-                            freq.validado_orientador ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-gray-50 text-gray-400 border-gray-100"
-                          )}>ORI</span>
+                          <span
+                            className={cn(
+                              'px-2 py-1 rounded text-[9px] font-black border',
+                              freq.validado_supervisor
+                                ? 'bg-green-50 text-green-700 border-green-100'
+                                : 'bg-gray-50 text-gray-400 border-gray-100'
+                            )}
+                          >
+                            SUP
+                          </span>
+                          <span
+                            className={cn(
+                              'px-2 py-1 rounded text-[9px] font-black border',
+                              freq.validado_orientador
+                                ? 'bg-blue-50 text-blue-700 border-blue-100'
+                                : 'bg-gray-50 text-gray-400 border-gray-100'
+                            )}
+                          >
+                            ORI
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -376,82 +447,131 @@ export default function FrequenciaPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Estágio / Aluno</label>
               <div className="relative mt-1">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <User
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('estagio_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                    errors.estagio_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    errors.estagio_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione o estágio...</option>
-                  {estagios.filter((e: any) => e.status === 'ativo').map((est: any) => (
-                    <option key={est.id} value={est.id}>
-                      {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
-                    </option>
-                  ))}
+                  {estagios
+                    .filter((e: any) => e.status === 'ativo')
+                    .map((est: any) => (
+                      <option key={est.id} value={est.id}>
+                        {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
+                      </option>
+                    ))}
                 </select>
               </div>
-              {errors.estagio_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.estagio_id.message}</p>}
+              {errors.estagio_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.estagio_id.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Data</label>
               <div className="relative mt-1">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Calendar
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="date"
                   {...register('data')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.data ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.data
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 />
               </div>
-              {errors.data && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.data.message}</p>}
+              {errors.data && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.data.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">Horas Realizadas</label>
               <div className="relative mt-1">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Clock
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="number"
                   {...register('horas_realizadas', { valueAsNumber: true })}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.horas_realizadas ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.horas_realizadas
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 />
               </div>
-              {errors.horas_realizadas && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.horas_realizadas.message}</p>}
+              {errors.horas_realizadas && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.horas_realizadas.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Atividades Desempenhadas</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Atividades Desempenhadas
+              </label>
               <div className="relative mt-1">
                 <Activity className="absolute left-3 top-3 text-gray-400" size={16} />
                 <textarea
                   {...register('atividades')}
                   rows={3}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.atividades ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.atividades
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: Instalação de softwares, suporte aos usuários..."
                 />
               </div>
-              {errors.atividades && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.atividades.message}</p>}
+              {errors.atividades && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.atividades.message}
+                </p>
+              )}
             </div>
-            
+
             <div className="md:col-span-2 flex gap-4 bg-gray-50 p-4 rounded-xl">
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" {...register('validado_supervisor')} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">Validado pelo Supervisor</span>
+                <input
+                  type="checkbox"
+                  {...register('validado_supervisor')}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
+                  Validado pelo Supervisor
+                </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" {...register('validado_orientador')} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">Validado pelo Orientador</span>
+                <input
+                  type="checkbox"
+                  {...register('validado_orientador')}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
+                  Validado pelo Orientador
+                </span>
               </label>
             </div>
           </div>
@@ -469,7 +589,11 @@ export default function FrequenciaPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedFreq ? 'Salvar Alterações' : 'Confirmar Lançamento'}
+              {isSubmitting
+                ? 'Salvando...'
+                : selectedFreq
+                  ? 'Salvar Alterações'
+                  : 'Confirmar Lançamento'}
             </button>
           </div>
         </form>

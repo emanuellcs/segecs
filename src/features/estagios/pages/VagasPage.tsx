@@ -48,7 +48,7 @@ export default function VagasPage() {
     update,
     remove,
   } = useSupabaseCrud<Vaga>('vagas', ['vagas']);
-  
+
   const { items: empresas } = useSupabaseCrud<any>('empresas', ['empresas']);
   const { items: cursos } = useSupabaseCrud<any>('cursos', ['cursos']);
 
@@ -59,9 +59,9 @@ export default function VagasPage() {
     formState: { errors, isSubmitting },
   } = useForm<VagaFormValues>({
     resolver: zodResolver(vagaSchema),
-    defaultValues: { 
-      quantidade: 1, 
-      status: 'aberta' 
+    defaultValues: {
+      quantidade: 1,
+      status: 'aberta',
     },
   });
 
@@ -116,9 +116,9 @@ export default function VagasPage() {
     reset();
   };
 
-  const filteredVagas = vagas.filter(vaga => {
-    const empresa = empresas.find(e => e.id === vaga.empresa_id)?.razao_social || '';
-    const curso = cursos.find(c => c.id === vaga.curso_id)?.nome || '';
+  const filteredVagas = vagas.filter((vaga) => {
+    const empresa = empresas.find((e) => e.id === vaga.empresa_id)?.razao_social || '';
+    const curso = cursos.find((c) => c.id === vaga.curso_id)?.nome || '';
     return (
       (vaga.titulo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (empresa?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -149,7 +149,10 @@ export default function VagasPage() {
       {/* Busca e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por título, empresa ou curso..."
@@ -162,10 +165,12 @@ export default function VagasPage() {
       </div>
 
       {/* Listagem Responsiva (Cards) */}
-      <div className={cn(
-        "grid grid-cols-1 gap-4",
-        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
-      )}>
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-4',
+          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+        )}
+      >
         {isLoading ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando vagas...
@@ -176,7 +181,10 @@ export default function VagasPage() {
           </div>
         ) : (
           filteredVagas.map((vaga) => (
-            <div key={vaga.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div
+              key={vaga.id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -185,24 +193,30 @@ export default function VagasPage() {
                   <div>
                     <h3 className="font-bold text-gray-900 leading-tight">{vaga.titulo}</h3>
                     <p className="text-xs text-gray-500 font-medium">
-                      {empresas.find(e => e.id === vaga.empresa_id)?.razao_social}
+                      {empresas.find((e) => e.id === vaga.empresa_id)?.razao_social}
                     </p>
                   </div>
                 </div>
-                <span className={cn(
-                  'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                  vaga.status === 'aberta' ? 'bg-green-100 text-green-700' :
-                  vaga.status === 'preenchida' ? 'bg-blue-100 text-blue-700' :
-                  'bg-gray-100 text-gray-700'
-                )}>
+                <span
+                  className={cn(
+                    'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                    vaga.status === 'aberta'
+                      ? 'bg-green-100 text-green-700'
+                      : vaga.status === 'preenchida'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-700'
+                  )}
+                >
                   {vaga.status}
                 </span>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <BookOpen size={14} className="text-blue-500" />
-                  <span className="truncate">{cursos.find(c => c.id === vaga.curso_id)?.nome || 'N/A'}</span>
+                  <span className="truncate">
+                    {cursos.find((c) => c.id === vaga.curso_id)?.nome || 'N/A'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <Layers size={14} className="text-blue-500" />
@@ -235,17 +249,30 @@ export default function VagasPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Título / Empresa</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Curso</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Vagas</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Título / Empresa
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Curso
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">
+                  Vagas
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                  >
                     Carregando lista de vagas...
                   </td>
                 </tr>
@@ -262,23 +289,27 @@ export default function VagasPage() {
                       <div className="flex flex-col">
                         <span className="text-gray-900 font-bold">{vaga.titulo}</span>
                         <span className="text-xs text-gray-500 font-medium">
-                          {empresas.find(e => e.id === vaga.empresa_id)?.razao_social}
+                          {empresas.find((e) => e.id === vaga.empresa_id)?.razao_social}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {cursos.find(c => c.id === vaga.curso_id)?.nome || 'N/A'}
+                      {cursos.find((c) => c.id === vaga.curso_id)?.nome || 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-bold text-center">
                       {vaga.quantidade}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={cn(
-                        'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                        vaga.status === 'aberta' ? 'bg-green-100 text-green-700' :
-                        vaga.status === 'preenchida' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
-                      )}>
+                      <span
+                        className={cn(
+                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                          vaga.status === 'aberta'
+                            ? 'bg-green-100 text-green-700'
+                            : vaga.status === 'preenchida'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-gray-100 text-gray-700'
+                        )}
+                      >
                         {vaga.status}
                       </span>
                     </td>
@@ -320,57 +351,88 @@ export default function VagasPage() {
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Título da Vaga</label>
               <div className="relative mt-1">
-                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Briefcase
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
                   {...register('titulo')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.titulo ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    errors.titulo
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                   placeholder="Ex: Estagiário de Desenvolvimento"
                 />
               </div>
-              {errors.titulo && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.titulo.message}</p>}
+              {errors.titulo && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.titulo.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Empresa</label>
               <div className="relative mt-1">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Building2
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('empresa_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                    errors.empresa_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    errors.empresa_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione a empresa...</option>
                   {empresas.map((e: any) => (
-                    <option key={e.id} value={e.id}>{e.razao_social}</option>
+                    <option key={e.id} value={e.id}>
+                      {e.razao_social}
+                    </option>
                   ))}
                 </select>
               </div>
-              {errors.empresa_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.empresa_id.message}</p>}
+              {errors.empresa_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.empresa_id.message}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">Curso Destinado</label>
               <div className="relative mt-1">
-                <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <BookOpen
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <select
                   {...register('curso_id')}
                   className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
-                    errors.curso_id ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    errors.curso_id
+                      ? 'border-red-500 focus:ring-red-200'
+                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                   )}
                 >
                   <option value="">Selecione o curso...</option>
                   {cursos.map((c: any) => (
-                    <option key={c.id} value={c.id}>{c.nome}</option>
+                    <option key={c.id} value={c.id}>
+                      {c.nome}
+                    </option>
                   ))}
                 </select>
               </div>
-              {errors.curso_id && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.curso_id.message}</p>}
+              {errors.curso_id && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.curso_id.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -379,11 +441,17 @@ export default function VagasPage() {
                 type="number"
                 {...register('quantidade', { valueAsNumber: true })}
                 className={cn(
-                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                  errors.quantidade ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:ring-blue-100 focus:border-blue-500"
+                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  errors.quantidade
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
                 )}
               />
-              {errors.quantidade && <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.quantidade.message}</p>}
+              {errors.quantidade && (
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.quantidade.message}
+                </p>
+              )}
             </div>
 
             <div>
