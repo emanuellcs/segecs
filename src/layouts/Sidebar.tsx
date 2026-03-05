@@ -23,6 +23,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { AboutModal } from '@/components/ui/AboutModal';
 
 const menuItems = [
@@ -76,6 +77,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
 
   const handleLogout = async () => {
     console.log('Iniciando logout...');
+    toast.info('Saindo do sistema...');
     try {
       await signOut();
       console.log('Logout realizado com sucesso, redirecionando...');
@@ -83,6 +85,9 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
       if (onClose) onClose();
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
+      toast.error('Erro ao sair do sistema. Tentando novamente...');
+      // Forçamos o redirecionamento mesmo em caso de erro bizarro
+      navigate('/login');
     }
   };
 
@@ -188,6 +193,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
         )}
 
         <button
+          type="button"
           onClick={() => setIsAboutOpen(true)}
           title={isCollapsed ? 'Sobre o Sistema' : undefined}
           className={cn(
@@ -202,6 +208,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
         </button>
 
         <button
+          type="button"
           onClick={handleLogout}
           title={isCollapsed ? 'Sair do Sistema' : undefined}
           className={cn(
