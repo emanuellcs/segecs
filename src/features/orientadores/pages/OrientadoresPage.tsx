@@ -212,70 +212,72 @@ export default function OrientadoresPage() {
       </div>
 
       {/* Tabela Desktop */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Orientador</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">CPF</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Escola</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Telefone</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading ? (
+      {listLayout === 'table' && (
+        <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
-                  Carregando lista de orientadores...
-                </td>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Orientador</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">CPF</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Escola</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Telefone</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
               </tr>
-            ) : filteredOrientadores.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
-                  Nenhum orientador cadastrado.
-                </td>
-              </tr>
-            ) : (
-              filteredOrientadores.map((orientador) => (
-                <tr key={orientador.id} className="hover:bg-blue-50/30 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
-                        {orientador.nome.substring(0, 2)}
-                      </div>
-                      <span className="text-gray-900 font-bold">{orientador.nome}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 font-medium">{orientador.cpf || '-'}</td>
-                  <td className="px-6 py-4 text-gray-600 font-medium">
-                    {escolas.find((e: any) => e.id === orientador.escola_id)?.nome || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 font-medium">{orientador.telefone || '-'}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => handleEdit(orientador)}
-                        className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
-                        title="Editar"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(orientador)}
-                        className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
-                        title="Excluir"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                    Carregando lista de orientadores...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : filteredOrientadores.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
+                    Nenhum orientador cadastrado.
+                  </td>
+                </tr>
+              ) : (
+                filteredOrientadores.map((orientador) => (
+                  <tr key={orientador.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
+                          {orientador.nome.substring(0, 2)}
+                        </div>
+                        <span className="text-gray-900 font-bold">{orientador.nome}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">{orientador.cpf || '-'}</td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {escolas.find((e: any) => e.id === orientador.escola_id)?.nome || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">{orientador.telefone || '-'}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleEdit(orientador)}
+                          className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
+                          title="Editar"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(orientador)}
+                          className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
+                          title="Excluir"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Form Modal */}
       <FormModal
