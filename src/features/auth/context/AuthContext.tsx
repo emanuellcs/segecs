@@ -85,15 +85,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      // Limpa explicitamente o sessionStorage para garantir
+    console.log('AuthContext: Iniciando processo de logout...');
+    
+    // Limpamos o estado local IMEDIATAMENTE para garantir que o usuário saia da tela atual
+    const clearLocalData = () => {
+      console.log('AuthContext: Limpando estado local e storages...');
       window.sessionStorage.clear();
+      window.localStorage.clear();
       setSession(null);
       setProfile(null);
       queryClient.clear();
+    };
+
+    try {
+      // Tentamos o logout no Supabase, mas com um timeout para não travar a UI
+      const signOutPromise = supabase.auth.signOut();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout no logout do Supabase')), 3000)
+      );
+
+      await Promise.race([signOutPromise, timeoutPromise]);
+      console.log('AuthContext: Supabase signOut concluído com sucesso.');
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.warn('AuthContext: Erro ou timeout ao deslogar do Supabase:', error);
+    } finally {
+      clearLocalData();
+      console.log('AuthContext: Logout local concluído.');
     }
   };
 

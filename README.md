@@ -1,93 +1,134 @@
 # SEGECS - Sistema Escolar de Gestão do Estágio Curricular Supervisionado
 
-O **SEGECS** é uma plataforma moderna e integrada desenvolvida para otimizar a gestão de estágios curriculares obrigatórios em Escolas Estaduais de Educação Profissional (EEEP) do Ceará. O sistema foi projetado para estar em **conformidade** com a **Lei Federal nº 11.788/2008** e as diretrizes do **Guia do Estágio da SEDUC-CE (SICE)**.
+## 📖 Sobre o SEGECS
 
-## 🎯 Objetivo do Sistema
+O **SEGECS** é uma plataforma robusta e moderna desenvolvida para automatizar e otimizar a gestão de estágios curriculares em instituições de ensino técnico. Focado inicialmente nas **EEEPs do Ceará (Escolas Estaduais de Educação Profissional)**, o sistema atende especificamente às demandas do curso **Técnico em Informática** e demais áreas.
 
-Transformar o processo burocrático de gestão de estágios em um fluxo digital ágil, seguro e transparente, permitindo que coordenadores, orientadores e alunos foquem no que mais importa: o desenvolvimento profissional e pedagógico.
+O sistema foi concebido em total conformidade com a **Lei nº 11.788/2008 (Lei do Estágio)** e segue rigorosamente o **Guia de Estágio da SEDUC-CE**, garantindo segurança jurídica e pedagógica em todo o processo.
 
-## 🛠️ Arquitetura e Tecnologia
+## 🚀 Funcionalidades Principais
 
-O SEGECS utiliza uma arquitetura **Frontend-Only (Serverless)**, eliminando a necessidade de manter servidores backend complexos e garantindo alta escalabilidade e segurança.
+O SEGECS cobre 100% do ciclo de vida do estágio:
 
-- **Frontend:** React 18 + TypeScript + Vite (Performance e Tipagem Estrita)
-- **Estilização:** Tailwind CSS (Interface moderna e responsiva)
-- **Backend (BaaS):** Supabase
-  - **Auth:** Autenticação robusta e RBAC (Role-Based Access Control).
-  - **Database:** PostgreSQL com Row Level Security (RLS) para proteção de dados.
-  - **Storage:** Armazenamento seguro de documentos (TCEs e Relatórios).
-- **Gestão de Estado:** TanStack Query v5 (Sincronização de dados em tempo real).
-- **Formulários:** React Hook Form + Zod (Validações complexas e segurança).
-- **Documentação:** @react-pdf/renderer (Geração dinâmica de documentos oficiais).
+- **Gestão de Cadastros:** Alunos, Empresas (convênios), Escolas, Orientadores e Supervisores.
+- **Fluxo de Estágio:** Criação de vagas, seleção de alunos e formalização de contratos.
+- **Documentação Automática:** Geração instantânea de **TCE (Termo de Compromisso de Estágio)** e **Plano de Atividades** em PDF.
+- **Controle de Frequência:** Registro detalhado com cálculo automático para cumprimento das **400 horas** obrigatórias.
+- **Avaliações Pedagógicas:** Formulários de desempenho preenchidos por supervisores e orientadores.
+- **Acompanhamento de Visitas:** Registro de visitas técnicas in loco ou remotas.
+- **Projeto Social e TRE:** Gestão de horas de contrapartida social e Termo de Realização de Estágio.
+- **Dashboards Estratégicos:** Visão geral de alunos estagiando, vagas disponíveis e pendências documentais.
+- **Exportação SICE:** Preparação de dados para integração/lançamento no sistema da SEDUC.
+- **Interface Mobile-First:** Experiência otimizada para smartphones, tablets e desktops.
 
-## 📦 Módulos do Sistema
+## 🛠️ Tecnologias Utilizadas
 
-### 1. Gestão Operacional (Núcleo)
+### Core
 
-- **Vagas:** Cadastro de oportunidades por empresa, curso e eixo tecnológico.
-- **Alocação Inteligente:** Vinculação de alunos a vagas, definindo datas, orientadores e supervisores.
-- **Documentação Automática:** Geração instantânea de Termos de Compromisso de Estágio (TCE) e Planos de Atividades personalizados para Informática.
+- **React 18.3** (Vite 6)
+- **TypeScript**
+- **Supabase** (Auth, Database, Storage, RLS)
 
-### 2. Acompanhamento Pedagógico
+### UI/UX
 
-- **Registro de Frequência:** Lançamento diário de atividades e horas, com contador progressivo até a meta de 400h.
-- **Validação Dupla:** Sistema de validação de horas pelo supervisor da empresa e orientador da escola.
-- **Visitas Técnicas:** Histórico de acompanhamento in loco realizado pelos orientadores.
+- **TailwindCSS** (Estilização Utilitária)
+- **Framer Motion** (Animações de interface)
+- **Radix UI** (Componentes acessíveis como Dialog/Modais)
+- **Lucide React** (Pacote de ícones)
+- **Sonner** (Notificações Toast)
 
-### 3. Avaliação e Responsabilidade Social
+### Ferramentas de Desenvolvimento
 
-- **Ciclo de Notas:** Registro das 3 avaliações obrigatórias com cálculo automático de média.
-- **Projeto Social:** Módulo para gestão do projeto obrigatório exigido pela SEDUC-CE após 300h de estágio.
-- **Conclusão:** Emissão do Termo de Realização de Estágio (TRE) após cumprimento de metas.
+- **React Query (TanStack)** (Sincronização de dados e cache)
+- **React Hook Form** + **Zod** (Formulários e validação de esquemas)
+- **@react-pdf/renderer** (Geração dinâmica de documentos PDF)
+- **date-fns** (Manipulação de datas)
 
-### 4. Inteligência e Compliance
+## 📋 Pré-requisitos
 
-- **Dashboard Executivo:** Indicadores em tempo real de alunos estagiando, horas acumuladas e metas.
-- **Alertas de Risco:** Notificações sobre contratos vencendo ou avaliações pendentes.
-- **LGPD:** Gestão de consentimento para tratamento de dados sensíveis (CPF, Matrícula).
+- **Node.js** (v18 ou superior)
+- **npm** ou **yarn**
+- Uma conta no **Supabase** (tier gratuito é suficiente)
 
-## 👥 Perfis de Acesso (RBAC)
+## ⚙️ Configuração do Supabase
 
-- **Coordenador:** Visão total do sistema, gestão de cadastros base e relatórios SICE.
-- **Orientador:** Gestão dos seus estagiários, lançamento de visitas e validação de frequências.
-- **Aluno:** Lançamento de frequência diária, upload de documentos e visualização de progresso.
-- **Supervisor (Empresa):** Acompanhamento técnico e validação de atividades na ponta.
+Siga os passos abaixo para preparar o backend:
 
-## 🚀 Como Executar o Projeto
+1. **Criar Projeto:** No painel do Supabase, crie um novo projeto.
+2. **Rodar o Schema SQL:** Vá em `SQL Editor` e execute o conteúdo do arquivo `database/supabase_schema.sql`. Este script cria:
+   - Tabelas (`alunos`, `empresas`, `estagios`, `frequencias`, etc.)
+   - Enums de acesso (`admin`, `coordenador`, `orientador`, `aluno`, `supervisor`)
+   - Triggers para criação automática de perfis (`profiles`).
+3. **Storage:** Crie um bucket chamado `documentos` e configure-o como público ou privado conforme sua necessidade de RLS.
+4. **Políticas de RLS (Row Level Security):**
+   - O sistema já possui políticas básicas no schema, garantindo que alunos vejam apenas seus dados e administradores tenham acesso total.
 
-### Pré-requisitos
+## 🔑 Variáveis de Ambiente
 
-- Node.js 20+
-- Projeto no [Supabase](https://supabase.com)
+Crie um arquivo `.env` na raiz do projeto (baseado no `.env.example`):
 
-### Configuração Local
+```env
+VITE_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-publica
+```
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/prof-raimundo/segecs.git
-   cd segecs
-   ```
-2. Instale as dependências:
-   ```bash
-   npm install
-   ```
-3. Configure as Variáveis de Ambiente:
-   Crie um arquivo `.env` baseado no `.env.example`:
-   ```env
-   VITE_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica
-   ```
-4. Banco de Dados:
-   Copie o conteúdo de `supabase_schema.sql` e execute no SQL Editor do seu projeto Supabase.
-5. Inicie o desenvolvimento:
-   ```bash
-   npm run dev
-   ```
+## 💻 Instalação e Execução Local
 
-### Deploy no Vercel
+```bash
+# 1. Clone o repositório
+git clone https://github.com/prof-raimundo/segecs.git
 
-Este repositório está otimizado para a Vercel. Basta conectar o GitHub, configurar as variáveis de ambiente e o sistema estará online em segundos com suporte nativo a rotas SPA (via `vercel.json`).
+# 2. Acesse a pasta
+cd segecs
 
-## ⚖️ Licença e Conformidade
+# 3. Instale as dependências
+npm install
 
-Este software é fornecido sob licença para uso educacional em EEEPs do Ceará. Os dados coletados seguem rigorosamente a Lei Geral de Proteção de Dados (LGPD).
+# 4. Inicie o servidor de desenvolvimento
+npm run dev
+```
+
+## 🌐 Deploy no Vercel
+
+O projeto está otimizado para deploy na Vercel:
+
+1. Conecte seu repositório GitHub à Vercel.
+2. Configure as **Environment Variables** (`VITE_PUBLIC_SUPABASE_URL` e `VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY`).
+3. O comando de build será `npm run build` e a pasta de saída será `dist`.
+4. Ative a opção de **Framework Preset: Vite**.
+
+## 📂 Estrutura de Pastas
+
+```text
+src/
+├── app/            # Provedores e Definições de Rotas
+├── components/     # Componentes UI reutilizáveis (Radix, Shadcn-like)
+├── features/       # Módulos de negócio (Lógica principal por domínio)
+│   ├── alunos/
+│   ├── estagios/
+│   ├── frequencia/
+│   └── ...
+├── hooks/          # Hooks customizados (useAuth, useSupabaseCrud)
+├── layouts/        # Estruturas de página (Sidebar, AppLayout)
+├── lib/            # Configurações de bibliotecas (Supabase, Utils)
+├── types/          # Definições de Tipos TypeScript e Database
+└── utils/          # Máscaras e funções utilitárias
+```
+
+## 📖 Como Usar (Fluxo Operacional)
+
+1. **Início:** O administrador cadastra as **Empresas** com convênio ativo e os **Alunos** aptos.
+2. **Vaga:** O **Orientador** cria uma vaga de estágio vinculada a uma empresa.
+3. **Contrato:** Ao selecionar um aluno, o sistema gera o **TCE** e o **Plano de Atividades**.
+4. **Execução:** O aluno registra sua **Frequência** diária. O sistema calcula o progresso até as 400h.
+5. **Monitoramento:** O **Orientador** registra as visitas e acompanha as avaliações do **Supervisor** da empresa.
+6. **Conclusão:** Após as 400h e aprovação nas avaliações, o sistema emite o **TRE** e prepara os dados para o **SICE**.
+
+## ⚖️ Conformidade Legal e LGPD
+
+- **Lei 11.788/2008:** Todos os campos obrigatórios para o TCE estão presentes.
+- **LGPD:** O sistema utiliza criptografia do Supabase Auth e políticas de RLS para garantir que dados sensíveis (CPF, Matrícula) sejam acessados apenas por pessoas autorizadas.
+
+## 📄 Licença
+
+Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.

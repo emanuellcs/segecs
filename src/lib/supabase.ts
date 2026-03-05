@@ -9,9 +9,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   auth: {
-    persistSession: true,
-    storage: window.sessionStorage, // Usa sessionStorage para que a sessão expire ao fechar a aba
-    autoRefreshToken: true,
+    persistSession: false,
+    autoRefreshToken: false,
     detectSessionInUrl: true,
   },
 });
