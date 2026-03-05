@@ -55,15 +55,18 @@ export default function FrequenciaPage() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FrequenciaFormValues>({
-    resolver: zodResolver(frequenciaSchema),
+    resolver: zodResolver(frequenciaSchema) as any,
     defaultValues: { 
       horas_realizadas: 6, 
       validado_supervisor: false, 
-      validado_orientador: false 
+      validado_orientador: false,
+      data: new Date().toISOString().split('T')[0],
+      atividades: '',
+      estagio_id: ''
     },
   });
 
-  const onSubmit = async (data: FrequenciaFormValues) => {
+  const onSubmit = async (data: any) => {
     try {
       if (selectedFreq) {
         await update({ id: selectedFreq.id, ...data });

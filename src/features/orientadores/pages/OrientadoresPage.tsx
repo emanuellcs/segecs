@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserCheck, Plus, Edit2, Trash2, Search, School, Fingerprint, Phone } from 'lucide-react';
+import { UserCheck, Plus, Edit2, Trash2, Search, School, Phone } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 const orientadorSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
   cpf: z.string().min(14, 'CPF inválido'),
-  telefone: z.string().min(14, 'Telefone inválido').optional().or(z.literal('')),
+  telefone: z.string().optional().default(''),
   escola_id: z.string().uuid('Selecione uma escola válida'),
 });
 
@@ -51,10 +51,16 @@ export default function OrientadoresPage() {
     control,
     formState: { errors, isSubmitting },
   } = useForm<OrientadorFormValues>({
-    resolver: zodResolver(orientadorSchema),
+    resolver: zodResolver(orientadorSchema) as any,
+    defaultValues: {
+      nome: '',
+      cpf: '',
+      telefone: '',
+      escola_id: ''
+    }
   });
 
-  const onSubmit = async (data: OrientadorFormValues) => {
+  const onSubmit = async (data: any) => {
     try {
       if (selectedOrientador) {
         await update({ id: selectedOrientador.id, ...data });
@@ -293,7 +299,7 @@ export default function OrientadoresPage() {
                 <InputMask
                   mask="cpf"
                   label="CPF"
-                  value={field.value}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   error={errors.cpf?.message}
                   placeholder="000.000.000-00"
@@ -308,7 +314,7 @@ export default function OrientadoresPage() {
                 <InputMask
                   mask="phone"
                   label="Telefone"
-                  value={field.value}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   error={errors.telefone?.message}
                   placeholder="(00) 00000-0000"

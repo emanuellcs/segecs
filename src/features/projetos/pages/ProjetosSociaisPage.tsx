@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, Plus, Edit2, Trash2, Search, CheckCircle, User, Calendar, Clock, Activity } from 'lucide-react';
+import { Heart, Plus, Edit2, Trash2, Search, User, Calendar, Clock, Activity } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

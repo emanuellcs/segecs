@@ -337,7 +337,7 @@ export default function AlunosPage() {
                 <InputMask
                   mask="cpf"
                   label="CPF"
-                  value={field.value}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   error={errors.cpf?.message}
                   placeholder="000.000.000-00"

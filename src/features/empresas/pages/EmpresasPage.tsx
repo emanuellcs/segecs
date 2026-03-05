@@ -18,8 +18,8 @@ const empresaSchema = z.object({
   contato_nome: z.string().min(1, 'O nome do contato é obrigatório'),
   contato_email: z.string().email('Email inválido').or(z.literal('')),
   contato_telefone: z.string().min(14, 'Telefone inválido'),
-  convenio_numero: z.string().optional(),
-  convenio_validade: z.string().optional(),
+  convenio_numero: z.string().default(''),
+  convenio_validade: z.string().default(''),
 });
 
 type EmpresaFormValues = z.infer<typeof empresaSchema>;
@@ -28,13 +28,13 @@ interface Empresa {
   id: string;
   razao_social: string;
   cnpj: string;
-  endereco: string;
+  endereco?: string | null;
   cidade_id: string;
-  contato_nome: string;
-  contato_email: string;
-  contato_telefone: string;
-  convenio_numero: string;
-  convenio_validade: string;
+  contato_nome?: string | null;
+  contato_email?: string | null;
+  contato_telefone?: string | null;
+  convenio_numero?: string | null;
+  convenio_validade?: string | null;
   created_at: string;
 }
 
@@ -61,10 +61,21 @@ export default function EmpresasPage() {
     control,
     formState: { errors, isSubmitting },
   } = useForm<EmpresaFormValues>({
-    resolver: zodResolver(empresaSchema),
+    resolver: zodResolver(empresaSchema) as any,
+    defaultValues: {
+      razao_social: '',
+      cnpj: '',
+      endereco: '',
+      cidade_id: '',
+      contato_nome: '',
+      contato_email: '',
+      contato_telefone: '',
+      convenio_numero: '',
+      convenio_validade: '',
+    }
   });
 
-  const onSubmit = async (data: EmpresaFormValues) => {
+  const onSubmit = async (data: any) => {
     try {
       if (selectedEmpresa) {
         await update({ id: selectedEmpresa.id, ...data });
@@ -313,7 +324,7 @@ export default function EmpresasPage() {
                 <InputMask
                   mask="cnpj"
                   label="CNPJ"
-                  value={field.value}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   error={errors.cnpj?.message}
                   placeholder="00.000.000/0000-00"
@@ -401,7 +412,7 @@ export default function EmpresasPage() {
                 <InputMask
                   mask="phone"
                   label="Telefone"
-                  value={field.value}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   error={errors.contato_telefone?.message}
                   placeholder="(00) 00000-0000"

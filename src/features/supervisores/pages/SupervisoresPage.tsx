@@ -297,7 +297,7 @@ export default function SupervisoresPage() {
                 <InputMask
                   mask="cpf"
                   label="CPF"
-                  value={field.value}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   error={errors.cpf?.message}
                   placeholder="000.000.000-00"
@@ -312,7 +312,7 @@ export default function SupervisoresPage() {
                 <InputMask
                   mask="phone"
                   label="Telefone"
-                  value={field.value}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   error={errors.telefone?.message}
                   placeholder="(00) 00000-0000"

@@ -6,8 +6,7 @@ import {
   maskCNPJ, 
   maskCEP, 
   maskPhone, 
-  maskRG,
-  clearMask 
+  maskRG
 } from '@/utils/masks';
 
 type MaskType = 'cpf' | 'cnpj' | 'cep' | 'phone' | 'rg';
