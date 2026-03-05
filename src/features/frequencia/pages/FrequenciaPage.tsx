@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Clock,
   Plus,
@@ -9,26 +9,31 @@ import {
   User,
   Calendar,
   Activity,
-} from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
-import { usePagination } from '@/hooks/usePagination';
-import { Pagination } from '@/components/ui/Pagination';
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 const frequenciaSchema = z.object({
-  estagio_id: z.string().uuid('Selecione um estágio válido'),
-  data: z.string().min(1, 'A data é obrigatória'),
-  horas_realizadas: z.number().min(1, 'Mínimo 1 hora').max(10, 'Máximo 10 horas'),
-  atividades: z.string().min(10, 'Descreva as atividades com pelo menos 10 caracteres'),
+  estagio_id: z.string().uuid("Selecione um estágio válido"),
+  data: z.string().min(1, "A data é obrigatória"),
+  horas_realizadas: z
+    .number()
+    .min(1, "Mínimo 1 hora")
+    .max(10, "Máximo 10 horas"),
+  atividades: z
+    .string()
+    .min(10, "Descreva as atividades com pelo menos 10 caracteres"),
   validado_supervisor: z.boolean().default(false),
   validado_orientador: z.boolean().default(false),
 });
@@ -50,8 +55,8 @@ export default function FrequenciaPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedFreq, setSelectedFreq] = useState<Frequencia | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedEstagioId, setSelectedEstagioId] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEstagioId, setSelectedEstagioId] = useState<string>("");
 
   const {
     items: frequencias,
@@ -59,10 +64,10 @@ export default function FrequenciaPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Frequencia>('frequencias', ['frequencias']);
+  } = useSupabaseCrud<Frequencia>("frequencias", ["frequencias"]);
 
-  const { items: estagios } = useSupabaseCrud<any>('estagios', ['estagios']);
-  const { items: alunos } = useSupabaseCrud<any>('alunos', ['alunos']);
+  const { items: estagios } = useSupabaseCrud<any>("estagios", ["estagios"]);
+  const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
 
   const {
     register,
@@ -75,9 +80,9 @@ export default function FrequenciaPage() {
       horas_realizadas: 6,
       validado_supervisor: false,
       validado_orientador: false,
-      data: new Date().toISOString().split('T')[0],
-      atividades: '',
-      estagio_id: '',
+      data: new Date().toISOString().split("T")[0],
+      atividades: "",
+      estagio_id: "",
     },
   });
 
@@ -85,14 +90,14 @@ export default function FrequenciaPage() {
     try {
       if (selectedFreq) {
         await update({ id: selectedFreq.id, ...data });
-        toast.success('Registro de frequência atualizado!');
+        toast.success("Registro de frequência atualizado!");
       } else {
         await create(data);
-        toast.success('Frequência lançada com sucesso!');
+        toast.success("Frequência lançada com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar frequência');
+      toast.error(translateError(error));
     }
   };
 
@@ -118,11 +123,11 @@ export default function FrequenciaPage() {
     if (!selectedFreq) return;
     try {
       await remove(selectedFreq.id);
-      toast.success('Registro removido com sucesso!');
+      toast.success("Registro removido com sucesso!");
       setIsDeleteOpen(false);
       setSelectedFreq(null);
     } catch (error) {
-      toast.error('Erro ao remover registro');
+      toast.error(translateError(error));
     }
   };
 
@@ -134,15 +139,20 @@ export default function FrequenciaPage() {
 
   const filteredFrequencias = frequencias.filter((freq) => {
     const estagio = estagios.find((e) => e.id === freq.estagio_id);
-    const alunoNome = alunos.find((a) => a.id === estagio?.aluno_id)?.nome || '';
+    const alunoNome =
+      alunos.find((a) => a.id === estagio?.aluno_id)?.nome || "";
     const matchesSearch =
-      (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (freq.atividades?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-    const matchesEstagio = !selectedEstagioId || freq.estagio_id === selectedEstagioId;
+      (alunoNome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (freq.atividades?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    const matchesEstagio =
+      !selectedEstagioId || freq.estagio_id === selectedEstagioId;
     return matchesSearch && matchesEstagio;
   });
 
-  const totalHoras = filteredFrequencias.reduce((acc, f) => acc + f.horas_realizadas, 0);
+  const totalHoras = filteredFrequencias.reduce(
+    (acc, f) => acc + f.horas_realizadas,
+    0,
+  );
 
   const pagination = usePagination(filteredFrequencias);
 
@@ -160,7 +170,9 @@ export default function FrequenciaPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <Clock className="text-blue-600" size={28} /> Frequência
           </h1>
-          <p className="text-gray-500 font-medium">Acompanhamento diário de atividades</p>
+          <p className="text-gray-500 font-medium">
+            Acompanhamento diário de atividades
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -183,7 +195,7 @@ export default function FrequenciaPage() {
           >
             <option value="">Todos os alunos ativos</option>
             {estagios
-              .filter((e: any) => e.status === 'ativo')
+              .filter((e: any) => e.status === "ativo")
               .map((est: any) => (
                 <option key={est.id} value={est.id}>
                   {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
@@ -238,8 +250,10 @@ export default function FrequenciaPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
         {isLoading ? (
@@ -252,7 +266,9 @@ export default function FrequenciaPage() {
           </div>
         ) : (
           pagination.currentItems.map((frequencia) => {
-            const estagio = estagios.find((e) => e.id === frequencia.estagio_id);
+            const estagio = estagios.find(
+              (e) => e.id === frequencia.estagio_id,
+            );
             const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
             return (
@@ -266,29 +282,31 @@ export default function FrequenciaPage() {
                       {aluno?.nome.substring(0, 2)}
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 leading-tight">{aluno?.nome}</h3>
+                      <h3 className="font-bold text-gray-900 leading-tight">
+                        {aluno?.nome}
+                      </h3>
                       <p className="text-xs text-gray-500 font-medium">
-                        {new Date(frequencia.data).toLocaleDateString('pt-BR')}
+                        {new Date(frequencia.data).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-1">
                     <span
                       className={cn(
-                        'px-1.5 py-0.5 rounded text-[8px] font-black border',
+                        "px-1.5 py-0.5 rounded text-[8px] font-black border",
                         frequencia.validado_supervisor
-                          ? 'bg-green-50 text-green-700 border-green-100'
-                          : 'bg-gray-50 text-gray-400 border-gray-100'
+                          ? "bg-green-50 text-green-700 border-green-100"
+                          : "bg-gray-50 text-gray-400 border-gray-100",
                       )}
                     >
                       SUP
                     </span>
                     <span
                       className={cn(
-                        'px-1.5 py-0.5 rounded text-[8px] font-black border',
+                        "px-1.5 py-0.5 rounded text-[8px] font-black border",
                         frequencia.validado_orientador
-                          ? 'bg-blue-50 text-blue-700 border-blue-100'
-                          : 'bg-gray-50 text-gray-400 border-gray-100'
+                          ? "bg-blue-50 text-blue-700 border-blue-100"
+                          : "bg-gray-50 text-gray-400 border-gray-100",
                       )}
                     >
                       ORI
@@ -327,7 +345,7 @@ export default function FrequenciaPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -361,23 +379,35 @@ export default function FrequenciaPage() {
                 </tr>
               ) : filteredFrequencias.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
+                  >
                     Nenhum lançamento encontrado.
                   </td>
                 </tr>
               ) : (
                 pagination.currentItems.map((frequencia) => {
-                  const estagio = estagios.find((e) => e.id === frequencia.estagio_id);
+                  const estagio = estagios.find(
+                    (e) => e.id === frequencia.estagio_id,
+                  );
                   const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
                   return (
-                    <tr key={frequencia.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr
+                      key={frequencia.id}
+                      className="hover:bg-blue-50/30 transition-colors group"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="text-gray-900 font-bold">
-                            {new Date(frequencia.data).toLocaleDateString('pt-BR')}
+                            {new Date(frequencia.data).toLocaleDateString(
+                              "pt-BR",
+                            )}
                           </span>
-                          <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {aluno?.nome}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -397,20 +427,20 @@ export default function FrequenciaPage() {
                         <div className="flex justify-center gap-2">
                           <span
                             className={cn(
-                              'px-2 py-1 rounded text-[9px] font-black border',
+                              "px-2 py-1 rounded text-[9px] font-black border",
                               frequencia.validado_supervisor
-                                ? 'bg-green-50 text-green-700 border-green-100'
-                                : 'bg-gray-50 text-gray-400 border-gray-100'
+                                ? "bg-green-50 text-green-700 border-green-100"
+                                : "bg-gray-50 text-gray-400 border-gray-100",
                             )}
                           >
                             SUP
                           </span>
                           <span
                             className={cn(
-                              'px-2 py-1 rounded text-[9px] font-black border',
+                              "px-2 py-1 rounded text-[9px] font-black border",
                               frequencia.validado_orientador
-                                ? 'bg-blue-50 text-blue-700 border-blue-100'
-                                : 'bg-gray-50 text-gray-400 border-gray-100'
+                                ? "bg-blue-50 text-blue-700 border-blue-100"
+                                : "bg-gray-50 text-gray-400 border-gray-100",
                             )}
                           >
                             ORI
@@ -457,30 +487,32 @@ export default function FrequenciaPage() {
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedFreq ? 'Editar Lançamento' : 'Novo Lançamento de Horas'}
+        title={selectedFreq ? "Editar Lançamento" : "Novo Lançamento de Horas"}
         description="Registre as horas e atividades realizadas no dia de estágio."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Estágio / Aluno</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Estágio / Aluno
+              </label>
               <div className="relative mt-1">
                 <User
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <select
-                  {...register('estagio_id')}
+                  {...register("estagio_id")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                     errors.estagio_id
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 >
                   <option value="">Selecione o estágio...</option>
                   {estagios
-                    .filter((e: any) => e.status === 'ativo')
+                    .filter((e: any) => e.status === "ativo")
                     .map((est: any) => (
                       <option key={est.id} value={est.id}>
                         {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
@@ -496,7 +528,9 @@ export default function FrequenciaPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Data</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Data
+              </label>
               <div className="relative mt-1">
                 <Calendar
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -504,12 +538,12 @@ export default function FrequenciaPage() {
                 />
                 <input
                   type="date"
-                  {...register('data')}
+                  {...register("data")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.data
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 />
               </div>
@@ -521,7 +555,9 @@ export default function FrequenciaPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Horas Realizadas</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Horas Realizadas
+              </label>
               <div className="relative mt-1">
                 <Clock
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -529,12 +565,12 @@ export default function FrequenciaPage() {
                 />
                 <input
                   type="number"
-                  {...register('horas_realizadas', { valueAsNumber: true })}
+                  {...register("horas_realizadas", { valueAsNumber: true })}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.horas_realizadas
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 />
               </div>
@@ -550,15 +586,18 @@ export default function FrequenciaPage() {
                 Atividades Desempenhadas
               </label>
               <div className="relative mt-1">
-                <Activity className="absolute left-3 top-3 text-gray-400" size={16} />
+                <Activity
+                  className="absolute left-3 top-3 text-gray-400"
+                  size={16}
+                />
                 <textarea
-                  {...register('atividades')}
+                  {...register("atividades")}
                   rows={3}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.atividades
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: Instalação de softwares, suporte aos usuários..."
                 />
@@ -574,7 +613,7 @@ export default function FrequenciaPage() {
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
-                  {...register('validado_supervisor')}
+                  {...register("validado_supervisor")}
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
@@ -584,7 +623,7 @@ export default function FrequenciaPage() {
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
-                  {...register('validado_orientador')}
+                  {...register("validado_orientador")}
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
@@ -608,10 +647,10 @@ export default function FrequenciaPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedFreq
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Lançamento'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Lançamento"}
             </button>
           </div>
         </form>

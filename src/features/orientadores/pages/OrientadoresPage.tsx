@@ -1,25 +1,33 @@
-import { useState } from 'react';
-import { UserCheck, Plus, Edit2, Trash2, Search, School, Phone } from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { InputMask } from '@/components/ui/InputMask';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
-import { usePagination } from '@/hooks/usePagination';
-import { Pagination } from '@/components/ui/Pagination';
+import { useState } from "react";
+import {
+  UserCheck,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  School,
+  Phone,
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { InputMask } from "@/components/ui/InputMask";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 const orientadorSchema = z.object({
-  nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
-  cpf: z.string().min(14, 'CPF inválido'),
-  telefone: z.string().optional().default(''),
-  escola_id: z.string().uuid('Selecione uma escola válida'),
+  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
+  cpf: z.string().min(14, "CPF inválido"),
+  telefone: z.string().optional().default(""),
+  escola_id: z.string().uuid("Selecione uma escola válida"),
 });
 
 type OrientadorFormValues = z.infer<typeof orientadorSchema>;
@@ -36,8 +44,9 @@ interface Orientador {
 export default function OrientadoresPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedOrientador, setSelectedOrientador] = useState<Orientador | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOrientador, setSelectedOrientador] =
+    useState<Orientador | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: orientadores,
@@ -45,9 +54,9 @@ export default function OrientadoresPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Orientador>('orientadores', ['orientadores']);
+  } = useSupabaseCrud<Orientador>("orientadores", ["orientadores"]);
 
-  const { items: escolas } = useSupabaseCrud<any>('escolas', ['escolas']);
+  const { items: escolas } = useSupabaseCrud<any>("escolas", ["escolas"]);
 
   const {
     register,
@@ -58,10 +67,10 @@ export default function OrientadoresPage() {
   } = useForm<OrientadorFormValues>({
     resolver: zodResolver(orientadorSchema) as any,
     defaultValues: {
-      nome: '',
-      cpf: '',
-      telefone: '',
-      escola_id: '',
+      nome: "",
+      cpf: "",
+      telefone: "",
+      escola_id: "",
     },
   });
 
@@ -69,14 +78,14 @@ export default function OrientadoresPage() {
     try {
       if (selectedOrientador) {
         await update({ id: selectedOrientador.id, ...data });
-        toast.success('Orientador atualizado com sucesso!');
+        toast.success("Orientador atualizado com sucesso!");
       } else {
         await create(data);
-        toast.success('Orientador cadastrado com sucesso!');
+        toast.success("Orientador cadastrado com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar orientador');
+      toast.error(translateError(error));
     }
   };
 
@@ -84,8 +93,8 @@ export default function OrientadoresPage() {
     setSelectedOrientador(orientador);
     reset({
       nome: orientador.nome,
-      cpf: orientador.cpf || '',
-      telefone: orientador.telefone || '',
+      cpf: orientador.cpf || "",
+      telefone: orientador.telefone || "",
       escola_id: orientador.escola_id,
     });
     setIsFormOpen(true);
@@ -100,11 +109,11 @@ export default function OrientadoresPage() {
     if (!selectedOrientador) return;
     try {
       await remove(selectedOrientador.id);
-      toast.success('Orientador removido com sucesso!');
+      toast.success("Orientador removido com sucesso!");
       setIsDeleteOpen(false);
       setSelectedOrientador(null);
     } catch (error) {
-      toast.error('Erro ao remover orientador');
+      toast.error(translateError(error));
     }
   };
 
@@ -116,8 +125,9 @@ export default function OrientadoresPage() {
 
   const filteredOrientadores = orientadores.filter(
     (orientador) =>
-      (orientador.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (orientador.cpf || '').includes(searchTerm)
+      (orientador.nome?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase(),
+      ) || (orientador.cpf || "").includes(searchTerm),
   );
 
   const pagination = usePagination(filteredOrientadores);
@@ -134,7 +144,9 @@ export default function OrientadoresPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <UserCheck className="text-blue-600" size={28} /> Orientadores
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de professores orientadores</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de professores orientadores
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -165,8 +177,10 @@ export default function OrientadoresPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
         {pagination.currentItems.length === 0 ? (
@@ -185,9 +199,11 @@ export default function OrientadoresPage() {
                     <UserCheck size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{orientador.nome}</h3>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {orientador.nome}
+                    </h3>
                     <p className="text-xs text-gray-500 font-medium">
-                      CPF: {orientador.cpf || 'N/A'}
+                      CPF: {orientador.cpf || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -197,7 +213,8 @@ export default function OrientadoresPage() {
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <School size={14} className="text-blue-500" />
                   <span className="truncate">
-                    {escolas.find((e: any) => e.id === orientador.escola_id)?.nome || 'N/A'}
+                    {escolas.find((e: any) => e.id === orientador.escola_id)
+                      ?.nome || "N/A"}
                   </span>
                 </div>
                 {orientador.telefone && (
@@ -228,7 +245,7 @@ export default function OrientadoresPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -253,28 +270,38 @@ export default function OrientadoresPage() {
             <tbody className="divide-y divide-gray-100">
               {pagination.currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400 font-bold">
+                  <td
+                    colSpan={4}
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
+                  >
                     Nenhum orientador cadastrado.
                   </td>
                 </tr>
               ) : (
                 pagination.currentItems.map((orientador) => (
-
-                  <tr key={orientador.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <tr
+                    key={orientador.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                           {orientador.nome.substring(0, 2)}
                         </div>
-                        <span className="text-gray-900 font-bold">{orientador.nome}</span>
+                        <span className="text-gray-900 font-bold">
+                          {orientador.nome}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{orientador.cpf || '-'}</td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {escolas.find((e: any) => e.id === orientador.escola_id)?.nome || 'N/A'}
+                      {orientador.cpf || "-"}
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {orientador.telefone || '-'}
+                      {escolas.find((e: any) => e.id === orientador.escola_id)
+                        ?.nome || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {orientador.telefone || "-"}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -315,25 +342,31 @@ export default function OrientadoresPage() {
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedOrientador ? 'Editar Orientador' : 'Novo Cadastro de Orientador'}
+        title={
+          selectedOrientador
+            ? "Editar Orientador"
+            : "Novo Cadastro de Orientador"
+        }
         description="Preencha os dados do professor orientador de estágio."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nome Completo
+              </label>
               <div className="relative mt-1">
                 <UserCheck
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('nome')}
+                  {...register("nome")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.nome
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: Prof. Dr. Carlos Silva"
                 />
@@ -352,7 +385,7 @@ export default function OrientadoresPage() {
                 <InputMask
                   mask="cpf"
                   label="CPF"
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={field.onChange}
                   error={errors.cpf?.message}
                   placeholder="000.000.000-00"
@@ -367,7 +400,7 @@ export default function OrientadoresPage() {
                 <InputMask
                   mask="phone"
                   label="Telefone"
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={field.onChange}
                   error={errors.telefone?.message}
                   placeholder="(00) 00000-0000"
@@ -376,19 +409,21 @@ export default function OrientadoresPage() {
             />
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Escola de Vínculo</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Escola de Vínculo
+              </label>
               <div className="relative mt-1">
                 <School
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <select
-                  {...register('escola_id')}
+                  {...register("escola_id")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium",
                     errors.escola_id
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 >
                   <option value="">Selecione a escola...</option>
@@ -421,10 +456,10 @@ export default function OrientadoresPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedOrientador
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Cadastro'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Cadastro"}
             </button>
           </div>
         </form>

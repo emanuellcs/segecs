@@ -1,14 +1,17 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { UserRole } from '@/types/auth';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { UserRole } from "@/types/auth";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
   allowedRoles?: UserRole[];
 }
 
-export default function PrivateRoute({ children, allowedRoles }: PrivateRouteProps) {
+export default function PrivateRoute({
+  children,
+  allowedRoles,
+}: PrivateRouteProps) {
   const { isAuthenticated, profile, isLoading } = useAuth();
   const location = useLocation();
 

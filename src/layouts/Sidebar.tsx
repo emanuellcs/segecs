@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   MapPin,
@@ -19,47 +19,51 @@ import {
   LogOut,
   Info,
   X,
-} from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
-import { AboutModal } from '@/components/ui/AboutModal';
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { AboutModal } from "@/components/ui/AboutModal";
 
 const menuItems = [
-  { group: 'Principal', items: [{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }] },
   {
-    group: 'Operacional',
+    group: "Principal",
+    items: [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    group: "Operacional",
     items: [
-      { to: '/vagas', label: 'Vagas', icon: Briefcase },
-      { to: '/estagios', label: 'Alocação (TCE)', icon: ClipboardCheck },
-      { to: '/frequencia', label: 'Frequência', icon: Clock },
+      { to: "/vagas", label: "Vagas", icon: Briefcase },
+      { to: "/estagios", label: "Alocação (TCE)", icon: ClipboardCheck },
+      { to: "/visitas", label: "Visitas Técnicas", icon: MapPin },
+      { to: "/frequencia", label: "Frequência", icon: Clock },
     ],
   },
   {
-    group: 'Avaliação & Conclusão',
+    group: "Avaliação & Conclusão",
     items: [
-      { to: '/avaliacoes', label: 'Avaliações', icon: Award },
-      { to: '/projetos', label: 'Projetos Sociais', icon: Heart },
+      { to: "/avaliacoes", label: "Avaliações", icon: Award },
+      { to: "/projetos", label: "Projetos Sociais", icon: Heart },
     ],
   },
   {
-    group: 'Pessoas & Parceiros',
+    group: "Pessoas & Parceiros",
     items: [
-      { to: '/alunos', label: 'Alunos', icon: GraduationCap },
-      { to: '/responsaveis', label: 'Responsáveis', icon: Users },
-      { to: '/orientadores', label: 'Orientadores', icon: UserCheck },
-      { to: '/supervisores', label: 'Supervisores', icon: UserCog },
-      { to: '/empresas', label: 'Empresas', icon: Building2 },
+      { to: "/alunos", label: "Alunos", icon: GraduationCap },
+      { to: "/responsaveis", label: "Responsáveis", icon: Users },
+      { to: "/orientadores", label: "Orientadores", icon: UserCheck },
+      { to: "/supervisores", label: "Supervisores", icon: UserCog },
+      { to: "/empresas", label: "Empresas", icon: Building2 },
     ],
   },
   {
-    group: 'Configurações Base',
+    group: "Configurações Base",
     items: [
-      { to: '/cidades', label: 'Cidades', icon: MapPin },
-      { to: '/niveis', label: 'Níveis', icon: Layers },
-      { to: '/escolas', label: 'Escolas', icon: School },
-      { to: '/cursos', label: 'Cursos', icon: BookOpen },
+      { to: "/cidades", label: "Cidades", icon: MapPin },
+      { to: "/niveis", label: "Níveis", icon: Layers },
+      { to: "/escolas", label: "Escolas", icon: School },
+      { to: "/cursos", label: "Cursos", icon: BookOpen },
     ],
   },
 ];
@@ -70,33 +74,37 @@ interface SidebarProps {
   isCollapsed?: boolean;
 }
 
-export default function Sidebar({ onClose, className, isCollapsed = false }: SidebarProps) {
+export default function Sidebar({
+  onClose,
+  className,
+  isCollapsed = false,
+}: SidebarProps) {
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const handleLogout = async () => {
-    console.log('Iniciando logout...');
-    toast.info('Saindo do sistema...');
+    console.log("Iniciando logout...");
+    toast.info("Saindo do sistema...");
     try {
       await signOut();
-      console.log('Logout realizado com sucesso, redirecionando...');
-      navigate('/login');
+      console.log("Logout realizado com sucesso, redirecionando...");
+      navigate("/login");
       if (onClose) onClose();
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-      toast.error('Erro ao sair do sistema. Tentando novamente...');
+      console.error("Erro ao fazer logout:", error);
+      toast.error("Erro ao sair do sistema. Tentando novamente...");
       // Forçamos o redirecionamento mesmo em caso de erro bizarro
-      navigate('/login');
+      navigate("/login");
     }
   };
 
   return (
     <aside
       className={cn(
-        'flex flex-col h-full bg-blue-900 text-white shadow-xl transition-all duration-300',
-        isCollapsed ? 'w-20' : 'w-64',
-        className
+        "flex flex-col h-full bg-blue-900 text-white shadow-xl transition-all duration-300",
+        isCollapsed ? "w-20" : "w-64",
+        className,
       )}
     >
       {/* Header - Apenas para Mobile */}
@@ -112,7 +120,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
       )}
 
       {/* Espaçador para Desktop quando não tem header */}
-      <div className={cn('hidden lg:block', isCollapsed ? 'h-6' : 'h-6')} />
+      <div className={cn("hidden lg:block", isCollapsed ? "h-6" : "h-6")} />
 
       <nav className="flex-1 overflow-y-auto px-4 space-y-6 pb-8 custom-scrollbar">
         {menuItems.map((group, idx) => (
@@ -138,11 +146,11 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
                   title={isCollapsed ? item.label : undefined}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                      "flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200",
                       isActive
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50 font-semibold'
-                        : 'text-blue-100 hover:bg-blue-800 hover:text-white',
-                      isCollapsed && 'justify-center px-0'
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50 font-semibold"
+                        : "text-blue-100 hover:bg-blue-800 hover:text-white",
+                      isCollapsed && "justify-center px-0",
                     )
                   }
                 >
@@ -165,14 +173,14 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
 
       <div
         className={cn(
-          'p-4 bg-blue-950/50 border-t border-blue-800 transition-all',
-          isCollapsed && 'items-center px-2'
+          "p-4 bg-blue-950/50 border-t border-blue-800 transition-all",
+          isCollapsed && "items-center px-2",
         )}
       >
         {!isCollapsed ? (
           <div className="flex items-center gap-3 mb-4 px-2">
             <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-xs uppercase shrink-0">
-              {profile?.full_name?.substring(0, 2) || 'U'}
+              {profile?.full_name?.substring(0, 2) || "U"}
             </div>
             <div className="overflow-hidden">
               <p className="text-xs font-bold truncate">{profile?.full_name}</p>
@@ -187,7 +195,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
               className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-xs uppercase"
               title={profile?.full_name}
             >
-              {profile?.full_name?.substring(0, 2) || 'U'}
+              {profile?.full_name?.substring(0, 2) || "U"}
             </div>
           </div>
         )}
@@ -195,30 +203,34 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
         <button
           type="button"
           onClick={() => setIsAboutOpen(true)}
-          title={isCollapsed ? 'Sobre o Sistema' : undefined}
+          title={isCollapsed ? "Sobre o Sistema" : undefined}
           className={cn(
-            'w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-blue-300 hover:bg-blue-400/10 rounded-xl transition-all mb-1',
-            isCollapsed && 'px-0'
+            "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-blue-300 hover:bg-blue-400/10 rounded-xl transition-all mb-1",
+            isCollapsed && "px-0",
           )}
         >
           <Info size={18} />
           {!isCollapsed && (
-            <span className="uppercase tracking-widest text-xs font-bold">Sobre</span>
+            <span className="uppercase tracking-widest text-xs font-bold">
+              Sobre
+            </span>
           )}
         </button>
 
         <button
           type="button"
           onClick={handleLogout}
-          title={isCollapsed ? 'Sair do Sistema' : undefined}
+          title={isCollapsed ? "Sair do Sistema" : undefined}
           className={cn(
-            'w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-all',
-            isCollapsed && 'px-0'
+            "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-all",
+            isCollapsed && "px-0",
           )}
         >
           <LogOut size={18} />
           {!isCollapsed && (
-            <span className="uppercase tracking-widest text-xs font-bold">Sair</span>
+            <span className="uppercase tracking-widest text-xs font-bold">
+              Sair
+            </span>
           )}
         </button>
 

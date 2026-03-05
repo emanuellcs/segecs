@@ -1,56 +1,63 @@
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 10,
-    fontFamily: 'Helvetica',
+    fontFamily: "Helvetica",
     lineHeight: 1.5,
   },
   header: {
     marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    textDecoration: 'underline',
-    textTransform: 'uppercase',
+    textAlign: "center",
+    fontWeight: "bold",
+    textDecoration: "underline",
+    textTransform: "uppercase",
   },
   section: {
     marginBottom: 10,
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     padding: 3,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderBottomWidth: 0.5,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
     paddingVertical: 3,
   },
   label: {
     width: 100,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   content: {
     flex: 1,
   },
   footer: {
     marginTop: 50,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   signature: {
     borderTopWidth: 1,
-    borderTopColor: '#000',
+    borderTopColor: "#000",
     width: 150,
-    textAlign: 'center',
+    textAlign: "center",
     paddingTop: 5,
   },
 });
 
-import { Aluno, Empresa, Escola, Estagio, Supervisor, Orientador } from '@/types/database';
+import {
+  Aluno,
+  Empresa,
+  Escola,
+  Estagio,
+  Supervisor,
+  Orientador,
+} from "@/types/database";
 
 interface TCEProps {
   data: {
@@ -93,15 +100,20 @@ export const TCETemplate = ({ data }: TCEProps) => (
       <View style={styles.section}>
         <Text style={styles.title}>2. DO ESTÁGIO</Text>
         <Text>
-          O estágio terá duração de {data.estagio?.carga_horaria_total} horas, com início em{' '}
-          {new Date(data.estagio?.data_inicio).toLocaleDateString('pt-BR')} e término em{' '}
-          {new Date(data.estagio?.data_fim).toLocaleDateString('pt-BR')}, respeitando a jornada de{' '}
-          {data.estagio?.carga_horaria_diaria} horas diárias.
+          O estágio terá duração de {data.estagio?.carga_horaria_total} horas,
+          com início em{" "}
+          {new Date(data.estagio?.data_inicio).toLocaleDateString("pt-BR")} e
+          término em{" "}
+          {new Date(data.estagio?.data_fim).toLocaleDateString("pt-BR")},
+          respeitando a jornada de {data.estagio?.carga_horaria_diaria} horas
+          diárias.
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.title}>3. PLANO DE ATIVIDADES (TÉCNICO EM INFORMÁTICA)</Text>
+        <Text style={styles.title}>
+          3. PLANO DE ATIVIDADES (TÉCNICO EM INFORMÁTICA)
+        </Text>
         <Text>• Manutenção de computadores e redes;</Text>
         <Text>• Suporte técnico ao usuário;</Text>
         <Text>• Desenvolvimento e manutenção de sistemas/sites;</Text>

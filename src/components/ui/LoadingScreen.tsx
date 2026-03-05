@@ -2,14 +2,16 @@ interface LoadingScreenProps {
   message?: string;
 }
 
-export function LoadingScreen({ message = 'Sincronizando dados...' }: LoadingScreenProps) {
+export function LoadingScreen({
+  message = "Sincronizando dados...",
+}: LoadingScreenProps) {
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 text-center px-4">
         <div className="relative">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-100 border-t-blue-600"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-             <div className="h-2 w-2 bg-blue-600 rounded-full animate-ping"></div>
+            <div className="h-2 w-2 bg-blue-600 rounded-full animate-ping"></div>
           </div>
         </div>
         <div className="space-y-1">

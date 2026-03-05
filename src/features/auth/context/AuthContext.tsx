@@ -1,8 +1,14 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-import { Profile, UserRole } from '@/types/auth';
-import { Session } from '@supabase/supabase-js';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { Profile, UserRole } from "@/types/auth";
+import { Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
   session: Session | null;
@@ -21,37 +27,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async (userId: string, user: any) => {
-    console.log('AuthProvider: Fetching profile for:', userId);
+    console.log("AuthProvider: Fetching profile for:", userId);
     try {
       // Adicionamos um timeout de 5 segundos na busca de perfil para evitar travar o carregamento
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Profile fetch timeout")), 5000),
       );
 
-      const profilePromise = supabase.from('profiles').select('*').eq('id', userId).single();
-      
-      const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
+      const profilePromise = supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      const { data, error } = (await Promise.race([
+        profilePromise,
+        timeoutPromise,
+      ])) as any;
 
       if (!data || error) {
-        console.warn('AuthProvider: Profile not found or error, using default:', error);
+        console.warn(
+          "AuthProvider: Profile not found or error, using default:",
+          error,
+        );
         setProfile({
           id: userId,
-          email: user.email || '',
-          full_name: user.user_metadata?.['full_name'] || 'Usuário',
-          role: (user.user_metadata?.['role'] as UserRole) || 'aluno',
+          email: user.email || "",
+          full_name: user.user_metadata?.["full_name"] || "Usuário",
+          role: (user.user_metadata?.["role"] as UserRole) || "aluno",
           created_at: new Date().toISOString(),
         });
       } else {
         setProfile(data as Profile);
       }
     } catch (err) {
-      console.error('AuthProvider: Profile fetch error:', err);
+      console.error("AuthProvider: Profile fetch error:", err);
       // Em caso de erro, definimos um perfil básico para não travar a navegação
       setProfile({
         id: userId,
-        email: user.email || '',
-        full_name: user.user_metadata?.['full_name'] || 'Usuário',
-        role: (user.user_metadata?.['role'] as UserRole) || 'aluno',
+        email: user.email || "",
+        full_name: user.user_metadata?.["full_name"] || "Usuário",
+        role: (user.user_metadata?.["role"] as UserRole) || "aluno",
         created_at: new Date().toISOString(),
       });
     }
@@ -64,18 +80,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      console.log('AuthProvider: Auth state changed:', event, !!newSession);
-      
+      console.log("AuthProvider: Auth state changed:", event, !!newSession);
+
       if (!mounted) return;
 
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
+      if (
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "USER_UPDATED" ||
+        event === "INITIAL_SESSION"
+      ) {
         setSession(newSession);
         if (newSession?.user) {
           await fetchProfile(newSession.user.id, newSession.user);
         } else {
           setProfile(null);
         }
-      } else if (event === 'SIGNED_OUT') {
+      } else if (event === "SIGNED_OUT") {
         setSession(null);
         setProfile(null);
         queryClient.clear();
@@ -88,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Como segurança adicional, se após 10 segundos ainda estiver carregando, forçamos o encerramento
     const backupTimeout = setTimeout(() => {
       if (mounted && isLoading) {
-        console.warn('AuthProvider: Forcing isLoading false after timeout');
+        console.warn("AuthProvider: Forcing isLoading false after timeout");
         setIsLoading(false);
       }
     }, 10000);
@@ -101,11 +122,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const signOut = async () => {
-    console.log('AuthContext: Iniciando processo de logout...');
-    
+    console.log("AuthContext: Iniciando processo de logout...");
+
     // Limpamos o estado local IMEDIATAMENTE para garantir que o usuário saia da tela atual
     const clearLocalData = () => {
-      console.log('AuthContext: Limpando estado local e storages...');
+      console.log("AuthContext: Limpando estado local e storages...");
       window.sessionStorage.clear();
       window.localStorage.clear();
       setSession(null);
@@ -116,17 +137,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Tentamos o logout no Supabase, mas com um timeout para não travar a UI
       const signOutPromise = supabase.auth.signOut();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout no logout do Supabase')), 3000)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Timeout no logout do Supabase")),
+          3000,
+        ),
       );
 
       await Promise.race([signOutPromise, timeoutPromise]);
-      console.log('AuthContext: Supabase signOut concluído com sucesso.');
+      console.log("AuthContext: Supabase signOut concluído com sucesso.");
     } catch (error) {
-      console.warn('AuthContext: Erro ou timeout ao deslogar do Supabase:', error);
+      console.warn(
+        "AuthContext: Erro ou timeout ao deslogar do Supabase:",
+        error,
+      );
     } finally {
       clearLocalData();
-      console.log('AuthContext: Logout local concluído.');
+      console.log("AuthContext: Logout local concluído.");
     }
   };
 
@@ -148,7 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

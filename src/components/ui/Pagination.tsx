@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -50,9 +50,15 @@ export function Pagination({
           </button>
 
           <div className="flex items-center gap-1.5 px-2">
-            <span className="text-sm font-black text-blue-900">{currentPage}</span>
-            <span className="text-[10px] font-black text-gray-300 uppercase">de</span>
-            <span className="text-sm font-black text-gray-500">{totalPages}</span>
+            <span className="text-sm font-black text-blue-900">
+              {currentPage}
+            </span>
+            <span className="text-[10px] font-black text-gray-300 uppercase">
+              de
+            </span>
+            <span className="text-sm font-black text-gray-500">
+              {totalPages}
+            </span>
           </div>
 
           <button
@@ -64,7 +70,8 @@ export function Pagination({
           </button>
         </div>
         <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-          Exibindo {totalItems === 0 ? 0 : startItem}–{endItem} de {totalItems} registros
+          Exibindo {totalItems === 0 ? 0 : startItem}–{endItem} de {totalItems}{" "}
+          registros
         </p>
       </div>
     </div>

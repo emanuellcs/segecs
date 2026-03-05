@@ -1,22 +1,25 @@
-import { useState } from 'react';
-import { MapPin, Plus, Edit2, Trash2, Search, Map } from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { usePagination } from '@/hooks/usePagination';
-import { Pagination } from '@/components/ui/Pagination';
-import { toast } from 'sonner';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { useState } from "react";
+import { MapPin, Plus, Edit2, Trash2, Search, Map } from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const cidadeSchema = z.object({
-  nome: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres'),
-  uf: z.string().length(2, 'A UF deve ter exatamente 2 caracteres').toUpperCase(),
+  nome: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
+  uf: z
+    .string()
+    .length(2, "A UF deve ter exatamente 2 caracteres")
+    .toUpperCase(),
 });
 
 type CidadeFormValues = z.infer<typeof cidadeSchema>;
@@ -32,7 +35,7 @@ export default function CidadesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedCidade, setSelectedCidade] = useState<Cidade | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: cidades,
@@ -40,7 +43,7 @@ export default function CidadesPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Cidade>('cidades', ['cidades']);
+  } = useSupabaseCrud<Cidade>("cidades", ["cidades"]);
 
   const {
     register,
@@ -49,21 +52,21 @@ export default function CidadesPage() {
     formState: { errors, isSubmitting },
   } = useForm<CidadeFormValues>({
     resolver: zodResolver(cidadeSchema),
-    defaultValues: { uf: 'CE' },
+    defaultValues: { uf: "CE" },
   });
 
   const onSubmit = async (data: CidadeFormValues) => {
     try {
       if (selectedCidade) {
         await update({ id: selectedCidade.id, ...data });
-        toast.success('Cidade atualizada com sucesso!');
+        toast.success("Cidade atualizada com sucesso!");
       } else {
         await create(data);
-        toast.success('Cidade cadastrada com sucesso!');
+        toast.success("Cidade cadastrada com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar cidade');
+      toast.error(translateError(error));
     }
   };
 
@@ -85,11 +88,11 @@ export default function CidadesPage() {
     if (!selectedCidade) return;
     try {
       await remove(selectedCidade.id);
-      toast.success('Cidade removida com sucesso!');
+      toast.success("Cidade removida com sucesso!");
       setIsDeleteOpen(false);
       setSelectedCidade(null);
     } catch (error) {
-      toast.error('Erro ao remover cidade');
+      toast.error(translateError(error));
     }
   };
 
@@ -101,8 +104,8 @@ export default function CidadesPage() {
 
   const filteredCidades = cidades.filter(
     (cidade) =>
-      (cidade.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (cidade.uf?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+      (cidade.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (cidade.uf?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
   );
 
   const pagination = usePagination(filteredCidades);
@@ -118,7 +121,9 @@ export default function CidadesPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <MapPin className="text-blue-600" size={28} /> Municípios
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de cidades e estados</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de cidades e estados
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -149,8 +154,10 @@ export default function CidadesPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
         {filteredCidades.length === 0 ? (
@@ -169,8 +176,12 @@ export default function CidadesPage() {
                     {cidade.uf}
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{cidade.nome}</h3>
-                    <p className="text-xs text-gray-500 font-medium">Estado: {cidade.uf}</p>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {cidade.nome}
+                    </h3>
+                    <p className="text-xs text-gray-500 font-medium">
+                      Estado: {cidade.uf}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -195,7 +206,7 @@ export default function CidadesPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -214,22 +225,32 @@ export default function CidadesPage() {
             <tbody className="divide-y divide-gray-100">
               {filteredCidades.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-400 font-bold">
+                  <td
+                    colSpan={3}
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
+                  >
                     Nenhuma cidade cadastrada.
                   </td>
                 </tr>
               ) : (
                 pagination.currentItems.map((cidade) => (
-                  <tr key={cidade.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <tr
+                    key={cidade.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                           {cidade.nome.substring(0, 2)}
                         </div>
-                        <span className="text-gray-900 font-bold">{cidade.nome}</span>
+                        <span className="text-gray-900 font-bold">
+                          {cidade.nome}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{cidade.uf}</td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {cidade.uf}
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -269,25 +290,27 @@ export default function CidadesPage() {
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedCidade ? 'Editar Cidade' : 'Novo Cadastro de Cidade'}
+        title={selectedCidade ? "Editar Cidade" : "Novo Cadastro de Cidade"}
         description="Preencha os dados da localização."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-3">
-              <label className="text-sm font-bold text-gray-700 ml-1">Nome da Cidade</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nome da Cidade
+              </label>
               <div className="relative mt-1">
                 <MapPin
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('nome')}
+                  {...register("nome")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.nome
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: Fortaleza"
                 />
@@ -302,21 +325,26 @@ export default function CidadesPage() {
             <div className="md:col-span-1">
               <label className="text-sm font-bold text-gray-700 ml-1">UF</label>
               <div className="relative mt-1">
-                <Map className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Map
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
                 <input
-                  {...register('uf')}
+                  {...register("uf")}
                   maxLength={2}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all uppercase',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all uppercase",
                     errors.uf
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="CE"
                 />
               </div>
               {errors.uf && (
-                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">{errors.uf.message}</p>
+                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
+                  {errors.uf.message}
+                </p>
               )}
             </div>
           </div>
@@ -335,10 +363,10 @@ export default function CidadesPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedCidade
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Cadastro'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Cadastro"}
             </button>
           </div>
         </form>

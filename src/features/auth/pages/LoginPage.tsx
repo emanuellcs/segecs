@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
-import { Mail, Lock, LogIn, ShieldCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import { Mail, Lock, LogIn, ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const loginSchema = z.object({
-  email: z.string().email('Insira um e-mail válido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+  email: z.string().email("Insira um e-mail válido"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   rememberMe: z.boolean(),
 });
 
@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [isAuthenticated, isAuthLoading, navigate]);
 
@@ -35,9 +35,9 @@ export default function LoginPage() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
-      rememberMe: localStorage.getItem('sb-remember-me') === 'true',
+      email: "",
+      password: "",
+      rememberMe: localStorage.getItem("sb-remember-me") === "true",
     },
   });
 
@@ -45,7 +45,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       // Configura a preferência de persistência antes do login
-      localStorage.setItem('sb-remember-me', String(data.rememberMe));
+      localStorage.setItem("sb-remember-me", String(data.rememberMe));
 
       const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
@@ -53,16 +53,16 @@ export default function LoginPage() {
       });
 
       if (error) {
-        toast.error('Credenciais inválidas ou erro no servidor.');
+        toast.error("Credenciais inválidas ou erro no servidor.");
         setLoading(false); // Importante resetar aqui em caso de erro
         return;
       }
 
-      toast.success('Bem-vindo ao SEGECS!');
+      toast.success("Bem-vindo ao SEGECS!");
       // O navigate será tratado pelo useEffect acima ou aqui explicitamente
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      toast.error('Ocorreu um erro inesperado.');
+      toast.error("Ocorreu um erro inesperado.");
       setLoading(false);
     }
   };
@@ -114,14 +114,14 @@ export default function LoginPage() {
                 size={18}
               />
               <input
-                {...register('email')}
+                {...register("email")}
                 type="email"
                 placeholder="seu@email.com"
                 className={cn(
-                  'w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium',
+                  "w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium",
                   errors.email
-                    ? 'border-red-200 focus:ring-red-100'
-                    : 'border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200'
+                    ? "border-red-200 focus:ring-red-100"
+                    : "border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200",
                 )}
               />
             </div>
@@ -142,14 +142,14 @@ export default function LoginPage() {
                 size={18}
               />
               <input
-                {...register('password')}
+                {...register("password")}
                 type="password"
                 placeholder="••••••••"
                 className={cn(
-                  'w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium',
+                  "w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium",
                   errors.password
-                    ? 'border-red-200 focus:ring-red-100'
-                    : 'border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200'
+                    ? "border-red-200 focus:ring-red-100"
+                    : "border-transparent focus:ring-blue-100 focus:bg-white focus:border-blue-200",
                 )}
               />
             </div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
             <label className="flex items-center gap-2 cursor-pointer group select-none">
               <div className="relative flex items-center justify-center h-5 w-5 rounded-lg border-2 border-gray-100 bg-gray-50 group-hover:border-blue-200 transition-all duration-200">
                 <input
-                  {...register('rememberMe')}
+                  {...register("rememberMe")}
                   type="checkbox"
                   className="peer absolute inset-0 opacity-0 cursor-pointer"
                 />

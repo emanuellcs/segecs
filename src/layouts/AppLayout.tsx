@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Outlet, useLocation, Link } from 'react-router-dom';
-import { Menu, RefreshCcw, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import Sidebar from './Sidebar';
+import { useState, useEffect } from "react";
+import { Outlet, useLocation, Link } from "react-router-dom";
+import { Menu, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import Sidebar from "./Sidebar";
 
 export default function AppLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -22,9 +22,9 @@ export default function AppLayout() {
   // Impede o scroll do body quando o menu mobile está aberto
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
   }, [isMobileMenuOpen]);
 
@@ -32,16 +32,20 @@ export default function AppLayout() {
     setIsRefreshing(true);
     try {
       await queryClient.refetchQueries();
-      toast.success('Dados sincronizados com o banco de dados!');
+      toast.success("Dados sincronizados com o banco de dados!");
     } catch (error) {
-      toast.error('Erro ao sincronizar dados.');
+      toast.error("Erro ao sincronizar dados.");
       console.error(error);
     } finally {
       setTimeout(() => setIsRefreshing(false), 500);
     }
   };
 
-  const sidebarTransition = { type: 'spring', damping: 25, stiffness: 200 } as const;
+  const sidebarTransition = {
+    type: "spring",
+    damping: 25,
+    stiffness: 200,
+  } as const;
 
   return (
     <div className="flex min-h-screen bg-gray-50/50 text-slate-900 overflow-x-hidden">
@@ -75,10 +79,10 @@ export default function AppLayout() {
               className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
             />
             <motion.div
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 z-50 w-[280px] lg:hidden"
             >
               <Sidebar onClose={() => setIsMobileMenuOpen(false)} />
@@ -105,9 +109,13 @@ export default function AppLayout() {
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               className="hidden lg:flex p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
-              title={isSidebarCollapsed ? 'Expandir menu' : 'Recolher menu'}
+              title={isSidebarCollapsed ? "Expandir menu" : "Recolher menu"}
             >
-              {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              {isSidebarCollapsed ? (
+                <ChevronRight size={20} />
+              ) : (
+                <ChevronLeft size={20} />
+              )}
             </button>
 
             {/* Título Central/Header */}
@@ -129,14 +137,17 @@ export default function AppLayout() {
               onClick={handleSync}
               disabled={isRefreshing}
               className={cn(
-                'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 border shadow-sm',
+                "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 border shadow-sm",
                 isRefreshing
-                  ? 'bg-blue-50 text-blue-400 border-blue-100'
-                  : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-400 active:scale-95'
+                  ? "bg-blue-50 text-blue-400 border-blue-100"
+                  : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-400 active:scale-95",
               )}
               title="Sincronizar com Banco de Dados"
             >
-              <RefreshCcw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+              <RefreshCcw
+                size={14}
+                className={isRefreshing ? "animate-spin" : ""}
+              />
               <span className="hidden sm:inline uppercase tracking-wide text-[10px]">
                 Sincronizar
               </span>

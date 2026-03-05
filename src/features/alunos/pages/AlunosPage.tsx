@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   GraduationCap,
   Plus,
@@ -9,31 +9,31 @@ import {
   BookOpen,
   Fingerprint,
   Calendar,
-} from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { InputMask } from '@/components/ui/InputMask';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
-import { usePagination } from '@/hooks/usePagination';
-import { Pagination } from '@/components/ui/Pagination';
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { InputMask } from "@/components/ui/InputMask";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 const alunoSchema = z.object({
-  nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
-  matricula: z.string().min(1, 'A matrícula é obrigatória'),
-  cpf: z.string().min(14, 'CPF inválido'),
-  data_nascimento: z.string().min(1, 'A data de nascimento é obrigatória'),
-  curso_id: z.string().uuid('Selecione um curso válido'),
-  responsavel_id: z.string().uuid('Selecione um responsável válido'),
-  status: z.enum(['pendente', 'estagiando', 'concluido', 'evadido'], {
-    errorMap: () => ({ message: 'Selecione um status válido' }),
+  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
+  matricula: z.string().min(1, "A matrícula é obrigatória"),
+  cpf: z.string().min(14, "CPF inválido"),
+  data_nascimento: z.string().min(1, "A data de nascimento é obrigatória"),
+  curso_id: z.string().uuid("Selecione um curso válido"),
+  responsavel_id: z.string().uuid("Selecione um responsável válido"),
+  status: z.enum(["pendente", "estagiando", "concluido", "evadido"], {
+    errorMap: () => ({ message: "Selecione um status válido" }),
   }),
 });
 
@@ -47,7 +47,7 @@ interface Aluno {
   data_nascimento: string;
   curso_id: string;
   responsavel_id: string;
-  status: 'pendente' | 'estagiando' | 'concluido' | 'evadido';
+  status: "pendente" | "estagiando" | "concluido" | "evadido";
   created_at: string;
 }
 
@@ -55,7 +55,7 @@ export default function AlunosPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: alunos,
@@ -63,10 +63,12 @@ export default function AlunosPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Aluno>('alunos', ['alunos']);
+  } = useSupabaseCrud<Aluno>("alunos", ["alunos"]);
 
-  const { items: cursos } = useSupabaseCrud<any>('cursos', ['cursos']);
-  const { items: responsaveis } = useSupabaseCrud<any>('responsaveis', ['responsaveis']);
+  const { items: cursos } = useSupabaseCrud<any>("cursos", ["cursos"]);
+  const { items: responsaveis } = useSupabaseCrud<any>("responsaveis", [
+    "responsaveis",
+  ]);
 
   const {
     register,
@@ -77,7 +79,7 @@ export default function AlunosPage() {
   } = useForm<AlunoFormValues>({
     resolver: zodResolver(alunoSchema),
     defaultValues: {
-      status: 'pendente',
+      status: "pendente",
     },
   });
 
@@ -85,14 +87,14 @@ export default function AlunosPage() {
     try {
       if (selectedAluno) {
         await update({ id: selectedAluno.id, ...data });
-        toast.success('Aluno atualizado com sucesso!');
+        toast.success("Aluno atualizado com sucesso!");
       } else {
         await create(data);
-        toast.success('Aluno cadastrado com sucesso!');
+        toast.success("Aluno cadastrado com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar aluno');
+      toast.error(translateError(error));
     }
   };
 
@@ -119,11 +121,11 @@ export default function AlunosPage() {
     if (!selectedAluno) return;
     try {
       await remove(selectedAluno.id);
-      toast.success('Aluno removido com sucesso!');
+      toast.success("Aluno removido com sucesso!");
       setIsDeleteOpen(false);
       setSelectedAluno(null);
     } catch (error) {
-      toast.error('Erro ao remover aluno');
+      toast.error(translateError(error));
     }
   };
 
@@ -135,9 +137,9 @@ export default function AlunosPage() {
 
   const filteredAlunos = alunos.filter(
     (aluno) =>
-      (aluno.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (aluno.matricula || '').includes(searchTerm) ||
-      (aluno.cpf || '').includes(searchTerm)
+      (aluno.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (aluno.matricula || "").includes(searchTerm) ||
+      (aluno.cpf || "").includes(searchTerm),
   );
 
   const pagination = usePagination(filteredAlunos);
@@ -156,7 +158,9 @@ export default function AlunosPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <GraduationCap className="text-blue-600" size={28} /> Alunos
           </h1>
-          <p className="text-gray-500 font-medium">Gestão centralizada de estudantes</p>
+          <p className="text-gray-500 font-medium">
+            Gestão centralizada de estudantes
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -187,8 +191,10 @@ export default function AlunosPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
         {isLoading ? (
@@ -211,7 +217,9 @@ export default function AlunosPage() {
                     <User size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{aluno.nome}</h3>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {aluno.nome}
+                    </h3>
                     <p className="text-xs text-gray-500 font-medium">
                       Matrícula: {aluno.matricula}
                     </p>
@@ -219,12 +227,12 @@ export default function AlunosPage() {
                 </div>
                 <span
                   className={cn(
-                    'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                    aluno.status === 'estagiando'
-                      ? 'bg-green-100 text-green-700'
-                      : aluno.status === 'pendente'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-gray-100 text-gray-700'
+                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                    aluno.status === "estagiando"
+                      ? "bg-green-100 text-green-700"
+                      : aluno.status === "pendente"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-100 text-gray-700",
                   )}
                 >
                   {aluno.status}
@@ -235,7 +243,8 @@ export default function AlunosPage() {
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <BookOpen size={14} className="text-blue-500" />
                   <span className="truncate">
-                    {cursos.find((c: any) => c.id === aluno.curso_id)?.nome || 'N/A'}
+                    {cursos.find((c: any) => c.id === aluno.curso_id)?.nome ||
+                      "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
@@ -264,7 +273,7 @@ export default function AlunosPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -298,34 +307,45 @@ export default function AlunosPage() {
                 </tr>
               ) : filteredAlunos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
+                  >
                     Nenhum aluno cadastrado.
                   </td>
                 </tr>
               ) : (
                 pagination.currentItems.map((aluno) => (
-                  <tr key={aluno.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <tr
+                    key={aluno.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                           {aluno.nome.substring(0, 2)}
                         </div>
-                        <span className="text-gray-900 font-bold">{aluno.nome}</span>
+                        <span className="text-gray-900 font-bold">
+                          {aluno.nome}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{aluno.matricula}</td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {cursos.find((c: any) => c.id === aluno.curso_id)?.nome || 'N/A'}
+                      {aluno.matricula}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {cursos.find((c: any) => c.id === aluno.curso_id)?.nome ||
+                        "N/A"}
                     </td>
                     <td className="px-6 py-4">
                       <span
                         className={cn(
-                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                          aluno.status === 'estagiando'
-                            ? 'bg-green-100 text-green-700'
-                            : aluno.status === 'pendente'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-gray-100 text-gray-700'
+                          "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                          aluno.status === "estagiando"
+                            ? "bg-green-100 text-green-700"
+                            : aluno.status === "pendente"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-100 text-gray-700",
                         )}
                       >
                         {aluno.status}
@@ -370,25 +390,27 @@ export default function AlunosPage() {
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedAluno ? 'Editar Aluno' : 'Novo Cadastro de Aluno'}
+        title={selectedAluno ? "Editar Aluno" : "Novo Cadastro de Aluno"}
         description="Preencha todos os dados obrigatórios para manter o registro atualizado."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nome Completo
+              </label>
               <div className="relative mt-1">
                 <User
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('nome')}
+                  {...register("nome")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.nome
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: João Silva Sauro"
                 />
@@ -401,14 +423,16 @@ export default function AlunosPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Matrícula</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Matrícula
+              </label>
               <input
-                {...register('matricula')}
+                {...register("matricula")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                   errors.matricula
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
                 placeholder="000000"
               />
@@ -426,7 +450,7 @@ export default function AlunosPage() {
                 <InputMask
                   mask="cpf"
                   label="CPF"
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={field.onChange}
                   error={errors.cpf?.message}
                   placeholder="000.000.000-00"
@@ -435,14 +459,16 @@ export default function AlunosPage() {
             />
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Curso</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Curso
+              </label>
               <select
-                {...register('curso_id')}
+                {...register("curso_id")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                   errors.curso_id
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               >
                 <option value="">Selecione o curso...</option>
@@ -460,14 +486,16 @@ export default function AlunosPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Responsável Legal</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Responsável Legal
+              </label>
               <select
-                {...register('responsavel_id')}
+                {...register("responsavel_id")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                   errors.responsavel_id
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               >
                 <option value="">Selecione o responsável...</option>
@@ -485,7 +513,9 @@ export default function AlunosPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Nascimento</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nascimento
+              </label>
               <div className="relative mt-1">
                 <Calendar
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -493,12 +523,12 @@ export default function AlunosPage() {
                 />
                 <input
                   type="date"
-                  {...register('data_nascimento')}
+                  {...register("data_nascimento")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.data_nascimento
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 />
               </div>
@@ -510,9 +540,11 @@ export default function AlunosPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Status Acadêmico</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Status Acadêmico
+              </label>
               <select
-                {...register('status')}
+                {...register("status")}
                 className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
               >
                 <option value="pendente">🟡 PENDENTE</option>
@@ -537,10 +569,10 @@ export default function AlunosPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedAluno
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Cadastro'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Cadastro"}
             </button>
           </div>
         </form>

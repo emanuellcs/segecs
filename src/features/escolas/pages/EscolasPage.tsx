@@ -1,23 +1,31 @@
-import { useState } from 'react';
-import { School, Plus, Edit2, Trash2, Search, MapPin, Hash } from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
-import { usePagination } from '@/hooks/usePagination';
-import { Pagination } from '@/components/ui/Pagination';
+import { useState } from "react";
+import {
+  School,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  MapPin,
+  Hash,
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 const escolaSchema = z.object({
-  nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
+  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
   inep: z.string().optional(),
-  cidade_id: z.string().uuid('Selecione uma cidade válida'),
+  cidade_id: z.string().uuid("Selecione uma cidade válida"),
 });
 
 type EscolaFormValues = z.infer<typeof escolaSchema>;
@@ -34,7 +42,7 @@ export default function EscolasPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedEscola, setSelectedEscola] = useState<Escola | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: escolas,
@@ -42,9 +50,9 @@ export default function EscolasPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Escola>('escolas', ['escolas']);
+  } = useSupabaseCrud<Escola>("escolas", ["escolas"]);
 
-  const { items: cidades } = useSupabaseCrud<any>('cidades', ['cidades']);
+  const { items: cidades } = useSupabaseCrud<any>("cidades", ["cidades"]);
 
   const {
     register,
@@ -59,14 +67,14 @@ export default function EscolasPage() {
     try {
       if (selectedEscola) {
         await update({ id: selectedEscola.id, ...data });
-        toast.success('Escola atualizada com sucesso!');
+        toast.success("Escola atualizada com sucesso!");
       } else {
         await create(data);
-        toast.success('Escola cadastrada com sucesso!');
+        toast.success("Escola cadastrada com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar escola');
+      toast.error(translateError(error));
     }
   };
 
@@ -74,7 +82,7 @@ export default function EscolasPage() {
     setSelectedEscola(escola);
     reset({
       nome: escola.nome,
-      inep: escola.inep || '',
+      inep: escola.inep || "",
       cidade_id: escola.cidade_id,
     });
     setIsFormOpen(true);
@@ -89,11 +97,11 @@ export default function EscolasPage() {
     if (!selectedEscola) return;
     try {
       await remove(selectedEscola.id);
-      toast.success('Escola removida com sucesso!');
+      toast.success("Escola removida com sucesso!");
       setIsDeleteOpen(false);
       setSelectedEscola(null);
     } catch (error) {
-      toast.error('Erro ao remover escola');
+      toast.error(translateError(error));
     }
   };
 
@@ -105,8 +113,8 @@ export default function EscolasPage() {
 
   const filteredEscolas = escolas.filter(
     (escola) =>
-      (escola.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (escola.inep || '').includes(searchTerm)
+      (escola.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (escola.inep || "").includes(searchTerm),
   );
 
   const pagination = usePagination(filteredEscolas);
@@ -123,7 +131,9 @@ export default function EscolasPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <School className="text-blue-600" size={28} /> Escolas
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de instituições de ensino</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de instituições de ensino
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -154,8 +164,10 @@ export default function EscolasPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
         {pagination.currentItems.length === 0 ? (
@@ -174,9 +186,11 @@ export default function EscolasPage() {
                     <School size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{escola.nome}</h3>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {escola.nome}
+                    </h3>
                     <p className="text-xs text-gray-500 font-medium">
-                      INEP: {escola.inep || 'N/A'}
+                      INEP: {escola.inep || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -185,7 +199,8 @@ export default function EscolasPage() {
               <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                 <MapPin size={14} className="text-blue-500" />
                 <span className="truncate">
-                  {cidades.find((c: any) => c.id === escola.cidade_id)?.nome || 'N/A'}
+                  {cidades.find((c: any) => c.id === escola.cidade_id)?.nome ||
+                    "N/A"}
                 </span>
               </div>
 
@@ -209,7 +224,7 @@ export default function EscolasPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -231,25 +246,35 @@ export default function EscolasPage() {
             <tbody className="divide-y divide-gray-100">
               {pagination.currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-400 font-bold">
+                  <td
+                    colSpan={3}
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
+                  >
                     Nenhuma escola cadastrada.
                   </td>
                 </tr>
               ) : (
                 pagination.currentItems.map((escola) => (
-
-                  <tr key={escola.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <tr
+                    key={escola.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                           {escola.nome.substring(0, 2)}
                         </div>
-                        <span className="text-gray-900 font-bold">{escola.nome}</span>
+                        <span className="text-gray-900 font-bold">
+                          {escola.nome}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{escola.inep || '-'}</td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {cidades.find((c: any) => c.id === escola.cidade_id)?.nome || 'N/A'}
+                      {escola.inep || "-"}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {cidades.find((c: any) => c.id === escola.cidade_id)
+                        ?.nome || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -290,25 +315,27 @@ export default function EscolasPage() {
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedEscola ? 'Editar Escola' : 'Novo Cadastro de Escola'}
+        title={selectedEscola ? "Editar Escola" : "Novo Cadastro de Escola"}
         description="Preencha os dados da instituição de ensino."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Nome da Escola</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nome da Escola
+              </label>
               <div className="relative mt-1">
                 <School
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('nome')}
+                  {...register("nome")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.nome
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: EEEP Manoel Mano"
                 />
@@ -321,14 +348,16 @@ export default function EscolasPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Código INEP</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Código INEP
+              </label>
               <div className="relative mt-1">
                 <Hash
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('inep')}
+                  {...register("inep")}
                   className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                   placeholder="Opcional"
                 />
@@ -336,14 +365,16 @@ export default function EscolasPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Cidade</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Cidade
+              </label>
               <select
-                {...register('cidade_id')}
+                {...register("cidade_id")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium",
                   errors.cidade_id
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               >
                 <option value="">Selecione a cidade...</option>
@@ -375,10 +406,10 @@ export default function EscolasPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedEscola
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Cadastro'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Cadastro"}
             </button>
           </div>
         </form>

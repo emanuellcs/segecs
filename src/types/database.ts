@@ -6,7 +6,7 @@ export interface Aluno {
   data_nascimento?: string | null;
   curso_id: string;
   responsavel_id: string;
-  status: 'pendente' | 'estagiando' | 'concluido' | 'evadido';
+  status: "pendente" | "estagiando" | "concluido" | "evadido";
   created_at: string;
 }
 
@@ -42,7 +42,7 @@ export interface Estagio {
   data_fim: string;
   carga_horaria_total: number;
   carga_horaria_diaria: number;
-  status: 'ativo' | 'concluido' | 'interrompido';
+  status: "ativo" | "concluido" | "interrompido";
   created_at: string;
 }
 
@@ -91,6 +91,6 @@ export interface ProjetoSocial {
   descricao?: string | null;
   horas_estimadas: number;
   data_execucao?: string | null;
-  status: 'planejado' | 'executado';
+  status: "planejado" | "executado";
   created_at: string;
 }

@@ -4,8 +4,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/Dialog';
-import { Github, ExternalLink, ShieldCheck } from 'lucide-react';
+} from "@/components/ui/Dialog";
+import { Github, ExternalLink, ShieldCheck } from "lucide-react";
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -48,10 +48,15 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
                     <p className="text-sm font-black text-gray-900 uppercase tracking-tighter">
                       Prof. Raimundo Nonato de Sousa
                     </p>
-                    <p className="text-[10px] font-bold text-blue-600">@prof-raimundo</p>
+                    <p className="text-[10px] font-bold text-blue-600">
+                      @prof-raimundo
+                    </p>
                   </div>
                 </div>
-                <ExternalLink size={16} className="text-gray-300 group-hover:text-blue-600" />
+                <ExternalLink
+                  size={16}
+                  className="text-gray-300 group-hover:text-blue-600"
+                />
               </a>
 
               <a
@@ -68,10 +73,15 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
                     <p className="text-sm font-black text-gray-900 uppercase tracking-tighter">
                       Emanuel Lázaro
                     </p>
-                    <p className="text-[10px] font-bold text-blue-600">@emanuellcs</p>
+                    <p className="text-[10px] font-bold text-blue-600">
+                      @emanuellcs
+                    </p>
                   </div>
                 </div>
-                <ExternalLink size={16} className="text-gray-300 group-hover:text-blue-600" />
+                <ExternalLink
+                  size={16}
+                  className="text-gray-300 group-hover:text-blue-600"
+                />
               </a>
             </div>
           </div>
