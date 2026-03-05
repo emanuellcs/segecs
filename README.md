@@ -2,133 +2,111 @@
 
 ## 📖 Sobre o SEGECS
 
-O **SEGECS** é uma plataforma robusta e moderna desenvolvida para automatizar e otimizar a gestão de estágios curriculares em instituições de ensino técnico. Focado inicialmente nas **EEEPs do Ceará (Escolas Estaduais de Educação Profissional)**, o sistema atende especificamente às demandas do curso **Técnico em Informática** e demais áreas.
+O **SEGECS** é uma solução de governança acadêmica de alta performance, projetada especificamente para centralizar, automatizar e monitorar o ciclo de vida completo do Estágio Curricular Supervisionado. A plataforma atua como uma ponte inteligente entre instituições de ensino, empresas parceiras e estudantes, eliminando burocracias manuais e garantindo total conformidade com a **Lei nº 11.788/2008**.
 
-O sistema foi concebido em total conformidade com a **Lei nº 11.788/2008 (Lei do Estágio)** e segue rigorosamente o **Guia de Estágio da SEDUC-CE**, garantindo segurança jurídica e pedagógica em todo o processo.
+Diferente de sistemas genéricos, o SEGECS oferece uma arquitetura **multi-formação**, permitindo que coordenadores gerenciem simultaneamente diversos cursos técnicos e profissionais (como Enfermagem, Administração, Redes, Edificações, entre outros). Cada curso possui sua própria parametrização de carga horária e competências, permitindo que a instituição escale sua operação de estágios sem perder o controle individualizado de cada contrato.
+
+Com uma interface moderna e orientada a dados, o sistema transforma o acompanhamento pedagógico, antes disperso em papéis e planilhas, em indicadores estratégicos em tempo real, fornecendo segurança jurídica através da geração automatizada de documentos e integridade técnica por meio de políticas rigorosas de proteção de dados.
+
+## 🏛️ Arquitetura do Sistema
+
+O SEGECS utiliza uma arquitetura moderna baseada em **SPA (Single Page Application)** com uma infraestrutura **Serverless**, garantindo escalabilidade, segurança e alta performance.
+
+### 🏗️ Stack Tecnológica
+
+- **Frontend:** [React 18](https://react.dev/) com [Vite](https://vitejs.dev/) e [TypeScript](https://www.typescriptlang.org/).
+- **Estilização:** [TailwindCSS](https://tailwindcss.com/) e [Framer Motion](https://www.framer.com/motion/) para animações fluídas.
+- **Backend-as-a-Service:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, RLS e Realtime).
+- **Gerenciamento de Estado:** [React Query (TanStack)](https://tanstack.com/query/latest) para cache e sincronização de dados.
+- **Formulários:** [React Hook Form](https://react-hook-form.com/) integrado com [Zod](https://zod.dev/) para validação rigorosa.
+- **Documentação:** [@react-pdf/renderer](https://react-pdf.org/) para geração dinâmica de PDFs no cliente.
+
+### 🛡️ Camada de Segurança
+
+- **Supabase Auth:** Autenticação segura com suporte a persistência de sessão configurável ("Lembre-se de mim").
+- **Row Level Security (RLS):** Políticas de acesso direto no banco de dados garantindo que alunos vejam apenas seus dados, enquanto coordenadores acessam a visão gerencial.
+- **Snapshot Logic:** Cargas horárias são copiadas para os contratos no momento da criação, protegendo registros históricos contra alterações futuras nas grades curriculares.
 
 ## 🚀 Funcionalidades Principais
 
-O SEGECS cobre 100% do ciclo de vida do estágio:
+### 📋 Gestão Administrativa (Multi-Curso)
 
-- **Gestão de Cadastros:** Alunos, Empresas (convênios), Escolas, Orientadores e Supervisores.
-- **Fluxo de Estágio:** Criação de vagas, seleção de alunos e formalização de contratos.
-- **Documentação Automática:** Geração instantânea de **TCE (Termo de Compromisso de Estágio)** e **Plano de Atividades** em PDF.
-- **Controle de Frequência:** Registro detalhado com cálculo automático para cumprimento das **400 horas** obrigatórias.
-- **Avaliações Pedagógicas:** Formulários de desempenho preenchidos por supervisores e orientadores.
-- **Acompanhamento de Visitas:** Registro de visitas técnicas in loco ou remotas.
-- **Projeto Social e TRE:** Gestão de horas de contrapartida social e Termo de Realização de Estágio.
-- **Dashboards Estratégicos:** Visão geral de alunos estagiando, vagas disponíveis e pendências documentais.
-- **Exportação SICE:** Preparação de dados para integração/lançamento no sistema da SEDUC.
-- **Interface Mobile-First:** Experiência otimizada para smartphones, tablets e desktops.
+- **Cursos Customizáveis:** Cadastro de qualquer formação com definição de CH obrigatória específica.
+- **Gestão de Parceiros:** Controle de empresas com monitoramento de validade de convênios.
+- **Banco de Talentos:** Cadastro detalhado de alunos, orientadores e supervisores de campo.
 
-## 🛠️ Tecnologias Utilizadas
+### ⚙️ Fluxo de Alocação e Vagas
 
-### Core
+- **Gestão de Vagas:** Publicação e controle de oportunidades por curso e empresa.
+- **Alocação Inteligente:** Vínculo automático entre aluno, vaga, orientador e supervisor.
+- **Preenchimento Automático:** O sistema detecta a CH do curso e sugere os termos do contrato instantaneamente.
 
-- **React 18.3** (Vite 6)
-- **TypeScript**
-- **Supabase** (Auth, Database, Storage, RLS)
+### 📈 Monitoramento e Controle (Compliance)
 
-### UI/UX
+- **Registro de Frequência:** Lançamento diário de atividades com validação de horários.
+- **Visitas Técnicas:** Módulo completo para registro de acompanhamento presencial ou remoto.
+- **Avaliações Pedagógicas:** Sistema de notas e feedbacks por período.
+- **Dashboard de Inteligência:** Gráficos de distribuição, alertas de contratos vencendo e pendências de avaliação.
 
-- **TailwindCSS** (Estilização Utilitária)
-- **Framer Motion** (Animações de interface)
-- **Radix UI** (Componentes acessíveis como Dialog/Modais)
-- **Lucide React** (Pacote de ícones)
-- **Sonner** (Notificações Toast)
+### 🎓 Documentação Automática (PDF)
 
-### Ferramentas de Desenvolvimento
+- **TCE (Termo de Compromisso):** Geração instantânea conforme legislação vigente.
+- **Plano de Atividades:** Detalhamento das competências técnicas em desenvolvimento.
+- **TRE (Termo de Realização):** Documento final de conclusão com resumo de carga horária.
+- **Exportação SICE:** Preparação de dados em CSV estruturado para o sistema da SEDUC-CE.
 
-- **React Query (TanStack)** (Sincronização de dados e cache)
-- **React Hook Form** + **Zod** (Formulários e validação de esquemas)
-- **@react-pdf/renderer** (Geração dinâmica de documentos PDF)
-- **date-fns** (Manipulação de datas)
+## 🚦 Começando
 
-## 📋 Pré-requisitos
+### 📋 Pré-requisitos
 
-- **Node.js** (v18 ou superior)
-- **npm** ou **yarn**
-- Uma conta no **Supabase** (tier gratuito é suficiente)
+- **Node.js** (v18+)
+- **npm** ou **pnpm**
+- Instância do **Supabase**
 
-## ⚙️ Configuração do Supabase
+### ⚙️ Instalação e Configuração
 
-Siga os passos abaixo para preparar o backend:
+1. **Clonar e Instalar:**
 
-1. **Criar Projeto:** No painel do Supabase, crie um novo projeto.
-2. **Rodar o Schema SQL:** Vá em `SQL Editor` e execute o conteúdo do arquivo `database/supabase_schema.sql`. Este script cria:
-   - Tabelas (`alunos`, `empresas`, `estagios`, `frequencias`, etc.)
-   - Enums de acesso (`admin`, `coordenador`, `orientador`, `aluno`, `supervisor`)
-   - Triggers para criação automática de perfis (`profiles`).
-3. **Storage:** Crie um bucket chamado `documentos` e configure-o como público ou privado conforme sua necessidade de RLS.
-4. **Políticas de RLS (Row Level Security):**
-   - O sistema já possui políticas básicas no schema, garantindo que alunos vejam apenas seus dados e administradores tenham acesso total.
+   ```bash
+   git clone https://github.com/prof-raimundo/segecs.git
+   cd segecs
+   npm install
+   ```
 
-## 🔑 Variáveis de Ambiente
+2. **Configurar Variáveis de Ambiente:**
+   Crie um arquivo `.env` na raiz:
 
-Crie um arquivo `.env` na raiz do projeto (baseado no `.env.example`):
+   ```env
+   VITE_PUBLIC_SUPABASE_URL=sua_url_supabase
+   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua_chave_anon
+   ```
 
-```env
-VITE_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-publica
-```
+3. **Configurar Banco de Dados:**
+   - Execute o script em `database/supabase_schema.sql` no editor SQL do Supabase.
+   - (Opcional) Execute o `database/seed.sql` para popular o sistema com dados de teste (70 usuários, 15 visitas, frequências, etc.).
 
-## 💻 Instalação e Execução Local
-
-```bash
-# 1. Clone o repositório
-git clone https://github.com/prof-raimundo/segecs.git
-
-# 2. Acesse a pasta
-cd segecs
-
-# 3. Instale as dependências
-npm install
-
-# 4. Inicie o servidor de desenvolvimento
-npm run dev
-```
-
-## 🌐 Deploy no Vercel
-
-O projeto está otimizado para deploy na Vercel:
-
-1. Conecte seu repositório GitHub à Vercel.
-2. Configure as **Environment Variables** (`VITE_PUBLIC_SUPABASE_URL` e `VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY`).
-3. O comando de build será `npm run build` e a pasta de saída será `dist`.
-4. Ative a opção de **Framework Preset: Vite**.
+4. **Executar:**
+   ```bash
+   npm run dev
+   ```
 
 ## 📂 Estrutura de Pastas
 
 ```text
 src/
-├── app/            # Provedores e Definições de Rotas
-├── components/     # Componentes UI reutilizáveis (Radix, Shadcn-like)
-├── features/       # Módulos de negócio (Lógica principal por domínio)
-│   ├── alunos/
-│   ├── estagios/
-│   ├── frequencia/
-│   └── ...
-├── hooks/          # Hooks customizados (useAuth, useSupabaseCrud)
-├── layouts/        # Estruturas de página (Sidebar, AppLayout)
-├── lib/            # Configurações de bibliotecas (Supabase, Utils)
-├── types/          # Definições de Tipos TypeScript e Database
-└── utils/          # Máscaras e funções utilitárias
+├── app/            # Configurações globais, rotas e provedores
+├── components/     # Componentes UI reutilizáveis (Pagination, Loading, etc)
+├── features/       # Módulos de negócio (alunos, estagios, visitas, etc)
+│   └── [feature]/  # Componentes, páginas e serviços específicos
+├── hooks/          # Hooks customizados (usePagination, useAuth, useSupabaseCrud)
+├── lib/            # Configurações de bibliotecas (supabase cliente, utils)
+└── types/          # Definições de tipos TypeScript e banco de dados
 ```
-
-## 📖 Como Usar (Fluxo Operacional)
-
-1. **Início:** O administrador cadastra as **Empresas** com convênio ativo e os **Alunos** aptos.
-2. **Vaga:** O **Orientador** cria uma vaga de estágio vinculada a uma empresa.
-3. **Contrato:** Ao selecionar um aluno, o sistema gera o **TCE** e o **Plano de Atividades**.
-4. **Execução:** O aluno registra sua **Frequência** diária. O sistema calcula o progresso até as 400h.
-5. **Monitoramento:** O **Orientador** registra as visitas e acompanha as avaliações do **Supervisor** da empresa.
-6. **Conclusão:** Após as 400h e aprovação nas avaliações, o sistema emite o **TRE** e prepara os dados para o **SICE**.
-
-## ⚖️ Conformidade Legal e LGPD
-
-- **Lei 11.788/2008:** Todos os campos obrigatórios para o TCE estão presentes.
-- **LGPD:** O sistema utiliza criptografia do Supabase Auth e políticas de RLS para garantir que dados sensíveis (CPF, Matrícula) sejam acessados apenas por pessoas autorizadas.
 
 ## 📄 Licença
 
 Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
+
+<p align="center">
+  Desenvolvido com ❤️ para transformar a educação técnica.
+</p>

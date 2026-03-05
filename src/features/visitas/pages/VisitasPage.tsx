@@ -1,14 +1,14 @@
 import { useState } from "react";
 import {
-  Award,
+  MapPin,
   Plus,
   Edit2,
   Trash2,
   Search,
-  TrendingUp,
-  User,
   Calendar,
+  User,
   MessageSquare,
+  CheckCircle2,
 } from "lucide-react";
 import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
 import { useForm } from "react-hook-form";
@@ -24,65 +24,68 @@ import { Pagination } from "@/components/ui/Pagination";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
-const avaliacaoSchema = z.object({
+const visitaSchema = z.object({
   estagio_id: z.string().uuid("Selecione um estágio válido"),
-  tipo: z.number().min(1).max(3),
-  nota: z.number().min(0, "Nota mínima 0").max(10, "Nota máxima 10"),
-  comentarios: z.string().optional().or(z.literal("")),
-  data_avaliacao: z.string().min(1, "A data é obrigatória"),
+  data_visita: z.string().min(1, "A data é obrigatória"),
+  tipo: z.enum(["presencial", "remota"], {
+    errorMap: () => ({ message: "Selecione o tipo de visita" }),
+  }),
+  resumo: z.string().min(10, "O resumo deve ter pelo menos 10 caracteres"),
+  observacoes: z.string().optional().or(z.literal("")),
 });
 
-type AvaliacaoFormValues = z.infer<typeof avaliacaoSchema>;
+type VisitaFormValues = z.infer<typeof visitaSchema>;
 
-interface Avaliacao {
+interface Visita {
   id: string;
   estagio_id: string;
-  tipo: number;
-  nota: number;
-  comentarios?: string | null;
-  data_avaliacao: string;
+  data_visita: string;
+  tipo: "presencial" | "remota";
+  resumo: string;
+  observacoes?: string | null;
   created_at: string;
 }
 
-export default function AvaliacoesPage() {
+export default function VisitasPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedAval, setSelectedAval] = useState<Avaliacao | null>(null);
+  const [selectedVisita, setSelectedVisita] = useState<Visita | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEstagioId, setSelectedEstagioId] = useState<string>("");
 
   const {
-    items: avaliacoes,
+    items: visitas,
     isLoading,
     create,
     update,
     remove,
-  } = useSupabaseCrud<Avaliacao>("avaliacoes", ["avaliacoes"]);
+  } = useSupabaseCrud<Visita>("visitas", ["visitas"]);
 
   const { items: estagios } = useSupabaseCrud<any>("estagios", ["estagios"]);
   const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
+  const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
+  const { items: vagas } = useSupabaseCrud<any>("vagas", ["vagas"]);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<AvaliacaoFormValues>({
-    resolver: zodResolver(avaliacaoSchema),
+  } = useForm<VisitaFormValues>({
+    resolver: zodResolver(visitaSchema),
     defaultValues: {
-      tipo: 1,
-      data_avaliacao: new Date().toISOString().split("T")[0],
+      tipo: "presencial",
+      data_visita: new Date().toISOString().split("T")[0],
     },
   });
 
-  const onSubmit = async (data: AvaliacaoFormValues) => {
+  const onSubmit = async (data: VisitaFormValues) => {
     try {
-      if (selectedAval) {
-        await update({ id: selectedAval.id, ...data });
-        toast.success("Avaliação atualizada com sucesso!");
+      if (selectedVisita) {
+        await update({ id: selectedVisita.id, ...data });
+        toast.success("Visita atualizada com sucesso!");
       } else {
         await create(data);
-        toast.success("Nota lançada com sucesso!");
+        toast.success("Visita registrada com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
@@ -90,30 +93,30 @@ export default function AvaliacoesPage() {
     }
   };
 
-  const handleEdit = (aval: Avaliacao) => {
-    setSelectedAval(aval);
+  const handleEdit = (visita: Visita) => {
+    setSelectedVisita(visita);
     reset({
-      estagio_id: aval.estagio_id,
-      tipo: aval.tipo,
-      nota: aval.nota,
-      comentarios: aval.comentarios || "",
-      data_avaliacao: aval.data_avaliacao,
+      estagio_id: visita.estagio_id,
+      data_visita: visita.data_visita,
+      tipo: visita.tipo,
+      resumo: visita.resumo,
+      observacoes: visita.observacoes || "",
     });
     setIsFormOpen(true);
   };
 
-  const handleDeleteClick = (aval: Avaliacao) => {
-    setSelectedAval(aval);
+  const handleDeleteClick = (visita: Visita) => {
+    setSelectedVisita(visita);
     setIsDeleteOpen(true);
   };
 
   const confirmDelete = async () => {
-    if (!selectedAval) return;
+    if (!selectedVisita) return;
     try {
-      await remove(selectedAval.id);
-      toast.success("Avaliação removida com sucesso!");
+      await remove(selectedVisita.id);
+      toast.success("Visita removida com sucesso!");
       setIsDeleteOpen(false);
-      setSelectedAval(null);
+      setSelectedVisita(null);
     } catch (error) {
       toast.error(translateError(error));
     }
@@ -121,32 +124,21 @@ export default function AvaliacoesPage() {
 
   const handleCloseForm = () => {
     setIsFormOpen(false);
-    setSelectedAval(null);
+    setSelectedVisita(null);
     reset();
   };
 
-  const filteredAvaliacoes = avaliacoes.filter((aval) => {
-    const estagio = estagios.find((e) => e.id === aval.estagio_id);
+  const filteredVisitas = visitas.filter((visita) => {
+    const estagio = estagios.find((e) => e.id === visita.estagio_id);
     const alunoNome =
       alunos.find((a) => a.id === estagio?.aluno_id)?.nome || "";
-    const matchesSearch = (alunoNome?.toLowerCase() || "").includes(
-      searchTerm.toLowerCase(),
+    return (
+      alunoNome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      visita.resumo.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    const matchesEstagio =
-      !selectedEstagioId || aval.estagio_id === selectedEstagioId;
-    return matchesSearch && matchesEstagio;
   });
 
-  const pagination = usePagination(filteredAvaliacoes);
-
-  const mediaGeral =
-    filteredAvaliacoes.length > 0
-      ? (
-          filteredAvaliacoes.reduce((acc, a) => acc + a.nota, 0) /
-          filteredAvaliacoes.length
-        ).toFixed(1)
-      : "0.0";
-
+  const pagination = usePagination(filteredVisitas);
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
@@ -157,65 +149,18 @@ export default function AvaliacoesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
-            <Award className="text-blue-600" size={28} /> Avaliações
+            <MapPin className="text-blue-600" size={28} /> Visitas Técnicas
           </h1>
           <p className="text-gray-500 font-medium">
-            Acompanhamento de desempenho acadêmico
+            Acompanhamento e monitoramento in loco
           </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
           className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-lg shadow-blue-200 active:scale-95"
         >
-          <Plus size={20} /> Lançar Nota
+          <Plus size={20} /> Registrar Visita
         </button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-            Filtrar por Estágio
-          </label>
-          <select
-            className="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-            value={selectedEstagioId}
-            onChange={(e) => setSelectedEstagioId(e.target.value)}
-          >
-            <option value="">Todos os estágios</option>
-            {estagios.map((est: any) => (
-              <option key={est.id} value={est.id}>
-                {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="bg-orange-500 p-6 rounded-2xl shadow-lg shadow-orange-100 flex justify-between items-center text-white">
-          <div>
-            <p className="text-orange-100 text-xs font-black uppercase tracking-widest mb-1">
-              Média de Notas
-            </p>
-            <h2 className="text-4xl font-black">{mediaGeral}</h2>
-          </div>
-          <div className="bg-orange-400/30 p-3 rounded-xl">
-            <TrendingUp size={32} />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
-          <div>
-            <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">
-              Total de Lançamentos
-            </p>
-            <h2 className="text-4xl font-black text-gray-800">
-              {filteredAvaliacoes.length}
-            </h2>
-          </div>
-          <div className="bg-blue-50 p-3 rounded-xl text-blue-500">
-            <Award size={32} />
-          </div>
-        </div>
       </div>
 
       {/* Busca e Layout Toggle */}
@@ -227,7 +172,7 @@ export default function AvaliacoesPage() {
           />
           <input
             type="text"
-            placeholder="Buscar por nome do aluno..."
+            placeholder="Buscar por aluno ou resumo..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
@@ -236,7 +181,7 @@ export default function AvaliacoesPage() {
         <ListLayoutToggle />
       </div>
 
-      {/* Listagem Responsiva (Cards) */}
+      {/* Listagem */}
       <div
         className={cn(
           "grid grid-cols-1 gap-4",
@@ -247,16 +192,18 @@ export default function AvaliacoesPage() {
       >
         {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
-            Nenhuma avaliação encontrada.
+            Nenhuma visita registrada.
           </div>
         ) : (
-          pagination.currentItems.map((avaliacao) => {
-            const estagio = estagios.find((e) => e.id === avaliacao.estagio_id);
+          pagination.currentItems.map((visita) => {
+            const estagio = estagios.find((e) => e.id === visita.estagio_id);
             const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
+            const vaga = vagas.find((v) => v.id === estagio?.vaga_id);
+            const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
 
             return (
               <div
-                key={avaliacao.id}
+                key={visita.id}
                 className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
               >
                 <div className="flex justify-between items-start">
@@ -269,36 +216,48 @@ export default function AvaliacoesPage() {
                         {aluno?.nome}
                       </h3>
                       <p className="text-xs text-gray-500 font-medium">
-                        {new Date(avaliacao.data_avaliacao).toLocaleDateString(
-                          "pt-BR",
-                        )}
+                        {empresa?.razao_social}
                       </p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-black uppercase tracking-wider text-gray-600">
-                    {avaliacao.tipo}ª NOTA
+                  <span
+                    className={cn(
+                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                      visita.tipo === "presencial"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-blue-100 text-blue-700",
+                    )}
+                  >
+                    {visita.tipo}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
-                  <div className="flex items-center gap-2 text-blue-900 font-black text-2xl">
-                    <TrendingUp size={20} className="text-orange-500" />
-                    <span>{avaliacao.nota.toFixed(1)}</span>
+                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                  <p className="text-sm text-gray-700 line-clamp-3 font-medium">
+                    {visita.resumo}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4 pt-2 text-xs text-gray-500 font-bold uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={14} className="text-blue-500" />
+                    {new Date(visita.data_visita).toLocaleDateString("pt-BR")}
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(avaliacao)}
-                      className="p-2.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(avaliacao)}
-                      className="p-2.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2 border-t border-gray-50">
+                  <button
+                    onClick={() => handleEdit(visita)}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors"
+                  >
+                    <Edit2 size={16} /> Editar
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(visita)}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 text-red-700 font-bold text-sm hover:bg-red-100 transition-colors"
+                  >
+                    <Trash2 size={16} /> Excluir
+                  </button>
                 </div>
               </div>
             );
@@ -313,16 +272,16 @@ export default function AvaliacoesPage() {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
-                  Aluno
+                  Aluno / Empresa
                 </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
-                  Avaliação
+                  Tipo
                 </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
                   Data
                 </th>
-                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">
-                  Nota
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
+                  Resumo
                 </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">
                   Ações
@@ -336,59 +295,71 @@ export default function AvaliacoesPage() {
                     colSpan={5}
                     className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
-                    Nenhuma avaliação cadastrada.
+                    Nenhuma visita cadastrada.
                   </td>
                 </tr>
               ) : (
-                pagination.currentItems.map((avaliacao) => {
+                pagination.currentItems.map((visita) => {
                   const estagio = estagios.find(
-                    (e) => e.id === avaliacao.estagio_id,
+                    (e) => e.id === visita.estagio_id,
                   );
                   const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
+                  const vaga = vagas.find((v) => v.id === estagio?.vaga_id);
+                  const empresa = empresas.find(
+                    (e) => e.id === vaga?.empresa_id,
+                  );
 
                   return (
                     <tr
-                      key={avaliacao.id}
+                      key={visita.id}
                       className="hover:bg-blue-50/30 transition-colors group"
                     >
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
-                            {aluno?.nome.substring(0, 2)}
-                          </div>
+                        <div className="flex flex-col">
                           <span className="text-gray-900 font-bold">
                             {aluno?.nome}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {empresa?.razao_social}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-black uppercase tracking-wider text-gray-600">
-                          {avaliacao.tipo}ª NOTA
+                        <span
+                          className={cn(
+                            "px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider",
+                            visita.tipo === "presencial"
+                              ? "bg-purple-100 text-purple-700"
+                              : "bg-blue-100 text-blue-700",
+                          )}
+                        >
+                          {visita.tipo}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-gray-600 font-medium text-sm">
-                        {new Date(avaliacao.data_avaliacao).toLocaleDateString(
+                        {new Date(visita.data_visita).toLocaleDateString(
                           "pt-BR",
                         )}
                       </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="text-blue-900 font-black text-xl">
-                          {avaliacao.nota.toFixed(1)}
-                        </span>
+                      <td className="px-6 py-4">
+                        <p
+                          className="text-gray-600 text-sm max-w-xs truncate"
+                          title={visita.resumo}
+                        >
+                          {visita.resumo}
+                        </p>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => handleEdit(avaliacao)}
+                            onClick={() => handleEdit(visita)}
                             className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
-                            title="Editar"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteClick(avaliacao)}
+                            onClick={() => handleDeleteClick(visita)}
                             className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
-                            title="Excluir"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -416,8 +387,8 @@ export default function AvaliacoesPage() {
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedAval ? "Editar Avaliação" : "Lançar Nova Nota"}
-        description="Registre o desempenho do estagiário neste período."
+        title={selectedVisita ? "Editar Visita" : "Novo Registro de Visita"}
+        description="Documente o acompanhamento técnico realizado."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -440,11 +411,16 @@ export default function AvaliacoesPage() {
                   )}
                 >
                   <option value="">Selecione o estágio...</option>
-                  {estagios.map((est: any) => (
-                    <option key={est.id} value={est.id}>
-                      {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
-                    </option>
-                  ))}
+                  {estagios.map((est: any) => {
+                    const aluno = alunos.find(
+                      (a: any) => a.id === est.aluno_id,
+                    );
+                    return (
+                      <option key={est.id} value={est.id}>
+                        {aluno?.nome}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               {errors.estagio_id && (
@@ -456,49 +432,7 @@ export default function AvaliacoesPage() {
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">
-                Tipo de Avaliação
-              </label>
-              <select
-                {...register("tipo", { valueAsNumber: true })}
-                className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
-              >
-                <option value={1}>1ª Avaliação</option>
-                <option value={2}>2ª Avaliação</option>
-                <option value={3}>3ª Avaliação (Final)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">
-                Nota (0 a 10)
-              </label>
-              <div className="relative mt-1">
-                <TrendingUp
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                  size={16}
-                />
-                <input
-                  type="number"
-                  step="0.1"
-                  {...register("nota", { valueAsNumber: true })}
-                  className={cn(
-                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.nota
-                      ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
-                  )}
-                />
-              </div>
-              {errors.nota && (
-                <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
-                  {errors.nota.message}
-                </p>
-              )}
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">
-                Data da Avaliação
+                Data da Visita
               </label>
               <div className="relative mt-1">
                 <Calendar
@@ -507,25 +441,61 @@ export default function AvaliacoesPage() {
                 />
                 <input
                   type="date"
-                  {...register("data_avaliacao")}
+                  {...register("data_visita")}
                   className={cn(
                     "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
-                    errors.data_avaliacao
+                    errors.data_visita
                       ? "border-red-500 focus:ring-red-200"
                       : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 />
               </div>
-              {errors.data_avaliacao && (
+            </div>
+
+            <div>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Tipo
+              </label>
+              <select
+                {...register("tipo")}
+                className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
+              >
+                <option value="presencial">🟣 PRESENCIAL</option>
+                <option value="remota">🔵 REMOTA</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Resumo da Visita
+              </label>
+              <div className="relative mt-1">
+                <CheckCircle2
+                  className="absolute left-3 top-3 text-gray-400"
+                  size={16}
+                />
+                <textarea
+                  {...register("resumo")}
+                  rows={3}
+                  className={cn(
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
+                    errors.resumo
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
+                  )}
+                  placeholder="Descreva brevemente o que foi observado..."
+                />
+              </div>
+              {errors.resumo && (
                 <p className="text-[11px] font-bold text-red-500 mt-1 ml-1">
-                  {errors.data_avaliacao.message}
+                  {errors.resumo.message}
                 </p>
               )}
             </div>
 
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">
-                Comentários
+                Observações Adicionais
               </label>
               <div className="relative mt-1">
                 <MessageSquare
@@ -533,10 +503,10 @@ export default function AvaliacoesPage() {
                   size={16}
                 />
                 <textarea
-                  {...register("comentarios")}
-                  rows={3}
+                  {...register("observacoes")}
+                  rows={2}
                   className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
-                  placeholder="Observações sobre o desempenho..."
+                  placeholder="Pontos de melhoria, pendências, etc..."
                 />
               </div>
             </div>
@@ -557,9 +527,9 @@ export default function AvaliacoesPage() {
             >
               {isSubmitting
                 ? "Salvando..."
-                : selectedAval
+                : selectedVisita
                   ? "Salvar Alterações"
-                  : "Confirmar Nota"}
+                  : "Registrar Visita"}
             </button>
           </div>
         </form>
@@ -570,7 +540,7 @@ export default function AvaliacoesPage() {
         isOpen={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         onConfirm={confirmDelete}
-        itemName="esta avaliação"
+        itemName="este registro de visita"
       />
     </div>
   );

@@ -1,21 +1,33 @@
-import { useState } from 'react';
-import { Users, Plus, Edit2, Trash2, Search, User, Phone, Fingerprint } from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { InputMask } from '@/components/ui/InputMask';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
+import { useState } from "react";
+import {
+  Users,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  User,
+  Phone,
+  Fingerprint,
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { InputMask } from "@/components/ui/InputMask";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const responsavelSchema = z.object({
-  nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
-  cpf: z.string().min(14, 'CPF inválido'),
-  telefone: z.string().min(14, 'Telefone inválido'),
+  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
+  cpf: z.string().min(14, "CPF inválido"),
+  telefone: z.string().min(14, "Telefone inválido"),
 });
 
 type ResponsavelFormValues = z.infer<typeof responsavelSchema>;
@@ -32,7 +44,7 @@ export default function ResponsaveisPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedResp, setSelectedResp] = useState<Responsavel | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: responsaveis,
@@ -40,7 +52,7 @@ export default function ResponsaveisPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Responsavel>('responsaveis', ['responsaveis']);
+  } = useSupabaseCrud<Responsavel>("responsaveis", ["responsaveis"]);
 
   const {
     register,
@@ -56,14 +68,14 @@ export default function ResponsaveisPage() {
     try {
       if (selectedResp) {
         await update({ id: selectedResp.id, ...data });
-        toast.success('Responsável atualizado com sucesso!');
+        toast.success("Responsável atualizado com sucesso!");
       } else {
         await create(data);
-        toast.success('Responsável cadastrado com sucesso!');
+        toast.success("Responsável cadastrado com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar responsável');
+      toast.error(translateError(error));
     }
   };
 
@@ -86,11 +98,11 @@ export default function ResponsaveisPage() {
     if (!selectedResp) return;
     try {
       await remove(selectedResp.id);
-      toast.success('Responsável removido com sucesso!');
+      toast.success("Responsável removido com sucesso!");
       setIsDeleteOpen(false);
       setSelectedResp(null);
     } catch (error) {
-      toast.error('Erro ao remover responsável');
+      toast.error(translateError(error));
     }
   };
 
@@ -102,11 +114,14 @@ export default function ResponsaveisPage() {
 
   const filteredResponsaveis = responsaveis.filter(
     (resp) =>
-      (resp.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (resp.cpf || '').includes(searchTerm)
+      (resp.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (resp.cpf || "").includes(searchTerm),
   );
 
+  const pagination = usePagination(filteredResponsaveis);
   const { listLayout } = useListLayout();
+
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <div className="space-y-6">
@@ -147,20 +162,18 @@ export default function ResponsaveisPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando responsáveis...
-          </div>
-        ) : filteredResponsaveis.length === 0 ? (
+        {filteredResponsaveis.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum responsável encontrado.
           </div>
         ) : (
-          filteredResponsaveis.map((resp) => (
+          pagination.currentItems.map((resp) => (
             <div
               key={resp.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -170,13 +183,17 @@ export default function ResponsaveisPage() {
                   <User size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 leading-tight">{resp.nome}</h3>
+                  <h3 className="font-bold text-gray-900 leading-tight">
+                    {resp.nome}
+                  </h3>
                   <div className="flex flex-col gap-1 mt-1">
                     <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                      <Fingerprint size={12} className="text-blue-400" /> {resp.cpf}
+                      <Fingerprint size={12} className="text-blue-400" />{" "}
+                      {resp.cpf}
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                      <Phone size={12} className="text-blue-400" /> {resp.telefone}
+                      <Phone size={12} className="text-blue-400" />{" "}
+                      {resp.telefone}
                     </div>
                   </div>
                 </div>
@@ -202,7 +219,7 @@ export default function ResponsaveisPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -222,34 +239,37 @@ export default function ResponsaveisPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {filteredResponsaveis.length === 0 ? (
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
-                    Carregando lista de responsáveis...
-                  </td>
-                </tr>
-              ) : filteredResponsaveis.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum responsável cadastrado.
                   </td>
                 </tr>
               ) : (
-                filteredResponsaveis.map((resp) => (
-                  <tr key={resp.id} className="hover:bg-blue-50/30 transition-colors group">
+                pagination.currentItems.map((resp) => (
+                  <tr
+                    key={resp.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                           {resp.nome.substring(0, 2)}
                         </div>
-                        <span className="text-gray-900 font-bold">{resp.nome}</span>
+                        <span className="text-gray-900 font-bold">
+                          {resp.nome}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{resp.cpf}</td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{resp.telefone}</td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {resp.cpf}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {resp.telefone}
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -274,29 +294,42 @@ export default function ResponsaveisPage() {
         </div>
       )}
 
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
+
       {/* Form Modal */}
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedResp ? 'Editar Responsável' : 'Novo Cadastro de Responsável'}
+        title={
+          selectedResp ? "Editar Responsável" : "Novo Cadastro de Responsável"
+        }
         description="Informações de contato do pai ou tutor legal do aluno."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nome Completo
+              </label>
               <div className="relative mt-1">
                 <User
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('nome')}
+                  {...register("nome")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.nome
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: Maria das Dores"
                 />
@@ -316,7 +349,7 @@ export default function ResponsaveisPage() {
                   <InputMask
                     mask="cpf"
                     label="CPF"
-                    value={field.value || ''}
+                    value={field.value || ""}
                     onChange={field.onChange}
                     error={errors.cpf?.message}
                     placeholder="000.000.000-00"
@@ -331,7 +364,7 @@ export default function ResponsaveisPage() {
                   <InputMask
                     mask="phone"
                     label="Telefone/WhatsApp"
-                    value={field.value || ''}
+                    value={field.value || ""}
                     onChange={field.onChange}
                     error={errors.telefone?.message}
                     placeholder="(00) 00000-0000"
@@ -355,10 +388,10 @@ export default function ResponsaveisPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedResp
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Cadastro'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Cadastro"}
             </button>
           </div>
         </form>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Building2,
   Plus,
@@ -11,29 +11,34 @@ import {
   Phone,
   Calendar,
   Hash,
-} from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { InputMask } from '@/components/ui/InputMask';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { InputMask } from "@/components/ui/InputMask";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 const empresaSchema = z.object({
-  razao_social: z.string().min(3, 'A razão social deve ter pelo menos 3 caracteres'),
-  cnpj: z.string().min(18, 'CNPJ inválido'),
-  endereco: z.string().min(1, 'O endereço é obrigatório'),
-  cidade_id: z.string().uuid('Selecione uma cidade válida'),
-  contato_nome: z.string().min(1, 'O nome do contato é obrigatório'),
-  contato_email: z.string().email('Email inválido').or(z.literal('')),
-  contato_telefone: z.string().min(14, 'Telefone inválido'),
-  convenio_numero: z.string().default(''),
-  convenio_validade: z.string().default(''),
+  razao_social: z
+    .string()
+    .min(3, "A razão social deve ter pelo menos 3 caracteres"),
+  cnpj: z.string().min(18, "CNPJ inválido"),
+  endereco: z.string().min(1, "O endereço é obrigatório"),
+  cidade_id: z.string().uuid("Selecione uma cidade válida"),
+  contato_nome: z.string().min(1, "O nome do contato é obrigatório"),
+  contato_email: z.string().email("Email inválido").or(z.literal("")),
+  contato_telefone: z.string().min(14, "Telefone inválido"),
+  convenio_numero: z.string().default(""),
+  convenio_validade: z.string().default(""),
 });
 
 type EmpresaFormValues = z.infer<typeof empresaSchema>;
@@ -56,7 +61,7 @@ export default function EmpresasPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: empresas,
@@ -64,9 +69,9 @@ export default function EmpresasPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Empresa>('empresas', ['empresas']);
+  } = useSupabaseCrud<Empresa>("empresas", ["empresas"]);
 
-  const { items: cidades } = useSupabaseCrud<any>('cidades', ['cidades']);
+  const { items: cidades } = useSupabaseCrud<any>("cidades", ["cidades"]);
 
   const {
     register,
@@ -77,15 +82,15 @@ export default function EmpresasPage() {
   } = useForm<EmpresaFormValues>({
     resolver: zodResolver(empresaSchema) as any,
     defaultValues: {
-      razao_social: '',
-      cnpj: '',
-      endereco: '',
-      cidade_id: '',
-      contato_nome: '',
-      contato_email: '',
-      contato_telefone: '',
-      convenio_numero: '',
-      convenio_validade: '',
+      razao_social: "",
+      cnpj: "",
+      endereco: "",
+      cidade_id: "",
+      contato_nome: "",
+      contato_email: "",
+      contato_telefone: "",
+      convenio_numero: "",
+      convenio_validade: "",
     },
   });
 
@@ -93,14 +98,14 @@ export default function EmpresasPage() {
     try {
       if (selectedEmpresa) {
         await update({ id: selectedEmpresa.id, ...data });
-        toast.success('Empresa atualizada com sucesso!');
+        toast.success("Empresa atualizada com sucesso!");
       } else {
         await create(data);
-        toast.success('Empresa cadastrada com sucesso!');
+        toast.success("Empresa cadastrada com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar empresa');
+      toast.error(translateError(error));
     }
   };
 
@@ -109,13 +114,13 @@ export default function EmpresasPage() {
     reset({
       razao_social: empresa.razao_social,
       cnpj: empresa.cnpj,
-      endereco: empresa.endereco || '',
+      endereco: empresa.endereco || "",
       cidade_id: empresa.cidade_id,
-      contato_nome: empresa.contato_nome || '',
-      contato_email: empresa.contato_email || '',
-      contato_telefone: empresa.contato_telefone || '',
-      convenio_numero: empresa.convenio_numero || '',
-      convenio_validade: empresa.convenio_validade || '',
+      contato_nome: empresa.contato_nome || "",
+      contato_email: empresa.contato_email || "",
+      contato_telefone: empresa.contato_telefone || "",
+      convenio_numero: empresa.convenio_numero || "",
+      convenio_validade: empresa.convenio_validade || "",
     });
     setIsFormOpen(true);
   };
@@ -129,11 +134,11 @@ export default function EmpresasPage() {
     if (!selectedEmpresa) return;
     try {
       await remove(selectedEmpresa.id);
-      toast.success('Empresa removida com sucesso!');
+      toast.success("Empresa removida com sucesso!");
       setIsDeleteOpen(false);
       setSelectedEmpresa(null);
     } catch (error) {
-      toast.error('Erro ao remover empresa');
+      toast.error(translateError(error));
     }
   };
 
@@ -145,11 +150,16 @@ export default function EmpresasPage() {
 
   const filteredEmpresas = empresas.filter(
     (empresa) =>
-      (empresa.razao_social?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (empresa.cnpj || '').includes(searchTerm)
+      (empresa.razao_social?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase(),
+      ) || (empresa.cnpj || "").includes(searchTerm),
   );
 
+  const pagination = usePagination(filteredEmpresas);
+
   const { listLayout } = useListLayout();
+
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <div className="space-y-6">
@@ -159,7 +169,9 @@ export default function EmpresasPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <Building2 className="text-blue-600" size={28} /> Empresas
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de empresas parceiras</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de empresas parceiras
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -190,20 +202,18 @@ export default function EmpresasPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando empresas...
-          </div>
-        ) : filteredEmpresas.length === 0 ? (
+        {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhuma empresa encontrada.
           </div>
         ) : (
-          filteredEmpresas.map((empresa) => (
+          pagination.currentItems.map((empresa) => (
             <div
               key={empresa.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -217,7 +227,9 @@ export default function EmpresasPage() {
                     <h3 className="font-bold text-gray-900 leading-tight">
                       {empresa.razao_social}
                     </h3>
-                    <p className="text-xs text-gray-500 font-medium">CNPJ: {empresa.cnpj}</p>
+                    <p className="text-xs text-gray-500 font-medium">
+                      CNPJ: {empresa.cnpj}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -225,7 +237,9 @@ export default function EmpresasPage() {
               <div className="grid grid-cols-1 gap-2 pt-2">
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <User size={14} className="text-blue-500" />
-                  <span className="truncate">Contato: {empresa.contato_nome}</span>
+                  <span className="truncate">
+                    Contato: {empresa.contato_nome}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <Phone size={14} className="text-blue-500" />
@@ -253,7 +267,7 @@ export default function EmpresasPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -276,43 +290,48 @@ export default function EmpresasPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {pagination.currentItems.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
-                    Carregando lista de empresas...
-                  </td>
-                </tr>
-              ) : filteredEmpresas.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhuma empresa cadastrada.
                   </td>
                 </tr>
               ) : (
-                filteredEmpresas.map((empresa) => (
-                  <tr key={empresa.id} className="hover:bg-blue-50/30 transition-colors group">
+                pagination.currentItems.map((empresa) => (
+                  <tr
+                    key={empresa.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                           {empresa.razao_social.substring(0, 2)}
                         </div>
-                        <span className="text-gray-900 font-bold">{empresa.razao_social}</span>
+                        <span className="text-gray-900 font-bold">
+                          {empresa.razao_social}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">{empresa.cnpj}</td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">
+                      {empresa.cnpj}
+                    </td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
                       <div className="flex flex-col">
                         <span>{empresa.contato_nome}</span>
-                        <span className="text-xs text-gray-400">{empresa.contato_email}</span>
+                        <span className="text-xs text-gray-400">
+                          {empresa.contato_email}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
                       {empresa.convenio_validade
-                        ? new Date(empresa.convenio_validade).toLocaleDateString('pt-BR')
-                        : '-'}
+                        ? new Date(
+                            empresa.convenio_validade,
+                          ).toLocaleDateString("pt-BR")
+                        : "-"}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -340,29 +359,40 @@ export default function EmpresasPage() {
         </div>
       )}
 
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
+
       {/* Form Modal */}
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedEmpresa ? 'Editar Empresa' : 'Novo Cadastro de Empresa'}
+        title={selectedEmpresa ? "Editar Empresa" : "Novo Cadastro de Empresa"}
         description="Preencha todos os dados obrigatórios para manter o registro atualizado."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Razão Social</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Razão Social
+              </label>
               <div className="relative mt-1">
                 <Building2
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('razao_social')}
+                  {...register("razao_social")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.razao_social
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: ACME Corporation LTDA"
                 />
@@ -381,7 +411,7 @@ export default function EmpresasPage() {
                 <InputMask
                   mask="cnpj"
                   label="CNPJ"
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={field.onChange}
                   error={errors.cnpj?.message}
                   placeholder="00.000.000/0000-00"
@@ -394,19 +424,21 @@ export default function EmpresasPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Endereço Completo</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Endereço Completo
+              </label>
               <div className="relative mt-1">
                 <MapPin
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('endereco')}
+                  {...register("endereco")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.endereco
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Rua, Número, Bairro"
                 />
@@ -419,14 +451,16 @@ export default function EmpresasPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Cidade</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Cidade
+              </label>
               <select
-                {...register('cidade_id')}
+                {...register("cidade_id")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white font-medium",
                   errors.cidade_id
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               >
                 <option value="">Selecione a cidade...</option>
@@ -448,19 +482,21 @@ export default function EmpresasPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Nome do Contato</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nome do Contato
+              </label>
               <div className="relative mt-1">
                 <User
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('contato_nome')}
+                  {...register("contato_nome")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.contato_nome
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Nome do responsável na empresa"
                 />
@@ -473,19 +509,21 @@ export default function EmpresasPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Email</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Email
+              </label>
               <div className="relative mt-1">
                 <Mail
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('contato_email')}
+                  {...register("contato_email")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.contato_email
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="contato@empresa.com"
                 />
@@ -504,7 +542,7 @@ export default function EmpresasPage() {
                 <InputMask
                   mask="phone"
                   label="Telefone"
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onChange={field.onChange}
                   error={errors.contato_telefone?.message}
                   placeholder="(00) 00000-0000"
@@ -517,14 +555,16 @@ export default function EmpresasPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Nº Convênio</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Nº Convênio
+              </label>
               <div className="relative mt-1">
                 <Hash
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('convenio_numero')}
+                  {...register("convenio_numero")}
                   className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                   placeholder="Ex: 123/2024"
                 />
@@ -532,7 +572,9 @@ export default function EmpresasPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Validade</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Validade
+              </label>
               <div className="relative mt-1">
                 <Calendar
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -540,7 +582,7 @@ export default function EmpresasPage() {
                 />
                 <input
                   type="date"
-                  {...register('convenio_validade')}
+                  {...register("convenio_validade")}
                   className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                 />
               </div>
@@ -561,10 +603,10 @@ export default function EmpresasPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedEmpresa
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Cadastro'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Cadastro"}
             </button>
           </div>
         </form>

@@ -1,21 +1,23 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 
 /**
  * Traduz erros técnicos do Supabase/Postgres para mensagens amigáveis em português.
  */
-function translateError(error: any): string {
-  if (error.code === '23503') {
-    return 'Não é possível excluir este registro pois ele está vinculado a outros dados no sistema (ex: estágios, vagas ou avaliações).';
+export function translateError(error: any): string {
+  if (error.code === "23503") {
+    return "Não é possível excluir este registro pois ele está vinculado a outros dados no sistema (ex: estágios, vagas ou avaliações).";
   }
-  if (error.code === '23505') {
-    return 'Já existe um registro com estes dados únicos (CPF, CNPJ ou Matrícula).';
+  if (error.code === "23505") {
+    return "Já existe um registro com estes dados únicos (CPF, CNPJ ou Matrícula).";
   }
-  return error.message || 'Ocorreu um erro inesperado na operação.';
+  return error.message || "Ocorreu um erro inesperado na operação.";
 }
 
-export function useSupabaseCrud<T extends { id: string }>(table: string, queryKey: string[]) {
+export function useSupabaseCrud<T extends { id: string }>(
+  table: string,
+  queryKey: string[],
+) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
@@ -23,25 +25,25 @@ export function useSupabaseCrud<T extends { id: string }>(table: string, queryKe
     queryFn: async () => {
       const { data, error } = await supabase
         .from(table)
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as T[];
     },
   });
 
   const createMutation = useMutation({
-    mutationFn: async (newData: Omit<T, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase.from(table).insert(newData).select().single();
+    mutationFn: async (newData: Omit<T, "id" | "created_at">) => {
+      const { data, error } = await supabase
+        .from(table)
+        .insert(newData)
+        .select()
+        .single();
       if (error) throw error;
       return data as T;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success('Registro criado com sucesso!');
-    },
-    onError: (error: any) => {
-      toast.error('Erro ao criar: ' + translateError(error));
     },
   });
 
@@ -50,7 +52,7 @@ export function useSupabaseCrud<T extends { id: string }>(table: string, queryKe
       const { data, error } = await supabase
         .from(table)
         .update(updateData)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
       if (error) throw error;
@@ -58,27 +60,16 @@ export function useSupabaseCrud<T extends { id: string }>(table: string, queryKe
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success('Registro atualizado com sucesso!');
-    },
-    onError: (error: any) => {
-      toast.error('Erro ao atualizar: ' + translateError(error));
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from(table).delete().eq('id', id);
+      const { error } = await supabase.from(table).delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success('Registro excluído com sucesso!');
-    },
-    onError: (error: any) => {
-      toast.error('Não foi possível excluir', {
-        description: translateError(error),
-        duration: 5000,
-      });
     },
   });
 

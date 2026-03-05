@@ -5,8 +5,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from './Dialog';
-import { AlertTriangle, Trash2 } from 'lucide-react';
+} from "./Dialog";
+import { AlertTriangle, Trash2 } from "lucide-react";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -22,8 +22,8 @@ export function ConfirmDeleteModal({
   isOpen,
   onOpenChange,
   onConfirm,
-  title = 'Excluir Registro',
-  description = 'Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.',
+  title = "Excluir Registro",
+  description = "Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.",
   itemName,
   isLoading = false,
 }: ConfirmDeleteModalProps) {
@@ -34,10 +34,16 @@ export function ConfirmDeleteModal({
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
             <AlertTriangle className="text-red-600 h-6 w-6" />
           </div>
-          <DialogTitle className="text-xl font-bold text-gray-900">{title}</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-900">
+            {title}
+          </DialogTitle>
           <DialogDescription className="text-center sm:text-left">
             {description}
-            {itemName && <span className="block mt-2 font-bold text-red-600">"{itemName}"</span>}
+            {itemName && (
+              <span className="block mt-2 font-bold text-red-600">
+                "{itemName}"
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-6 gap-2 sm:gap-0">

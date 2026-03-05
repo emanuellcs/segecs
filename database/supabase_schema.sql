@@ -8,6 +8,7 @@ drop trigger if exists on_auth_user_created on auth.users;
 drop function if exists public.handle_new_user() cascade;
 drop function if exists public.get_my_role() cascade;
 
+drop table if exists public.visitas cascade;
 drop table if exists public.frequencias cascade;
 drop table if exists public.avaliacoes cascade;
 drop table if exists public.projetos_sociais cascade;
@@ -60,6 +61,7 @@ create table public.cursos (
   nome text not null,
   escola_id uuid references public.escolas(id) on delete cascade,
   nivel_id uuid references public.niveis(id),
+  carga_horaria_obrigatoria int not null default 400,
   created_at timestamptz default now() not null
 );
 
@@ -175,6 +177,16 @@ create table public.avaliacoes (
   created_at timestamptz default now() not null
 );
 
+create table public.visitas (
+  id uuid primary key default uuid_generate_v4(),
+  estagio_id uuid references public.estagios(id) on delete cascade,
+  data_visita date not null default current_date,
+  tipo text check (tipo in ('presencial', 'remota')) default 'presencial',
+  resumo text not null,
+  observacoes text,
+  created_at timestamptz default now() not null
+);
+
 create table public.projetos_sociais (
   id uuid primary key default uuid_generate_v4(),
   aluno_id uuid references public.alunos(id) on delete cascade,
@@ -218,6 +230,7 @@ alter table public.empresas enable row level security;
 alter table public.estagios enable row level security;
 alter table public.frequencias enable row level security;
 alter table public.avaliacoes enable row level security;
+alter table public.visitas enable row level security;
 alter table public.vagas enable row level security;
 alter table public.projetos_sociais enable row level security;
 alter table public.cidades enable row level security;
@@ -234,7 +247,7 @@ declare
   t text;
   tables text[] := array[
     'profiles', 'alunos', 'empresas', 'estagios', 'frequencias', 
-    'avaliacoes', 'vagas', 'projetos_sociais', 'cidades', 
+    'avaliacoes', 'visitas', 'vagas', 'projetos_sociais', 'cidades', 
     'escolas', 'cursos', 'niveis', 'responsaveis', 'orientadores', 'supervisores'
   ];
 begin
@@ -247,6 +260,7 @@ end $$;
 create policy "Profiles: Ver próprio" on public.profiles for select using (auth.uid() = id);
 create policy "Alunos: Ver próprio" on public.alunos for select using (auth.uid() = profile_id);
 create policy "Estagios: Ver próprio" on public.estagios for select using (auth.uid() = aluno_id);
+create policy "Visitas: Ver próprio" on public.visitas for select using (exists (select 1 from public.estagios where id = estagio_id and aluno_id = auth.uid()));
 create policy "Frequencias: Ver próprio" on public.frequencias for select using (exists (select 1 from public.estagios where id = estagio_id and aluno_id = auth.uid()));
 
 -- PERMISSÃO DE LEITURA PARA TABELAS AUXILIARES

@@ -1,24 +1,37 @@
-import { useState } from 'react';
-import { Heart, Plus, Edit2, Trash2, Search, User, Calendar, Clock, Activity } from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
+import { useState } from "react";
+import {
+  Heart,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  User,
+  Calendar,
+  Clock,
+  Activity,
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const projetoSchema = z.object({
-  aluno_id: z.string().uuid('Selecione um aluno válido'),
-  titulo: z.string().min(5, 'O título deve ter pelo menos 5 caracteres'),
-  descricao: z.string().optional().or(z.literal('')),
-  horas_estimadas: z.number().min(1, 'Mínimo 1 hora'),
-  data_execucao: z.string().optional().or(z.literal('')),
-  status: z.enum(['planejado', 'executado'], {
-    errorMap: () => ({ message: 'Selecione um status válido' }),
+  aluno_id: z.string().uuid("Selecione um aluno válido"),
+  titulo: z.string().min(5, "O título deve ter pelo menos 5 caracteres"),
+  descricao: z.string().optional().or(z.literal("")),
+  horas_estimadas: z.number().min(1, "Mínimo 1 hora"),
+  data_execucao: z.string().optional().or(z.literal("")),
+  status: z.enum(["planejado", "executado"], {
+    errorMap: () => ({ message: "Selecione um status válido" }),
   }),
 });
 
@@ -31,7 +44,7 @@ interface ProjetoSocial {
   descricao?: string | null;
   horas_estimadas: number;
   data_execucao?: string | null;
-  status: 'planejado' | 'executado';
+  status: "planejado" | "executado";
   created_at: string;
 }
 
@@ -39,7 +52,7 @@ export default function ProjetosSociaisPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProj, setSelectedProj] = useState<ProjetoSocial | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: projetos,
@@ -47,9 +60,9 @@ export default function ProjetosSociaisPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<ProjetoSocial>('projetos_sociais', ['projetos_sociais']);
+  } = useSupabaseCrud<ProjetoSocial>("projetos_sociais", ["projetos_sociais"]);
 
-  const { items: alunos } = useSupabaseCrud<any>('alunos', ['alunos']);
+  const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
 
   const {
     register,
@@ -60,7 +73,7 @@ export default function ProjetosSociaisPage() {
     resolver: zodResolver(projetoSchema),
     defaultValues: {
       horas_estimadas: 30,
-      status: 'planejado',
+      status: "planejado",
     },
   });
 
@@ -68,14 +81,14 @@ export default function ProjetosSociaisPage() {
     try {
       if (selectedProj) {
         await update({ id: selectedProj.id, ...data });
-        toast.success('Projeto social atualizado!');
+        toast.success("Projeto social atualizado!");
       } else {
         await create(data);
-        toast.success('Projeto social cadastrado!');
+        toast.success("Projeto social cadastrado!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar projeto');
+      toast.error(translateError(error));
     }
   };
 
@@ -84,9 +97,9 @@ export default function ProjetosSociaisPage() {
     reset({
       aluno_id: proj.aluno_id,
       titulo: proj.titulo,
-      descricao: proj.descricao || '',
+      descricao: proj.descricao || "",
       horas_estimadas: proj.horas_estimadas,
-      data_execucao: proj.data_execucao || '',
+      data_execucao: proj.data_execucao || "",
       status: proj.status,
     });
     setIsFormOpen(true);
@@ -101,11 +114,11 @@ export default function ProjetosSociaisPage() {
     if (!selectedProj) return;
     try {
       await remove(selectedProj.id);
-      toast.success('Projeto removido com sucesso!');
+      toast.success("Projeto removido com sucesso!");
       setIsDeleteOpen(false);
       setSelectedProj(null);
     } catch (error) {
-      toast.error('Erro ao remover projeto');
+      toast.error(translateError(error));
     }
   };
 
@@ -116,14 +129,18 @@ export default function ProjetosSociaisPage() {
   };
 
   const filteredProjetos = projetos.filter((proj) => {
-    const alunoNome = alunos.find((a) => a.id === proj.aluno_id)?.nome || '';
+    const alunoNome = alunos.find((a) => a.id === proj.aluno_id)?.nome || "";
     return (
-      (proj.titulo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (alunoNome?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+      (proj.titulo?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (alunoNome?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
   });
 
+  const pagination = usePagination(filteredProjetos);
+
   const { listLayout } = useListLayout();
+
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <div className="space-y-6">
@@ -133,7 +150,9 @@ export default function ProjetosSociaisPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <Heart className="text-red-500" size={28} /> Projetos Sociais
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de contrapartidas obrigatórias</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de contrapartidas obrigatórias
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -164,25 +183,23 @@ export default function ProjetosSociaisPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando projetos...
-          </div>
-        ) : filteredProjetos.length === 0 ? (
+        {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum projeto encontrado.
           </div>
         ) : (
-          filteredProjetos.map((proj) => {
-            const aluno = alunos.find((a) => a.id === proj.aluno_id);
+          pagination.currentItems.map((projeto_social) => {
+            const aluno = alunos.find((a) => a.id === projeto_social.aluno_id);
 
             return (
               <div
-                key={proj.id}
+                key={projeto_social.id}
                 className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
               >
                 <div className="flex justify-between items-start">
@@ -191,19 +208,23 @@ export default function ProjetosSociaisPage() {
                       <Heart size={20} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 leading-tight">{proj.titulo}</h3>
-                      <p className="text-xs text-gray-500 font-medium">{aluno?.nome}</p>
+                      <h3 className="font-bold text-gray-900 leading-tight">
+                        {projeto_social.titulo}
+                      </h3>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {aluno?.nome}
+                      </p>
                     </div>
                   </div>
                   <span
                     className={cn(
-                      'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                      proj.status === 'executado'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
+                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                      projeto_social.status === "executado"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700",
                     )}
                   >
-                    {proj.status}
+                    {projeto_social.status}
                   </span>
                 </div>
 
@@ -211,26 +232,28 @@ export default function ProjetosSociaisPage() {
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Calendar size={14} className="text-blue-500" />
                     <span className="truncate">
-                      {proj.data_execucao
-                        ? new Date(proj.data_execucao).toLocaleDateString('pt-BR')
-                        : 'Não executado'}
+                      {projeto_social.data_execucao
+                        ? new Date(
+                            projeto_social.data_execucao,
+                          ).toLocaleDateString("pt-BR")
+                        : "Não executado"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Clock size={14} className="text-blue-500" />
-                    <span>{proj.horas_estimadas}h estimadas</span>
+                    <span>{projeto_social.horas_estimadas}h estimadas</span>
                   </div>
                 </div>
 
                 <div className="flex gap-2 pt-2 border-t border-gray-50">
                   <button
-                    onClick={() => handleEdit(proj)}
+                    onClick={() => handleEdit(projeto_social)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors"
                   >
                     <Edit2 size={16} /> Editar
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(proj)}
+                    onClick={() => handleDeleteClick(projeto_social)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 text-red-700 font-bold text-sm hover:bg-red-100 transition-colors"
                   >
                     <Trash2 size={16} /> Excluir
@@ -243,7 +266,7 @@ export default function ProjetosSociaisPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -266,62 +289,69 @@ export default function ProjetosSociaisPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {pagination.currentItems.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
-                    Carregando lista de projetos...
-                  </td>
-                </tr>
-              ) : filteredProjetos.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum projeto registrado.
                   </td>
                 </tr>
               ) : (
-                filteredProjetos.map((proj) => {
-                  const aluno = alunos.find((a) => a.id === proj.aluno_id);
+                pagination.currentItems.map((projeto_social) => {
+                  const aluno = alunos.find(
+                    (a) => a.id === projeto_social.aluno_id,
+                  );
 
                   return (
-                    <tr key={proj.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr
+                      key={projeto_social.id}
+                      className="hover:bg-blue-50/30 transition-colors group"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-gray-900 font-bold">{proj.titulo}</span>
-                          <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
+                          <span className="text-gray-900 font-bold">
+                            {projeto_social.titulo}
+                          </span>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {aluno?.nome}
+                          </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-600 font-bold">{proj.horas_estimadas}h</td>
+                      <td className="px-6 py-4 text-gray-600 font-bold">
+                        {projeto_social.horas_estimadas}h
+                      </td>
                       <td className="px-6 py-4 text-gray-600 font-medium text-sm">
-                        {proj.data_execucao
-                          ? new Date(proj.data_execucao).toLocaleDateString('pt-BR')
-                          : '-'}
+                        {projeto_social.data_execucao
+                          ? new Date(
+                              projeto_social.data_execucao,
+                            ).toLocaleDateString("pt-BR")
+                          : "-"}
                       </td>
                       <td className="px-6 py-4">
                         <span
                           className={cn(
-                            'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                            proj.status === 'executado'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-yellow-100 text-yellow-700'
+                            "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                            projeto_social.status === "executado"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700",
                           )}
                         >
-                          {proj.status}
+                          {projeto_social.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => handleEdit(proj)}
+                            onClick={() => handleEdit(projeto_social)}
                             className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
                             title="Editar"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteClick(proj)}
+                            onClick={() => handleDeleteClick(projeto_social)}
                             className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
                             title="Excluir"
                           >
@@ -338,29 +368,40 @@ export default function ProjetosSociaisPage() {
         </div>
       )}
 
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
+
       {/* Form Modal */}
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedProj ? 'Editar Projeto' : 'Novo Projeto Social'}
+        title={selectedProj ? "Editar Projeto" : "Novo Projeto Social"}
         description="Registre as informações do projeto de contrapartida social."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Título do Projeto</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Título do Projeto
+              </label>
               <div className="relative mt-1">
                 <Heart
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('titulo')}
+                  {...register("titulo")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.titulo
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: Doação de Alimentos"
                 />
@@ -373,19 +414,21 @@ export default function ProjetosSociaisPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Aluno Responsável</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Aluno Responsável
+              </label>
               <div className="relative mt-1">
                 <User
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <select
-                  {...register('aluno_id')}
+                  {...register("aluno_id")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                     errors.aluno_id
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 >
                   <option value="">Selecione o aluno...</option>
@@ -404,7 +447,9 @@ export default function ProjetosSociaisPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Horas Estimadas</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Horas Estimadas
+              </label>
               <div className="relative mt-1">
                 <Clock
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -412,12 +457,12 @@ export default function ProjetosSociaisPage() {
                 />
                 <input
                   type="number"
-                  {...register('horas_estimadas', { valueAsNumber: true })}
+                  {...register("horas_estimadas", { valueAsNumber: true })}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.horas_estimadas
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 />
               </div>
@@ -429,7 +474,9 @@ export default function ProjetosSociaisPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Data de Execução</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Data de Execução
+              </label>
               <div className="relative mt-1">
                 <Calendar
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -437,16 +484,18 @@ export default function ProjetosSociaisPage() {
                 />
                 <input
                   type="date"
-                  {...register('data_execucao')}
+                  {...register("data_execucao")}
                   className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                 />
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Status</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Status
+              </label>
               <select
-                {...register('status')}
+                {...register("status")}
                 className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
               >
                 <option value="planejado">🟡 PLANEJADO</option>
@@ -455,11 +504,16 @@ export default function ProjetosSociaisPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Descrição</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Descrição
+              </label>
               <div className="relative mt-1">
-                <Activity className="absolute left-3 top-3 text-gray-400" size={16} />
+                <Activity
+                  className="absolute left-3 top-3 text-gray-400"
+                  size={16}
+                />
                 <textarea
-                  {...register('descricao')}
+                  {...register("descricao")}
                   rows={3}
                   className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                   placeholder="Detalhes sobre as atividades sociais..."
@@ -482,10 +536,10 @@ export default function ProjetosSociaisPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedProj
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Projeto'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Projeto"}
             </button>
           </div>
         </form>

@@ -4,8 +4,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/Dialog';
-import { Github, ExternalLink, ShieldCheck } from 'lucide-react';
+} from "@/components/ui/Dialog";
+import { Github, ExternalLink, ShieldCheck } from "lucide-react";
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -20,8 +20,8 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
           <div className="bg-blue-900 p-4 rounded-3xl shadow-xl shadow-blue-900/20 mb-4 inline-flex">
             <ShieldCheck className="text-white" size={40} />
           </div>
-          <DialogTitle className="text-2xl font-black text-blue-900 tracking-tighter uppercase">
-            Sobre o SEGECS
+          <DialogTitle className="text-2xl font-black text-blue-900 tracking-tighter">
+            SEGECS
           </DialogTitle>
           <DialogDescription className="text-gray-500 font-medium text-center">
             Sistema Escolar de Gestão do Estágio Curricular Supervisionado
@@ -48,10 +48,15 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
                     <p className="text-sm font-black text-gray-900 uppercase tracking-tighter">
                       Prof. Raimundo Nonato de Sousa
                     </p>
-                    <p className="text-[10px] font-bold text-blue-600">@prof-raimundo</p>
+                    <p className="text-[10px] font-bold text-blue-600">
+                      @prof-raimundo
+                    </p>
                   </div>
                 </div>
-                <ExternalLink size={16} className="text-gray-300 group-hover:text-blue-600" />
+                <ExternalLink
+                  size={16}
+                  className="text-gray-300 group-hover:text-blue-600"
+                />
               </a>
 
               <a
@@ -68,10 +73,15 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
                     <p className="text-sm font-black text-gray-900 uppercase tracking-tighter">
                       Emanuel Lázaro
                     </p>
-                    <p className="text-[10px] font-bold text-blue-600">@emanuellcs</p>
+                    <p className="text-[10px] font-bold text-blue-600">
+                      @emanuellcs
+                    </p>
                   </div>
                 </div>
-                <ExternalLink size={16} className="text-gray-300 group-hover:text-blue-600" />
+                <ExternalLink
+                  size={16}
+                  className="text-gray-300 group-hover:text-blue-600"
+                />
               </a>
             </div>
           </div>
@@ -93,7 +103,7 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
 
         <div className="text-center">
           <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-            &copy; {new Date().getFullYear()} SEGECS v1.0.0
+            &copy; {new Date().getFullYear()} SEGECS v0.1.0
           </p>
         </div>
       </DialogContent>

@@ -1,24 +1,36 @@
-import { useState } from 'react';
-import { Briefcase, Plus, Edit2, Trash2, Search, Building2, BookOpen, Layers } from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
+import { useState } from "react";
+import {
+  Briefcase,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  Building2,
+  BookOpen,
+  Layers,
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const vagaSchema = z.object({
-  empresa_id: z.string().uuid('Selecione uma empresa válida'),
-  curso_id: z.string().uuid('Selecione um curso válido'),
-  titulo: z.string().min(3, 'O título deve ter pelo menos 3 caracteres'),
-  descricao: z.string().optional().or(z.literal('')),
-  quantidade: z.number().min(1, 'Mínimo 1 vaga'),
-  status: z.enum(['aberta', 'preenchida', 'cancelada'], {
-    errorMap: () => ({ message: 'Selecione um status válido' }),
+  empresa_id: z.string().uuid("Selecione uma empresa válida"),
+  curso_id: z.string().uuid("Selecione um curso válido"),
+  titulo: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
+  descricao: z.string().optional().or(z.literal("")),
+  quantidade: z.number().min(1, "Mínimo 1 vaga"),
+  status: z.enum(["aberta", "preenchida", "cancelada"], {
+    errorMap: () => ({ message: "Selecione um status válido" }),
   }),
 });
 
@@ -31,7 +43,7 @@ interface Vaga {
   titulo: string;
   descricao?: string | null;
   quantidade: number;
-  status: 'aberta' | 'preenchida' | 'cancelada';
+  status: "aberta" | "preenchida" | "cancelada";
   created_at: string;
 }
 
@@ -39,7 +51,7 @@ export default function VagasPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedVaga, setSelectedVaga] = useState<Vaga | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: vagas,
@@ -47,10 +59,10 @@ export default function VagasPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Vaga>('vagas', ['vagas']);
+  } = useSupabaseCrud<Vaga>("vagas", ["vagas"]);
 
-  const { items: empresas } = useSupabaseCrud<any>('empresas', ['empresas']);
-  const { items: cursos } = useSupabaseCrud<any>('cursos', ['cursos']);
+  const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
+  const { items: cursos } = useSupabaseCrud<any>("cursos", ["cursos"]);
 
   const {
     register,
@@ -61,7 +73,7 @@ export default function VagasPage() {
     resolver: zodResolver(vagaSchema),
     defaultValues: {
       quantidade: 1,
-      status: 'aberta',
+      status: "aberta",
     },
   });
 
@@ -69,14 +81,14 @@ export default function VagasPage() {
     try {
       if (selectedVaga) {
         await update({ id: selectedVaga.id, ...data });
-        toast.success('Vaga atualizada com sucesso!');
+        toast.success("Vaga atualizada com sucesso!");
       } else {
         await create(data);
-        toast.success('Vaga cadastrada com sucesso!');
+        toast.success("Vaga cadastrada com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar vaga');
+      toast.error(translateError(error));
     }
   };
 
@@ -86,7 +98,7 @@ export default function VagasPage() {
       empresa_id: vaga.empresa_id,
       curso_id: vaga.curso_id,
       titulo: vaga.titulo,
-      descricao: vaga.descricao || '',
+      descricao: vaga.descricao || "",
       quantidade: vaga.quantidade,
       status: vaga.status,
     });
@@ -102,11 +114,11 @@ export default function VagasPage() {
     if (!selectedVaga) return;
     try {
       await remove(selectedVaga.id);
-      toast.success('Vaga removida com sucesso!');
+      toast.success("Vaga removida com sucesso!");
       setIsDeleteOpen(false);
       setSelectedVaga(null);
     } catch (error) {
-      toast.error('Erro ao remover vaga');
+      toast.error(translateError(error));
     }
   };
 
@@ -117,16 +129,21 @@ export default function VagasPage() {
   };
 
   const filteredVagas = vagas.filter((vaga) => {
-    const empresa = empresas.find((e) => e.id === vaga.empresa_id)?.razao_social || '';
-    const curso = cursos.find((c) => c.id === vaga.curso_id)?.nome || '';
+    const empresa =
+      empresas.find((e) => e.id === vaga.empresa_id)?.razao_social || "";
+    const curso = cursos.find((c) => c.id === vaga.curso_id)?.nome || "";
     return (
-      (vaga.titulo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (empresa?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (curso?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+      (vaga.titulo?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (empresa?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (curso?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
   });
 
+  const pagination = usePagination(filteredVagas);
+
   const { listLayout } = useListLayout();
+
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <div className="space-y-6">
@@ -136,7 +153,9 @@ export default function VagasPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <Briefcase className="text-blue-600" size={28} /> Ofertas de Vagas
           </h1>
-          <p className="text-gray-500 font-medium">Gerencie as oportunidades de estágio</p>
+          <p className="text-gray-500 font-medium">
+            Gerencie as oportunidades de estágio
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -167,20 +186,18 @@ export default function VagasPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando vagas...
-          </div>
-        ) : filteredVagas.length === 0 ? (
+        {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhuma vaga encontrada.
           </div>
         ) : (
-          filteredVagas.map((vaga) => (
+          pagination.currentItems.map((vaga) => (
             <div
               key={vaga.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -191,20 +208,25 @@ export default function VagasPage() {
                     <Briefcase size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{vaga.titulo}</h3>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {vaga.titulo}
+                    </h3>
                     <p className="text-xs text-gray-500 font-medium">
-                      {empresas.find((e) => e.id === vaga.empresa_id)?.razao_social}
+                      {
+                        empresas.find((e) => e.id === vaga.empresa_id)
+                          ?.razao_social
+                      }
                     </p>
                   </div>
                 </div>
                 <span
                   className={cn(
-                    'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                    vaga.status === 'aberta'
-                      ? 'bg-green-100 text-green-700'
-                      : vaga.status === 'preenchida'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-700'
+                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                    vaga.status === "aberta"
+                      ? "bg-green-100 text-green-700"
+                      : vaga.status === "preenchida"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-gray-100 text-gray-700",
                   )}
                 >
                   {vaga.status}
@@ -215,7 +237,7 @@ export default function VagasPage() {
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <BookOpen size={14} className="text-blue-500" />
                   <span className="truncate">
-                    {cursos.find((c) => c.id === vaga.curso_id)?.nome || 'N/A'}
+                    {cursos.find((c) => c.id === vaga.curso_id)?.nome || "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
@@ -244,7 +266,7 @@ export default function VagasPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -267,34 +289,37 @@ export default function VagasPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {pagination.currentItems.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
-                    Carregando lista de vagas...
-                  </td>
-                </tr>
-              ) : filteredVagas.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhuma vaga cadastrada.
                   </td>
                 </tr>
               ) : (
-                filteredVagas.map((vaga) => (
-                  <tr key={vaga.id} className="hover:bg-blue-50/30 transition-colors group">
+                pagination.currentItems.map((vaga) => (
+                  <tr
+                    key={vaga.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-gray-900 font-bold">{vaga.titulo}</span>
+                        <span className="text-gray-900 font-bold">
+                          {vaga.titulo}
+                        </span>
                         <span className="text-xs text-gray-500 font-medium">
-                          {empresas.find((e) => e.id === vaga.empresa_id)?.razao_social}
+                          {
+                            empresas.find((e) => e.id === vaga.empresa_id)
+                              ?.razao_social
+                          }
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {cursos.find((c) => c.id === vaga.curso_id)?.nome || 'N/A'}
+                      {cursos.find((c) => c.id === vaga.curso_id)?.nome ||
+                        "N/A"}
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-bold text-center">
                       {vaga.quantidade}
@@ -302,12 +327,12 @@ export default function VagasPage() {
                     <td className="px-6 py-4">
                       <span
                         className={cn(
-                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                          vaga.status === 'aberta'
-                            ? 'bg-green-100 text-green-700'
-                            : vaga.status === 'preenchida'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-gray-100 text-gray-700'
+                          "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                          vaga.status === "aberta"
+                            ? "bg-green-100 text-green-700"
+                            : vaga.status === "preenchida"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-700",
                         )}
                       >
                         {vaga.status}
@@ -339,29 +364,40 @@ export default function VagasPage() {
         </div>
       )}
 
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
+
       {/* Form Modal */}
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedVaga ? 'Editar Vaga' : 'Nova Vaga de Estágio'}
+        title={selectedVaga ? "Editar Vaga" : "Nova Vaga de Estágio"}
         description="Preencha as informações da oportunidade de estágio."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Título da Vaga</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Título da Vaga
+              </label>
               <div className="relative mt-1">
                 <Briefcase
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('titulo')}
+                  {...register("titulo")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.titulo
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: Estagiário de Desenvolvimento"
                 />
@@ -374,19 +410,21 @@ export default function VagasPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Empresa</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Empresa
+              </label>
               <div className="relative mt-1">
                 <Building2
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <select
-                  {...register('empresa_id')}
+                  {...register("empresa_id")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                     errors.empresa_id
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 >
                   <option value="">Selecione a empresa...</option>
@@ -405,19 +443,21 @@ export default function VagasPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Curso Destinado</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Curso Destinado
+              </label>
               <div className="relative mt-1">
                 <BookOpen
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <select
-                  {...register('curso_id')}
+                  {...register("curso_id")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                     errors.curso_id
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 >
                   <option value="">Selecione o curso...</option>
@@ -436,15 +476,17 @@ export default function VagasPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Quantidade</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Quantidade
+              </label>
               <input
                 type="number"
-                {...register('quantidade', { valueAsNumber: true })}
+                {...register("quantidade", { valueAsNumber: true })}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                   errors.quantidade
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               />
               {errors.quantidade && (
@@ -455,9 +497,11 @@ export default function VagasPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Status</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Status
+              </label>
               <select
-                {...register('status')}
+                {...register("status")}
                 className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
               >
                 <option value="aberta">🟢 ABERTA</option>
@@ -467,9 +511,11 @@ export default function VagasPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Descrição</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Descrição
+              </label>
               <textarea
-                {...register('descricao')}
+                {...register("descricao")}
                 rows={3}
                 className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                 placeholder="Detalhes sobre a vaga e requisitos..."
@@ -490,7 +536,11 @@ export default function VagasPage() {
               disabled={isSubmitting}
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? 'Salvando...' : selectedVaga ? 'Salvar Alterações' : 'Criar Vaga'}
+              {isSubmitting
+                ? "Salvando..."
+                : selectedVaga
+                  ? "Salvar Alterações"
+                  : "Criar Vaga"}
             </button>
           </div>
         </form>

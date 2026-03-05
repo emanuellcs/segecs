@@ -10,37 +10,46 @@ import {
   GraduationCap,
   Building2,
   CheckCircle2,
-} from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
 
   const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboard-stats'],
+    queryKey: ["dashboard-stats"],
     queryFn: async () => {
       const today = new Date();
       const next15Days = new Date();
       next15Days.setDate(today.getDate() + 15);
 
-      const [alunos, estagios, frequencias, vagas, avaliacoes] = await Promise.all([
-        supabase.from('alunos').select('*', { count: 'exact' }),
-        supabase
-          .from('estagios')
-          .select('id, status, created_at, aluno_id, data_fim', { count: 'exact' })
-          .order('created_at', { ascending: false }),
-        supabase.from('frequencias').select('horas_realizadas'),
-        supabase.from('vagas').select('id', { count: 'exact' }).eq('status', 'aberta'),
-        supabase.from('avaliacoes').select('estagio_id'),
-      ]);
+      const [alunos, estagios, frequencias, vagas, avaliacoes] =
+        await Promise.all([
+          supabase.from("alunos").select("*", { count: "exact" }),
+          supabase
+            .from("estagios")
+            .select("id, status, created_at, aluno_id, data_fim", {
+              count: "exact",
+            })
+            .order("created_at", { ascending: false }),
+          supabase.from("frequencias").select("horas_realizadas"),
+          supabase
+            .from("vagas")
+            .select("id", { count: "exact" })
+            .eq("status", "aberta"),
+          supabase.from("avaliacoes").select("estagio_id"),
+        ]);
 
-      const totalHoras = frequencias.data?.reduce((acc, f) => acc + f.horas_realizadas, 0) || 0;
-      const estagiosAtivosArr = estagios.data?.filter((e) => e.status === 'ativo') || [];
+      const totalHoras =
+        frequencias.data?.reduce((acc, f) => acc + f.horas_realizadas, 0) || 0;
+      const estagiosAtivosArr =
+        estagios.data?.filter((e) => e.status === "ativo") || [];
       const estagiosAtivosCount = estagiosAtivosArr.length;
 
       // Compliance: Contratos Vencendo (Próximos 15 dias)
@@ -50,29 +59,36 @@ export default function DashboardPage() {
       }).length;
 
       // Compliance: Avaliações Pendentes (Estágios ativos sem nenhuma nota)
-      const estagiosComAvaliacao = new Set(avaliacoes.data?.map((a) => a.estagio_id));
+      const estagiosComAvaliacao = new Set(
+        avaliacoes.data?.map((a) => a.estagio_id),
+      );
       const semAvaliacaoCount = estagiosAtivosArr.filter(
-        (e) => !estagiosComAvaliacao.has(e.id)
+        (e) => !estagiosComAvaliacao.has(e.id),
       ).length;
 
       // Distribuição por status
       const statusDistribution = {
-        pendente: alunos.data?.filter((a) => a.status === 'pendente').length || 0,
-        estagiando: alunos.data?.filter((a) => a.status === 'estagiando').length || 0,
-        concluido: alunos.data?.filter((a) => a.status === 'concluido').length || 0,
+        pendente:
+          alunos.data?.filter((a) => a.status === "pendente").length || 0,
+        estagiando:
+          alunos.data?.filter((a) => a.status === "estagiando").length || 0,
+        concluido:
+          alunos.data?.filter((a) => a.status === "concluido").length || 0,
       };
 
       // Últimos 5 estágios com detalhes do aluno
-      const recentEstagiosIds = estagios.data?.slice(0, 5).map((e) => e.aluno_id) || [];
+      const recentEstagiosIds =
+        estagios.data?.slice(0, 5).map((e) => e.aluno_id) || [];
       const { data: recentAlunos } = await supabase
-        .from('alunos')
-        .select('id, nome')
-        .in('id', recentEstagiosIds);
+        .from("alunos")
+        .select("id, nome")
+        .in("id", recentEstagiosIds);
 
       const recentActivities =
         estagios.data?.slice(0, 5).map((e) => ({
           ...e,
-          aluno_nome: recentAlunos?.find((a) => a.id === e.aluno_id)?.nome || 'Aluno',
+          aluno_nome:
+            recentAlunos?.find((a) => a.id === e.aluno_id)?.nome || "Aluno",
         })) || [];
 
       return {
@@ -93,7 +109,7 @@ export default function DashboardPage() {
 
   const handleExportSICE = async () => {
     try {
-      const { data: estagios, error } = await supabase.from('estagios').select(`
+      const { data: estagios, error } = await supabase.from("estagios").select(`
           id, status, data_inicio, data_fim, carga_horaria_total, carga_horaria_diaria,
           alunos (nome, matricula, cpf, cursos (nome)),
           vagas (titulo, empresas (razao_social, cnpj)),
@@ -103,26 +119,26 @@ export default function DashboardPage() {
 
       if (error) throw error;
       if (!estagios || estagios.length === 0) {
-        toast.error('Não há dados para exportar.');
+        toast.error("Não há dados para exportar.");
         return;
       }
 
       const headers = [
-        'ID Estágio',
-        'Nome do Aluno',
-        'Matrícula',
-        'CPF Aluno',
-        'Curso',
-        'Empresa',
-        'CNPJ',
-        'Vaga',
-        'Orientador',
-        'Supervisor',
-        'Início',
-        'Fim',
-        'CH Total',
-        'CH Diária',
-        'Status',
+        "ID Estágio",
+        "Nome do Aluno",
+        "Matrícula",
+        "CPF Aluno",
+        "Curso",
+        "Empresa",
+        "CNPJ",
+        "Vaga",
+        "Orientador",
+        "Supervisor",
+        "Início",
+        "Fim",
+        "CH Total",
+        "CH Diária",
+        "Status",
       ];
       const csvData = estagios.map((e) => {
         const aluno = e.alunos as any;
@@ -146,64 +162,58 @@ export default function DashboardPage() {
         ];
       });
 
-      const escapeCSV = (field: any) => `"${String(field || '').replace(/"/g, '""')}"`;
+      const escapeCSV = (field: any) =>
+        `"${String(field || "").replace(/"/g, '""')}"`;
       const csvContent = [
-        headers.join(','),
-        ...csvData.map((row) => row.map(escapeCSV).join(',')),
-      ].join('\n');
-      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
+        headers.join(","),
+        ...csvData.map((row) => row.map(escapeCSV).join(",")),
+      ].join("\n");
+      const blob = new Blob(["\ufeff" + csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `relatorio_detalhado_sice_${new Date().toISOString().split('T')[0]}.csv`;
+      link.download = `relatorio_detalhado_sice_${new Date().toISOString().split("T")[0]}.csv`;
       link.click();
-      toast.success('Relatório exportado!');
+      toast.success("Relatório exportado!");
     } catch (error) {
-      toast.error('Erro ao exportar relatório.');
+      toast.error("Erro ao exportar relatório.");
     }
   };
 
   const cards = [
     {
-      label: 'Total de Alunos',
+      label: "Total de Alunos",
       value: stats?.totalAlunos,
       icon: Users,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: "text-blue-600",
+      bg: "bg-blue-50",
     },
     {
-      label: 'Estágios Ativos',
+      label: "Estágios Ativos",
       value: stats?.estagiosAtivos,
       icon: Briefcase,
-      color: 'text-green-600',
-      bg: 'bg-green-50',
+      color: "text-green-600",
+      bg: "bg-green-50",
     },
     {
-      label: 'Horas Acumuladas',
+      label: "Horas Acumuladas",
       value: `${stats?.totalHoras}h`,
       icon: Clock,
-      color: 'text-orange-600',
-      bg: 'bg-orange-50',
+      color: "text-orange-600",
+      bg: "bg-orange-50",
     },
     {
-      label: 'Vagas Abertas',
+      label: "Vagas Abertas",
       value: stats?.vagasAbertas,
       icon: TrendingUp,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      color: "text-purple-600",
+      bg: "bg-purple-50",
     },
   ];
 
   if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-100 border-t-blue-600"></div>
-          <p className="text-gray-500 font-semibold animate-pulse text-sm">
-            Sincronizando inteligência...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -245,14 +255,21 @@ export default function DashboardPage() {
             transition={{ delay: i * 0.1 }}
             className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:shadow-lg group"
           >
-            <div className={cn('p-4 rounded-2xl transition-all group-hover:rotate-6', card.bg)}>
+            <div
+              className={cn(
+                "p-4 rounded-2xl transition-all group-hover:rotate-6",
+                card.bg,
+              )}
+            >
               <card.icon className={card.color} size={28} />
             </div>
             <div>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
                 {card.label}
               </p>
-              <h2 className="text-3xl font-bold text-blue-900 tracking-tight">{card.value}</h2>
+              <h2 className="text-3xl font-bold text-blue-900 tracking-tight">
+                {card.value}
+              </h2>
             </div>
           </motion.div>
         ))}
@@ -264,30 +281,33 @@ export default function DashboardPage() {
           {/* Distribuição de Alunos */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-bold text-blue-900 mb-8 flex items-center gap-2">
-              <GraduationCap className="text-blue-600" size={20} /> Distribuição de Alunos
+              <GraduationCap className="text-blue-600" size={20} /> Distribuição
+              de Alunos
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 {
-                  label: 'Pendentes',
+                  label: "Pendentes",
                   value: stats?.statusDistribution.pendente ?? 0,
-                  color: 'bg-amber-400',
+                  color: "bg-amber-400",
                   total: stats?.totalAlunos,
                 },
                 {
-                  label: 'Estagiando',
+                  label: "Estagiando",
                   value: stats?.statusDistribution.estagiando ?? 0,
-                  color: 'bg-green-500',
+                  color: "bg-green-500",
                   total: stats?.totalAlunos,
                 },
                 {
-                  label: 'Concluídos',
+                  label: "Concluídos",
                   value: stats?.statusDistribution.concluido ?? 0,
-                  color: 'bg-blue-600',
+                  color: "bg-blue-600",
                   total: stats?.totalAlunos,
                 },
               ].map((item, idx) => {
-                const percentage = item.total ? Math.round((item.value / item.total) * 100) : 0;
+                const percentage = item.total
+                  ? Math.round((item.value / item.total) * 100)
+                  : 0;
                 return (
                   <div key={idx} className="space-y-3">
                     <div className="flex justify-between items-end">
@@ -303,7 +323,7 @@ export default function DashboardPage() {
                         initial={{ width: 0 }}
                         animate={{ width: `${percentage}%` }}
                         transition={{ duration: 1, delay: idx * 0.2 }}
-                        className={cn('h-full rounded-full', item.color)}
+                        className={cn("h-full rounded-full", item.color)}
                       />
                     </div>
                   </div>
@@ -316,10 +336,11 @@ export default function DashboardPage() {
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-                <Clock className="text-orange-500" size={20} /> Últimas Alocações
+                <Clock className="text-orange-500" size={20} /> Últimas
+                Alocações
               </h3>
               <button
-                onClick={() => navigate('/estagios')}
+                onClick={() => navigate("/estagios")}
                 className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
               >
                 Ver Tudo <ArrowRight size={14} />
@@ -336,18 +357,23 @@ export default function DashboardPage() {
                       {activity.aluno_nome.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{activity.aluno_nome}</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {activity.aluno_nome}
+                      </p>
                       <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-tight">
-                        Iniciado em {new Date(activity.created_at).toLocaleDateString('pt-BR')}
+                        Iniciado em{" "}
+                        {new Date(activity.created_at).toLocaleDateString(
+                          "pt-BR",
+                        )}
                       </p>
                     </div>
                   </div>
                   <span
                     className={cn(
-                      'px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider',
-                      activity.status === 'ativo'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-blue-100 text-blue-700'
+                      "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider",
+                      activity.status === "ativo"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700",
                     )}
                   >
                     {activity.status}
@@ -363,10 +389,10 @@ export default function DashboardPage() {
           {/* Alertas Rápidos */}
           <div
             className={cn(
-              'p-8 rounded-3xl shadow-xl transition-all duration-500 relative overflow-hidden group',
+              "p-8 rounded-3xl shadow-xl transition-all duration-500 relative overflow-hidden group",
               (stats?.compliance.totalAlertas ?? 0) > 0
-                ? 'bg-blue-900 text-white shadow-blue-900/30'
-                : 'bg-green-600 text-white shadow-green-600/20'
+                ? "bg-blue-900 text-white shadow-blue-900/30"
+                : "bg-green-600 text-white shadow-green-600/20",
             )}
           >
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-500">
@@ -399,10 +425,11 @@ export default function DashboardPage() {
                         Prazos
                       </p>
                       <p className="text-sm font-semibold">
-                        {stats.compliance.vencendo} Contratos vencendo em 15 dias
+                        {stats.compliance.vencendo} Contratos vencendo em 15
+                        dias
                       </p>
                       <button
-                        onClick={() => navigate('/estagios')}
+                        onClick={() => navigate("/estagios")}
                         className="mt-3 text-[10px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 transition-colors"
                       >
                         Resolver Agora →
@@ -416,10 +443,11 @@ export default function DashboardPage() {
                         Avaliações
                       </p>
                       <p className="text-sm font-semibold">
-                        {stats.compliance.semAvaliacao} Estágios sem nota lançada
+                        {stats.compliance.semAvaliacao} Estágios sem nota
+                        lançada
                       </p>
                       <button
-                        onClick={() => navigate('/avaliacoes')}
+                        onClick={() => navigate("/avaliacoes")}
                         className="mt-3 text-[10px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 transition-colors"
                       >
                         Lançar Notas →
@@ -429,7 +457,9 @@ export default function DashboardPage() {
                 </>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-sm font-bold text-green-50">Tudo em ordem!</p>
+                  <p className="text-sm font-bold text-green-50">
+                    Tudo em ordem!
+                  </p>
                   <p className="text-[10px] font-medium text-green-100/70 mt-1 uppercase tracking-widest">
                     Nenhuma pendência crítica encontrada.
                   </p>
@@ -441,15 +471,18 @@ export default function DashboardPage() {
           {/* Parceiros em Destaque */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-bold text-blue-900 mb-6 flex items-center gap-2">
-              <Building2 className="text-purple-600" size={20} /> Vagas em Aberto
+              <Building2 className="text-purple-600" size={20} /> Vagas em
+              Aberto
             </h3>
             <div className="bg-purple-50 p-6 rounded-2xl text-center border border-purple-100">
-              <p className="text-3xl font-bold text-purple-700">{stats?.vagasAbertas}</p>
+              <p className="text-3xl font-bold text-purple-700">
+                {stats?.vagasAbertas}
+              </p>
               <p className="text-[10px] font-semibold text-purple-400 uppercase tracking-widest mt-1">
                 Oportunidades Disponíveis
               </p>
               <button
-                onClick={() => navigate('/vagas')}
+                onClick={() => navigate("/vagas")}
                 className="w-full mt-4 bg-white py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest text-purple-700 shadow-sm hover:shadow-md transition-all active:scale-95"
               >
                 Gerenciar Vagas

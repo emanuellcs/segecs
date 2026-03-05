@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from "react";
 import {
   ClipboardCheck,
   Plus,
@@ -10,29 +10,39 @@ import {
   Building2,
   Calendar,
   Clock,
-} from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { pdf } from "@react-pdf/renderer";
+import { TCETemplate } from "../templates/TCETemplate";
+import { PlanoAtividadesTemplate } from "../templates/PlanoAtividadesTemplate";
+import { TRETemplate } from "../templates/TRETemplate";
 
 const estagioSchema = z.object({
-  aluno_id: z.string().uuid('Selecione um aluno'),
-  vaga_id: z.string().uuid('Selecione uma vaga'),
-  orientador_id: z.string().uuid('Selecione um orientador'),
-  supervisor_id: z.string().uuid('Selecione um supervisor'),
-  data_inicio: z.string().min(1, 'A data de início é obrigatória'),
-  data_fim: z.string().min(1, 'A data de fim é obrigatória'),
-  carga_horaria_total: z.number().min(1, 'Mínimo 1 hora'),
-  carga_horaria_diaria: z.number().min(1, 'Mínimo 1 hora').max(6, 'Máximo 6 horas diárias'),
-  status: z.enum(['ativo', 'concluido', 'interrompido'], {
-    errorMap: () => ({ message: 'Selecione um status válido' }),
+  aluno_id: z.string().uuid("Selecione um aluno"),
+  vaga_id: z.string().uuid("Selecione uma vaga"),
+  orientador_id: z.string().uuid("Selecione um orientador"),
+  supervisor_id: z.string().uuid("Selecione um supervisor"),
+  data_inicio: z.string().min(1, "A data de início é obrigatória"),
+  data_fim: z.string().min(1, "A data de fim é obrigatória"),
+  carga_horaria_total: z.number().min(1, "Mínimo 1 hora"),
+  carga_horaria_diaria: z
+    .number()
+    .min(1, "Mínimo 1 hora")
+    .max(6, "Máximo 6 horas diárias"),
+  status: z.enum(["ativo", "concluido", "interrompido"], {
+    errorMap: () => ({ message: "Selecione um status válido" }),
   }),
 });
 
@@ -48,7 +58,7 @@ interface Estagio {
   data_fim: string;
   carga_horaria_total: number;
   carga_horaria_diaria: number;
-  status: 'ativo' | 'concluido' | 'interrompido';
+  status: "ativo" | "concluido" | "interrompido";
   created_at: string;
 }
 
@@ -56,7 +66,7 @@ export default function EstagiosPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedEstagio, setSelectedEstagio] = useState<Estagio | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: estagios,
@@ -64,40 +74,62 @@ export default function EstagiosPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Estagio>('estagios', ['estagios']);
+  } = useSupabaseCrud<Estagio>("estagios", ["estagios"]);
 
-  const { items: alunos } = useSupabaseCrud<any>('alunos', ['alunos']);
-  const { items: vagas } = useSupabaseCrud<any>('vagas', ['vagas']);
-  const { items: orientadores } = useSupabaseCrud<any>('orientadores', ['orientadores']);
-  const { items: supervisores } = useSupabaseCrud<any>('supervisores', ['supervisores']);
-  const { items: empresas } = useSupabaseCrud<any>('empresas', ['empresas']);
+  const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
+  const { items: vagas } = useSupabaseCrud<any>("vagas", ["vagas"]);
+  const { items: orientadores } = useSupabaseCrud<any>("orientadores", [
+    "orientadores",
+  ]);
+  const { items: supervisores } = useSupabaseCrud<any>("supervisores", [
+    "supervisores",
+  ]);
+  const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<EstagioFormValues>({
     resolver: zodResolver(estagioSchema),
     defaultValues: {
       carga_horaria_total: 400,
       carga_horaria_diaria: 6,
-      status: 'ativo',
+      status: "ativo",
     },
   });
+
+  const selectedAlunoId = watch("aluno_id");
+  const { items: cursos } = useSupabaseCrud<any>("cursos", ["cursos"]);
+
+  // Auto-preenche a carga horária baseada no curso do aluno selecionado
+  useEffect(() => {
+    if (selectedAlunoId && !selectedEstagio) {
+      const aluno = alunos.find((a) => a.id === selectedAlunoId);
+      if (aluno?.curso_id) {
+        const curso = cursos.find((c) => c.id === aluno.curso_id);
+        if (curso?.carga_horaria_obrigatoria) {
+          setValue("carga_horaria_total", curso.carga_horaria_obrigatoria);
+        }
+      }
+    }
+  }, [selectedAlunoId, alunos, cursos, setValue, selectedEstagio]);
 
   const onSubmit = async (data: EstagioFormValues) => {
     try {
       if (selectedEstagio) {
         await update({ id: selectedEstagio.id, ...data });
-        toast.success('Estágio atualizado com sucesso!');
+        toast.success("Estágio atualizado com sucesso!");
       } else {
         await create(data);
-        toast.success('Estágio alocado com sucesso!');
+        toast.success("Estágio alocado com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar estágio');
+      toast.error(translateError(error));
     }
   };
 
@@ -126,11 +158,11 @@ export default function EstagiosPage() {
     if (!selectedEstagio) return;
     try {
       await remove(selectedEstagio.id);
-      toast.success('Estágio removido com sucesso!');
+      toast.success("Estágio removido com sucesso!");
       setIsDeleteOpen(false);
       setSelectedEstagio(null);
     } catch (error) {
-      toast.error('Erro ao remover estágio');
+      toast.error(translateError(error));
     }
   };
 
@@ -140,21 +172,67 @@ export default function EstagiosPage() {
     reset();
   };
 
-  const generateTCE = (estagio: Estagio) => {
-    toast.info(`Geração de TCE para ${alunos.find((a) => a.id === estagio.aluno_id)?.nome}...`);
+  const generatePDF = async (
+    estagio: Estagio,
+    type: "TCE" | "PLANO" | "TRE",
+  ) => {
+    const aluno = alunos.find((a) => a.id === estagio.aluno_id);
+    const vaga = vagas.find((v) => v.id === estagio.vaga_id);
+    const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
+    const orientador = orientadores.find((o) => o.id === estagio.orientador_id);
+    const supervisor = supervisores.find((s) => s.id === estagio.supervisor_id);
+
+    // Mock de escola para o template (deveria vir do banco, mas usaremos um padrão)
+    const escola = { nome: "EEEP Professor Raimundo" } as any;
+
+    const data = { aluno, empresa, escola, estagio, supervisor, orientador };
+
+    toast.info(`Gerando ${type}...`);
+
+    try {
+      let template;
+      switch (type) {
+        case "TCE":
+          template = <TCETemplate data={data} />;
+          break;
+        case "PLANO":
+          template = <PlanoAtividadesTemplate data={data} />;
+          break;
+        case "TRE":
+          template = <TRETemplate data={data} />;
+          break;
+      }
+
+      const blob = await pdf(template).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${type}_${aluno?.nome.replace(/\s+/g, "_")}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${type} gerado com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error(`Erro ao gerar ${type}`);
+    }
   };
 
   const filteredEstagios = estagios.filter((estagio) => {
-    const aluno = alunos.find((a) => a.id === estagio.aluno_id)?.nome || '';
+    const aluno = alunos.find((a) => a.id === estagio.aluno_id)?.nome || "";
     const vaga = vagas.find((v) => v.id === estagio.vaga_id);
-    const empresa = empresas.find((e) => e.id === vaga?.empresa_id)?.razao_social || '';
+    const empresa =
+      empresas.find((e) => e.id === vaga?.empresa_id)?.razao_social || "";
     return (
-      (aluno?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (empresa?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+      (aluno?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (empresa?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
   });
 
+  const pagination = usePagination(filteredEstagios);
+
   const { listLayout } = useListLayout();
+
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <div className="space-y-6">
@@ -162,9 +240,12 @@ export default function EstagiosPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
-            <ClipboardCheck className="text-blue-600" size={28} /> Alocação de Estágios
+            <ClipboardCheck className="text-blue-600" size={28} /> Alocação de
+            Estágios
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de contratos e vínculos</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de contratos e vínculos
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -195,27 +276,25 @@ export default function EstagiosPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando estágios...
-          </div>
-        ) : filteredEstagios.length === 0 ? (
+        {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum estágio encontrado.
           </div>
         ) : (
-          filteredEstagios.map((est) => {
-            const aluno = alunos.find((a) => a.id === est.aluno_id);
-            const vaga = vagas.find((v) => v.id === est.vaga_id);
+          pagination.currentItems.map((estagio) => {
+            const aluno = alunos.find((a) => a.id === estagio.aluno_id);
+            const vaga = vagas.find((v) => v.id === estagio.vaga_id);
             const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
 
             return (
               <div
-                key={est.id}
+                key={estagio.id}
                 className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
               >
                 <div className="flex justify-between items-start">
@@ -224,21 +303,25 @@ export default function EstagiosPage() {
                       {aluno?.nome.substring(0, 2)}
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 leading-tight">{aluno?.nome}</h3>
-                      <p className="text-xs text-gray-500 font-medium">{empresa?.razao_social}</p>
+                      <h3 className="font-bold text-gray-900 leading-tight">
+                        {aluno?.nome}
+                      </h3>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {empresa?.razao_social}
+                      </p>
                     </div>
                   </div>
                   <span
                     className={cn(
-                      'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                      est.status === 'ativo'
-                        ? 'bg-green-100 text-green-700'
-                        : est.status === 'concluido'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-gray-100 text-gray-700'
+                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                      estagio.status === "ativo"
+                        ? "bg-green-100 text-green-700"
+                        : estagio.status === "concluido"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-700",
                     )}
                   >
-                    {est.status}
+                    {estagio.status}
                   </span>
                 </div>
 
@@ -246,36 +329,54 @@ export default function EstagiosPage() {
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Calendar size={14} className="text-blue-500" />
                     <span className="truncate">
-                      {new Date(est.data_inicio).toLocaleDateString('pt-BR')} -{' '}
-                      {new Date(est.data_fim).toLocaleDateString('pt-BR')}
+                      {new Date(estagio.data_inicio).toLocaleDateString(
+                        "pt-BR",
+                      )}{" "}
+                      - {new Date(estagio.data_fim).toLocaleDateString("pt-BR")}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Clock size={14} className="text-blue-500" />
-                    <span>{est.carga_horaria_total}h totais</span>
+                    <span>{estagio.carga_horaria_total}h totais</span>
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-2 border-t border-gray-50">
+                <div className="flex gap-2 pt-2 border-t border-gray-50 flex-wrap">
                   <button
-                    onClick={() => generateTCE(est)}
-                    className="p-2.5 rounded-xl bg-orange-50 text-orange-700 font-bold hover:bg-orange-100 transition-colors"
+                    onClick={() => generatePDF(estagio, "TCE")}
+                    className="p-2 rounded-lg bg-blue-50 text-blue-700 font-bold hover:bg-blue-100 transition-colors text-[10px] flex items-center gap-1"
                     title="Gerar TCE"
                   >
-                    <FileText size={18} />
+                    <FileText size={14} /> TCE
                   </button>
                   <button
-                    onClick={() => handleEdit(est)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors"
+                    onClick={() => generatePDF(estagio, "PLANO")}
+                    className="p-2 rounded-lg bg-orange-50 text-orange-700 font-bold hover:bg-orange-100 transition-colors text-[10px] flex items-center gap-1"
+                    title="Gerar Plano de Atividades"
                   >
-                    <Edit2 size={16} /> Editar
+                    <FileText size={14} /> PLANO
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(est)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 text-red-700 font-bold text-sm hover:bg-red-100 transition-colors"
+                    onClick={() => generatePDF(estagio, "TRE")}
+                    className="p-2 rounded-lg bg-green-50 text-green-700 font-bold hover:bg-green-100 transition-colors text-[10px] flex items-center gap-1"
+                    title="Gerar TRE"
                   >
-                    <Trash2 size={16} /> Excluir
+                    <FileText size={14} /> TRE
                   </button>
+                  <div className="w-full flex gap-2">
+                    <button
+                      onClick={() => handleEdit(estagio)}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors"
+                    >
+                      <Edit2 size={16} /> Editar
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(estagio)}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 text-red-700 font-bold text-sm hover:bg-red-100 transition-colors"
+                    >
+                      <Trash2 size={16} /> Excluir
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -284,7 +385,7 @@ export default function EstagiosPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -307,79 +408,101 @@ export default function EstagiosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {pagination.currentItems.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
-                    Carregando lista de estágios...
-                  </td>
-                </tr>
-              ) : filteredEstagios.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum estágio cadastrado.
                   </td>
                 </tr>
               ) : (
-                filteredEstagios.map((est) => {
-                  const aluno = alunos.find((a) => a.id === est.aluno_id);
-                  const vaga = vagas.find((v) => v.id === est.vaga_id);
-                  const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
+                pagination.currentItems.map((estagio) => {
+                  const aluno = alunos.find((a) => a.id === estagio.aluno_id);
+                  const vaga = vagas.find((v) => v.id === estagio.vaga_id);
+                  const empresa = empresas.find(
+                    (e) => e.id === vaga?.empresa_id,
+                  );
 
                   return (
-                    <tr key={est.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr
+                      key={estagio.id}
+                      className="hover:bg-blue-50/30 transition-colors group"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                             {aluno?.nome.substring(0, 2)}
                           </div>
-                          <span className="text-gray-900 font-bold">{aluno?.nome}</span>
+                          <span className="text-gray-900 font-bold">
+                            {aluno?.nome}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-gray-900 font-medium">{vaga?.titulo}</span>
-                          <span className="text-xs text-gray-500">{empresa?.razao_social}</span>
+                          <span className="text-gray-900 font-medium">
+                            {vaga?.titulo}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {empresa?.razao_social}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-600 font-medium text-center text-sm">
-                        {new Date(est.data_inicio).toLocaleDateString('pt-BR')} -{' '}
-                        {new Date(est.data_fim).toLocaleDateString('pt-BR')}
+                        {new Date(estagio.data_inicio).toLocaleDateString(
+                          "pt-BR",
+                        )}{" "}
+                        -{" "}
+                        {new Date(estagio.data_fim).toLocaleDateString("pt-BR")}
                       </td>
                       <td className="px-6 py-4">
                         <span
                           className={cn(
-                            'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                            est.status === 'ativo'
-                              ? 'bg-green-100 text-green-700'
-                              : est.status === 'concluido'
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-gray-100 text-gray-700'
+                            "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+                            estagio.status === "ativo"
+                              ? "bg-green-100 text-green-700"
+                              : estagio.status === "concluido"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-700",
                           )}
                         >
-                          {est.status}
+                          {estagio.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => generateTCE(est)}
-                            className="p-2 text-orange-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-orange-100 transition-all"
+                            onClick={() => generatePDF(estagio, "TCE")}
+                            className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
                             title="Gerar TCE"
                           >
                             <FileText size={16} />
                           </button>
                           <button
-                            onClick={() => handleEdit(est)}
+                            onClick={() => generatePDF(estagio, "PLANO")}
+                            className="p-2 text-orange-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-orange-100 transition-all"
+                            title="Gerar Plano de Atividades"
+                          >
+                            <FileText size={16} />
+                          </button>
+                          <button
+                            onClick={() => generatePDF(estagio, "TRE")}
+                            className="p-2 text-green-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-green-100 transition-all"
+                            title="Gerar TRE"
+                          >
+                            <FileText size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(estagio)}
                             className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
                             title="Editar"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteClick(est)}
+                            onClick={() => handleDeleteClick(estagio)}
                             className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
                             title="Excluir"
                           >
@@ -396,29 +519,40 @@ export default function EstagiosPage() {
         </div>
       )}
 
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
+
       {/* Form Modal */}
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedEstagio ? 'Editar Alocação' : 'Nova Alocação de Estágio'}
+        title={selectedEstagio ? "Editar Alocação" : "Nova Alocação de Estágio"}
         description="Vincule um aluno a uma vaga e defina os termos do estágio."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Aluno</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Aluno
+              </label>
               <div className="relative mt-1">
                 <User
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <select
-                  {...register('aluno_id')}
+                  {...register("aluno_id")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                     errors.aluno_id
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 >
                   <option value="">Selecione o aluno...</option>
@@ -437,24 +571,28 @@ export default function EstagiosPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Vaga / Empresa</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Vaga / Empresa
+              </label>
               <div className="relative mt-1">
                 <Building2
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <select
-                  {...register('vaga_id')}
+                  {...register("vaga_id")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                     errors.vaga_id
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                 >
                   <option value="">Selecione a vaga...</option>
                   {vagas.map((v: any) => {
-                    const emp = empresas.find((e: any) => e.id === v.empresa_id);
+                    const emp = empresas.find(
+                      (e: any) => e.id === v.empresa_id,
+                    );
                     return (
                       <option key={v.id} value={v.id}>
                         {v.titulo} ({emp?.razao_social})
@@ -471,14 +609,16 @@ export default function EstagiosPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Orientador</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Orientador
+              </label>
               <select
-                {...register('orientador_id')}
+                {...register("orientador_id")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                   errors.orientador_id
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               >
                 <option value="">Selecione...</option>
@@ -491,14 +631,16 @@ export default function EstagiosPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Supervisor de Campo</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Supervisor de Campo
+              </label>
               <select
-                {...register('supervisor_id')}
+                {...register("supervisor_id")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all appearance-none bg-white",
                   errors.supervisor_id
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               >
                 <option value="">Selecione...</option>
@@ -514,55 +656,65 @@ export default function EstagiosPage() {
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Data Início</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Data Início
+              </label>
               <input
                 type="date"
-                {...register('data_inicio')}
+                {...register("data_inicio")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                   errors.data_inicio
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               />
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Data Fim</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Data Fim
+              </label>
               <input
                 type="date"
-                {...register('data_fim')}
+                {...register("data_fim")}
                 className={cn(
-                  'w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                  "w-full px-3 py-2.5 mt-1 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                   errors.data_fim
-                    ? 'border-red-500 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                 )}
               />
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">CH Total</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                CH Total
+              </label>
               <input
                 type="number"
-                {...register('carga_horaria_total', { valueAsNumber: true })}
+                {...register("carga_horaria_total", { valueAsNumber: true })}
                 className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
               />
             </div>
 
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">CH Diária</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                CH Diária
+              </label>
               <input
                 type="number"
-                {...register('carga_horaria_diaria', { valueAsNumber: true })}
+                {...register("carga_horaria_diaria", { valueAsNumber: true })}
                 className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Status</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Status
+              </label>
               <select
-                {...register('status')}
+                {...register("status")}
                 className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
               >
                 <option value="ativo">🟢 ATIVO</option>
@@ -586,10 +738,10 @@ export default function EstagiosPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedEstagio
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Alocação'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Alocação"}
             </button>
           </div>
         </form>

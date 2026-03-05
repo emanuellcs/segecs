@@ -1,18 +1,21 @@
-import { useState } from 'react';
-import { Layers, Plus, Edit2, Trash2, Search } from 'lucide-react';
-import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { FormModal } from '@/components/ui/FormModal';
-import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
-import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
-import { useListLayout } from '@/hooks/useListLayout';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Layers, Plus, Edit2, Trash2, Search } from "lucide-react";
+import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { FormModal } from "@/components/ui/FormModal";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
+import { useListLayout } from "@/hooks/useListLayout";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
+import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const nivelSchema = z.object({
-  descricao: z.string().min(3, 'A descrição deve ter pelo menos 3 caracteres'),
+  descricao: z.string().min(3, "A descrição deve ter pelo menos 3 caracteres"),
 });
 
 type NivelFormValues = z.infer<typeof nivelSchema>;
@@ -27,7 +30,7 @@ export default function NiveisPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedNivel, setSelectedNivel] = useState<Nivel | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     items: niveis,
@@ -35,7 +38,7 @@ export default function NiveisPage() {
     create,
     update,
     remove,
-  } = useSupabaseCrud<Nivel>('niveis', ['niveis']);
+  } = useSupabaseCrud<Nivel>("niveis", ["niveis"]);
 
   const {
     register,
@@ -50,14 +53,14 @@ export default function NiveisPage() {
     try {
       if (selectedNivel) {
         await update({ id: selectedNivel.id, ...data });
-        toast.success('Nível atualizado com sucesso!');
+        toast.success("Nível atualizado com sucesso!");
       } else {
         await create(data);
-        toast.success('Nível cadastrado com sucesso!');
+        toast.success("Nível cadastrado com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
-      toast.error('Erro ao salvar nível');
+      toast.error(translateError(error));
     }
   };
 
@@ -78,11 +81,11 @@ export default function NiveisPage() {
     if (!selectedNivel) return;
     try {
       await remove(selectedNivel.id);
-      toast.success('Nível removido com sucesso!');
+      toast.success("Nível removido com sucesso!");
       setIsDeleteOpen(false);
       setSelectedNivel(null);
     } catch (error) {
-      toast.error('Erro ao remover nível');
+      toast.error(translateError(error));
     }
   };
 
@@ -93,10 +96,13 @@ export default function NiveisPage() {
   };
 
   const filteredNiveis = niveis.filter((nivel) =>
-    (nivel.descricao?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    (nivel.descricao?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
   );
 
+  const pagination = usePagination(filteredNiveis);
   const { listLayout } = useListLayout();
+
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <div className="space-y-6">
@@ -106,7 +112,9 @@ export default function NiveisPage() {
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
             <Layers className="text-blue-600" size={28} /> Níveis
           </h1>
-          <p className="text-gray-500 font-medium">Gestão de níveis de ensino</p>
+          <p className="text-gray-500 font-medium">
+            Gestão de níveis de ensino
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
@@ -137,20 +145,18 @@ export default function NiveisPage() {
       {/* Listagem Responsiva (Cards) */}
       <div
         className={cn(
-          'grid grid-cols-1 gap-4',
-          listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
+          "grid grid-cols-1 gap-4",
+          listLayout === "table"
+            ? "lg:hidden"
+            : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando níveis...
-          </div>
-        ) : filteredNiveis.length === 0 ? (
+        {filteredNiveis.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum nível encontrado.
           </div>
         ) : (
-          filteredNiveis.map((nivel) => (
+          pagination.currentItems.map((nivel) => (
             <div
               key={nivel.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -161,7 +167,9 @@ export default function NiveisPage() {
                     <Layers size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{nivel.descricao}</h3>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {nivel.descricao}
+                    </h3>
                   </div>
                 </div>
               </div>
@@ -186,7 +194,7 @@ export default function NiveisPage() {
       </div>
 
       {/* Tabela Desktop */}
-      {listLayout === 'table' && (
+      {listLayout === "table" && (
         <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -200,30 +208,29 @@ export default function NiveisPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {filteredNiveis.length === 0 ? (
                 <tr>
                   <td
                     colSpan={2}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
+                    className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
-                    Carregando lista de níveis...
-                  </td>
-                </tr>
-              ) : filteredNiveis.length === 0 ? (
-                <tr>
-                  <td colSpan={2} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum nível cadastrado.
                   </td>
                 </tr>
               ) : (
-                filteredNiveis.map((nivel) => (
-                  <tr key={nivel.id} className="hover:bg-blue-50/30 transition-colors group">
+                pagination.currentItems.map((nivel) => (
+                  <tr
+                    key={nivel.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
                           {nivel.descricao.substring(0, 2)}
                         </div>
-                        <span className="text-gray-900 font-bold">{nivel.descricao}</span>
+                        <span className="text-gray-900 font-bold">
+                          {nivel.descricao}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -252,29 +259,40 @@ export default function NiveisPage() {
         </div>
       )}
 
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
+
       {/* Form Modal */}
       <FormModal
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        title={selectedNivel ? 'Editar Nível' : 'Novo Cadastro de Nível'}
+        title={selectedNivel ? "Editar Nível" : "Novo Cadastro de Nível"}
         description="Preencha a descrição do nível de ensino."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-bold text-gray-700 ml-1">Descrição</label>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Descrição
+              </label>
               <div className="relative mt-1">
                 <Layers
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   size={16}
                 />
                 <input
-                  {...register('descricao')}
+                  {...register("descricao")}
                   className={cn(
-                    'w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all',
+                    "w-full pl-10 pr-3 py-2.5 rounded-lg border text-sm focus:ring-2 outline-none transition-all",
                     errors.descricao
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:ring-blue-100 focus:border-blue-500'
+                      ? "border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
                   placeholder="Ex: Ensino Médio Integrado"
                 />
@@ -301,10 +319,10 @@ export default function NiveisPage() {
               className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
             >
               {isSubmitting
-                ? 'Salvando...'
+                ? "Salvando..."
                 : selectedNivel
-                  ? 'Salvar Alterações'
-                  : 'Confirmar Cadastro'}
+                  ? "Salvar Alterações"
+                  : "Confirmar Cadastro"}
             </button>
           </div>
         </form>
