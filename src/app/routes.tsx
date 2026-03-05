@@ -16,6 +16,7 @@ import EstagiosPage from '@/features/estagios/pages/EstagiosPage';
 import FrequenciaPage from '@/features/frequencia/pages/FrequenciaPage';
 import AvaliacoesPage from '@/features/avaliacoes/pages/AvaliacoesPage';
 import ProjetosSociaisPage from '@/features/projetos/pages/ProjetosSociaisPage';
+import DashboardPage from '@/features/dashboard/pages/DashboardPage';
 
 // Placeholder para o Layout que será migrado
 const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
@@ -23,29 +24,29 @@ const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
     <aside className="w-64 bg-blue-900 text-white p-6 sticky top-0 h-screen overflow-y-auto">
       <h2 className="text-2xl font-bold mb-8">SEGECS</h2>
       <nav className="space-y-1">
-        <Link to="/dashboard" className="block p-2 hover:bg-blue-800 rounded transition-colors">Dashboard</Link>
+        <Link to="/dashboard" className="block p-2 hover:bg-blue-800 rounded transition-colors font-medium">Dashboard</Link>
         
-        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Operacional</div>
-        <Link to="/vagas" className="block p-2 hover:bg-blue-800 rounded transition-colors">Vagas</Link>
-        <Link to="/estagios" className="block p-2 hover:bg-blue-800 rounded transition-colors">Alocação (TCE)</Link>
-        <Link to="/frequencia" className="block p-2 hover:bg-blue-800 rounded transition-colors">Frequência</Link>
+        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Operacional</div>
+        <Link to="/vagas" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Vagas</Link>
+        <Link to="/estagios" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Alocação (TCE)</Link>
+        <Link to="/frequencia" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Frequência</Link>
 
-        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Avaliação & Conclusão</div>
-        <Link to="/avaliacoes" className="block p-2 hover:bg-blue-800 rounded transition-colors">Avaliações</Link>
-        <Link to="/projetos" className="block p-2 hover:bg-blue-800 rounded transition-colors">Projetos Sociais</Link>
+        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Avaliação & Conclusão</div>
+        <Link to="/avaliacoes" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Avaliações</Link>
+        <Link to="/projetos" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Projetos Sociais</Link>
 
-        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Cadastros Base</div>
-        <Link to="/cidades" className="block p-2 hover:bg-blue-800 rounded transition-colors">Cidades</Link>
-        <Link to="/niveis" className="block p-2 hover:bg-blue-800 rounded transition-colors">Níveis</Link>
-        <Link to="/escolas" className="block p-2 hover:bg-blue-800 rounded transition-colors">Escolas</Link>
-        <Link to="/cursos" className="block p-2 hover:bg-blue-800 rounded transition-colors">Cursos</Link>
+        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Cadastros Base</div>
+        <Link to="/cidades" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Cidades</Link>
+        <Link to="/niveis" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Níveis</Link>
+        <Link to="/escolas" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Escolas</Link>
+        <Link to="/cursos" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Cursos</Link>
         
-        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Pessoas & Parceiros</div>
-        <Link to="/responsaveis" className="block p-2 hover:bg-blue-800 rounded transition-colors">Responsáveis</Link>
-        <Link to="/alunos" className="block p-2 hover:bg-blue-800 rounded transition-colors">Alunos</Link>
-        <Link to="/orientadores" className="block p-2 hover:bg-blue-800 rounded transition-colors">Orientadores</Link>
-        <Link to="/empresas" className="block p-2 hover:bg-blue-800 rounded transition-colors">Empresas</Link>
-        <Link to="/supervisores" className="block p-2 hover:bg-blue-800 rounded transition-colors">Supervisores</Link>
+        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Pessoas & Parceiros</div>
+        <Link to="/responsaveis" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Responsáveis</Link>
+        <Link to="/alunos" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Alunos</Link>
+        <Link to="/orientadores" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Orientadores</Link>
+        <Link to="/empresas" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Empresas</Link>
+        <Link to="/supervisores" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Supervisores</Link>
       </nav>
     </aside>
     <main className="flex-1 overflow-auto">
@@ -54,29 +55,12 @@ const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const DashboardPlaceholder = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold">Dashboard</h1>
-    <p>Bem-vindo ao SEGECS.</p>
-  </div>
-);
-
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <DashboardPlaceholder />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
+      <Route path="/dashboard" element={<PrivateRoute><LayoutPlaceholder><DashboardPage /></LayoutPlaceholder></PrivateRoute>} />
       <Route path="/cidades" element={<PrivateRoute><LayoutPlaceholder><CidadesPage /></LayoutPlaceholder></PrivateRoute>} />
       <Route path="/niveis" element={<PrivateRoute><LayoutPlaceholder><NiveisPage /></LayoutPlaceholder></PrivateRoute>} />
       <Route path="/escolas" element={<PrivateRoute><LayoutPlaceholder><EscolasPage /></LayoutPlaceholder></PrivateRoute>} />
