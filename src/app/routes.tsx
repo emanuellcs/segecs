@@ -8,6 +8,9 @@ import EscolasPage from '@/features/escolas/pages/EscolasPage';
 import CursosPage from '@/features/cursos/pages/CursosPage';
 import ResponsaveisPage from '@/features/responsaveis/pages/ResponsaveisPage';
 import AlunosPage from '@/features/alunos/pages/AlunosPage';
+import EmpresasPage from '@/features/empresas/pages/EmpresasPage';
+import OrientadoresPage from '@/features/orientadores/pages/OrientadoresPage';
+import SupervisoresPage from '@/features/supervisores/pages/SupervisoresPage';
 
 // Placeholder para o Layout que será migrado
 const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
@@ -16,14 +19,19 @@ const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
       <h2 className="text-2xl font-bold mb-8">SEGECS</h2>
       <nav className="space-y-1">
         <Link to="/dashboard" className="block p-2 hover:bg-blue-800 rounded transition-colors">Dashboard</Link>
+        
         <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Cadastros Base</div>
         <Link to="/cidades" className="block p-2 hover:bg-blue-800 rounded transition-colors">Cidades</Link>
         <Link to="/niveis" className="block p-2 hover:bg-blue-800 rounded transition-colors">Níveis</Link>
         <Link to="/escolas" className="block p-2 hover:bg-blue-800 rounded transition-colors">Escolas</Link>
         <Link to="/cursos" className="block p-2 hover:bg-blue-800 rounded transition-colors">Cursos</Link>
-        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Pessoas</div>
+        
+        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Pessoas & Parceiros</div>
         <Link to="/responsaveis" className="block p-2 hover:bg-blue-800 rounded transition-colors">Responsáveis</Link>
         <Link to="/alunos" className="block p-2 hover:bg-blue-800 rounded transition-colors">Alunos</Link>
+        <Link to="/orientadores" className="block p-2 hover:bg-blue-800 rounded transition-colors">Orientadores</Link>
+        <Link to="/empresas" className="block p-2 hover:bg-blue-800 rounded transition-colors">Empresas</Link>
+        <Link to="/supervisores" className="block p-2 hover:bg-blue-800 rounded transition-colors">Supervisores</Link>
       </nav>
     </aside>
     <main className="flex-1 overflow-auto">
@@ -116,6 +124,39 @@ export default function AppRoutes() {
           <PrivateRoute>
             <LayoutPlaceholder>
               <AlunosPage />
+            </LayoutPlaceholder>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/empresas"
+        element={
+          <PrivateRoute>
+            <LayoutPlaceholder>
+              <EmpresasPage />
+            </LayoutPlaceholder>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/orientadores"
+        element={
+          <PrivateRoute>
+            <LayoutPlaceholder>
+              <OrientadoresPage />
+            </LayoutPlaceholder>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/supervisores"
+        element={
+          <PrivateRoute>
+            <LayoutPlaceholder>
+              <SupervisoresPage />
             </LayoutPlaceholder>
           </PrivateRoute>
         }
