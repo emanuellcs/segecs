@@ -1,107 +1,93 @@
-# SEGECS
+# SEGECS - Sistema Escolar de Gestão do Estágio Curricular Supervisionado
 
-### Sistema Escolar de Gestão do Estágio Curricular Supervisionado
+O **SEGECS** é uma plataforma moderna e integrada desenvolvida para otimizar a gestão de estágios curriculares obrigatórios em Escolas Estaduais de Educação Profissional (EEEP) do Ceará. O sistema foi projetado para estar em **conformidade** com a **Lei Federal nº 11.788/2008** e as diretrizes do **Guia do Estágio da SEDUC-CE (SICE)**.
 
-O **SEGECS** é uma aplicação web desenvolvida para auxiliar instituições de ensino na organização e no acompanhamento de estágios curriculares supervisionados. O sistema centraliza o cadastro de alunos, cursos, escolas e responsáveis, facilitando o controle administrativo dos estágios em conformidade com as exigências acadêmicas.
+## 🎯 Objetivo do Sistema
 
-## 🛠️ Características Técnicas
+Transformar o processo burocrático de gestão de estágios em um fluxo digital ágil, seguro e transparente, permitindo que coordenadores, orientadores e alunos foquem no que mais importa: o desenvolvimento profissional e pedagógico.
 
-O projeto utiliza a stack PERN (PostgreSQL, Express, React e Node.js) e foi organizado de forma modular para facilitar a manutenção e o crescimento das funcionalidades.
+## 🛠️ Arquitetura e Tecnologia
 
-### Organização do Código:
+O SEGECS utiliza uma arquitetura **Frontend-Only (Serverless)**, eliminando a necessidade de manter servidores backend complexos e garantindo alta escalabilidade e segurança.
 
-- **Arquitetura por Funcionalidades**: O código é agrupado por domínios de negócio (Alunos, Usuários, Escolas, etc.), mantendo componentes, páginas e lógicas relacionadas próximos.
-- **Absolute Imports**: Utiliza aliases (`@/`) para referenciar diretórios a partir da raiz do `src`, evitando caminhos relativos extensos.
-- **Design System Base**: Componentes de interface reutilizáveis (`Button`, `Card`, `PageHeader`) centralizados para manter a consistência visual.
-- **Validação de Dados**: Camada de validação no backend com `express-validator` para garantir a integridade dos dados recebidos.
-- **Interface Responsiva**: Desenvolvida com Tailwind CSS, adaptando-se a diferentes tamanhos de tela.
+- **Frontend:** React 18 + TypeScript + Vite (Performance e Tipagem Estrita)
+- **Estilização:** Tailwind CSS (Interface moderna e responsiva)
+- **Backend (BaaS):** Supabase
+  - **Auth:** Autenticação robusta e RBAC (Role-Based Access Control).
+  - **Database:** PostgreSQL com Row Level Security (RLS) para proteção de dados.
+  - **Storage:** Armazenamento seguro de documentos (TCEs e Relatórios).
+- **Gestão de Estado:** TanStack Query v5 (Sincronização de dados em tempo real).
+- **Formulários:** React Hook Form + Zod (Validações complexas e segurança).
+- **Documentação:** @react-pdf/renderer (Geração dinâmica de documentos oficiais).
 
-### Estrutura de Diretórios
+## 📦 Módulos do Sistema
 
-```text
-.
-├── client/                     # Frontend React 18
-│   ├── src/
-│   │   ├── features/           # Componentes e páginas por domínio
-│   │   │   ├── alunos/
-│   │   │   ├── auth/
-│   │   │   └── ...
-│   │   ├── layouts/            # Estruturas de layout da aplicação
-│   │   ├── components/common/  # Componentes comuns de interface
-│   │   ├── services/           # Comunicação com a API
-│   │   └── utils/              # Funções auxiliares
-│   ├── craco.config.js         # Configuração de aliases de importação
-│   └── jsconfig.json           # Configuração de caminhos do VS Code
-├── server/                     # Backend Node.js + Express
-│   ├── modules/                # Controladores e rotas por domínio
-│   │   ├── alunos/
-│   │   ├── auth/
-│   │   └── ...
-│   ├── shared/                 # Configurações e middlewares globais
-│   │   ├── config/             # Configuração de banco de dados
-│   │   └── middleware/         # Autenticação e tratamento de erros
-│   └── server.js               # Ponto de entrada da API
-├── database/                   # Scripts SQL de schema e seed
-└── docker-compose.yml          # Configuração dos containers
-```
+### 1. Gestão Operacional (Núcleo)
 
-## 💻 Tecnologias Utilizadas
+- **Vagas:** Cadastro de oportunidades por empresa, curso e eixo tecnológico.
+- **Alocação Inteligente:** Vinculação de alunos a vagas, definindo datas, orientadores e supervisores.
+- **Documentação Automática:** Geração instantânea de Termos de Compromisso de Estágio (TCE) e Planos de Atividades personalizados para Informática.
 
-| Camada               | Tecnologia        | Versão |
-| :------------------- | :---------------- | :----- |
-| **Frontend**         | React             | 18     |
-| **Estilização**      | Tailwind CSS      | 3      |
-| **Backend**          | Node.js / Express | 18 / 4 |
-| **Banco de Dados**   | PostgreSQL        | 17     |
-| **Containers**       | Docker / Compose  | 3.8    |
-| **Linter/Formatter** | ESLint / Prettier | 10 / 3 |
+### 2. Acompanhamento Pedagógico
 
-## 🐳 Execução com Docker
+- **Registro de Frequência:** Lançamento diário de atividades e horas, com contador progressivo até a meta de 400h.
+- **Validação Dupla:** Sistema de validação de horas pelo supervisor da empresa e orientador da escola.
+- **Visitas Técnicas:** Histórico de acompanhamento in loco realizado pelos orientadores.
 
-Para rodar o ambiente completo (Frontend, Backend e Banco de Dados):
+### 3. Avaliação e Responsabilidade Social
 
-```bash
-docker-compose up --build
-```
+- **Ciclo de Notas:** Registro das 3 avaliações obrigatórias com cálculo automático de média.
+- **Projeto Social:** Módulo para gestão do projeto obrigatório exigido pela SEDUC-CE após 300h de estágio.
+- **Conclusão:** Emissão do Termo de Realização de Estágio (TRE) após cumprimento de metas.
 
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **Backend API**: [http://localhost:5000](http://localhost:5000)
+### 4. Inteligência e Compliance
 
-## ⚙️ Variáveis de Ambiente
+- **Dashboard Executivo:** Indicadores em tempo real de alunos estagiando, horas acumuladas e metas.
+- **Alertas de Risco:** Notificações sobre contratos vencendo ou avaliações pendentes.
+- **LGPD:** Gestão de consentimento para tratamento de dados sensíveis (CPF, Matrícula).
 
-Crie um arquivo `.env` no diretório `server/` com as seguintes variáveis:
+## 👥 Perfis de Acesso (RBAC)
 
-```env
-# Configuração do Servidor
-PORT=5000
-NODE_ENV=development
+- **Coordenador:** Visão total do sistema, gestão de cadastros base e relatórios SICE.
+- **Orientador:** Gestão dos seus estagiários, lançamento de visitas e validação de frequências.
+- **Aluno:** Lançamento de frequência diária, upload de documentos e visualização de progresso.
+- **Supervisor (Empresa):** Acompanhamento técnico e validação de atividades na ponta.
 
-# Configuração do Banco de Dados
-DB_HOST=db
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=password123
-DB_NAME=segecs_db
+## 🚀 Como Executar o Projeto
 
-# Segurança
-JWT_SECRET=sua_chave_secreta_aqui
-```
+### Pré-requisitos
 
-## 💎 Padronização de Código
+- Node.js 18+
+- Projeto no [Supabase](https://supabase.com)
 
-Para garantir a qualidade do código, o projeto utiliza ESLint para análise estática e Prettier para formatação.
+### Configuração Local
 
-```bash
-# No diretório /server
-npm run format    # Formata os arquivos
-npm run lint      # Verifica erros de estilo
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/seu-usuario/segecs.git
+   cd segecs
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Configure as Variáveis de Ambiente:
+   Crie um arquivo `.env` baseado no `.env.example`:
+   ```env
+   VITE_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-publica
+   ```
+4. Banco de Dados:
+   Copie o conteúdo de `supabase_schema.sql` e execute no SQL Editor do seu projeto Supabase.
+5. Inicie o desenvolvimento:
+   ```bash
+   npm run dev
+   ```
 
-# No diretório /client
-npx prettier --write .
-```
+### Deploy no Vercel
 
----
+Este repositório está otimizado para a Vercel. Basta conectar o GitHub, configurar as variáveis de ambiente e o sistema estará online em segundos com suporte nativo a rotas SPA (via `vercel.json`).
 
-## 👥 Autor
+## ⚖️ Licença e Conformidade
 
-**Prof. Raimundo N. de Sousa (Raiworld)**
+Este software é fornecido sob licença para uso educacional em EEEPs do Ceará. Os dados coletados seguem rigorosamente a Lei Geral de Proteção de Dados (LGPD).
