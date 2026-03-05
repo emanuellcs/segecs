@@ -14,6 +14,8 @@ import SupervisoresPage from '@/features/supervisores/pages/SupervisoresPage';
 import VagasPage from '@/features/estagios/pages/VagasPage';
 import EstagiosPage from '@/features/estagios/pages/EstagiosPage';
 import FrequenciaPage from '@/features/frequencia/pages/FrequenciaPage';
+import AvaliacoesPage from '@/features/avaliacoes/pages/AvaliacoesPage';
+import ProjetosSociaisPage from '@/features/projetos/pages/ProjetosSociaisPage';
 
 // Placeholder para o Layout que será migrado
 const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
@@ -27,6 +29,10 @@ const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
         <Link to="/vagas" className="block p-2 hover:bg-blue-800 rounded transition-colors">Vagas</Link>
         <Link to="/estagios" className="block p-2 hover:bg-blue-800 rounded transition-colors">Alocação (TCE)</Link>
         <Link to="/frequencia" className="block p-2 hover:bg-blue-800 rounded transition-colors">Frequência</Link>
+
+        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Avaliação & Conclusão</div>
+        <Link to="/avaliacoes" className="block p-2 hover:bg-blue-800 rounded transition-colors">Avaliações</Link>
+        <Link to="/projetos" className="block p-2 hover:bg-blue-800 rounded transition-colors">Projetos Sociais</Link>
 
         <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Cadastros Base</div>
         <Link to="/cidades" className="block p-2 hover:bg-blue-800 rounded transition-colors">Cidades</Link>
@@ -83,6 +89,8 @@ export default function AppRoutes() {
       <Route path="/vagas" element={<PrivateRoute><LayoutPlaceholder><VagasPage /></LayoutPlaceholder></PrivateRoute>} />
       <Route path="/estagios" element={<PrivateRoute><LayoutPlaceholder><EstagiosPage /></LayoutPlaceholder></PrivateRoute>} />
       <Route path="/frequencia" element={<PrivateRoute><LayoutPlaceholder><FrequenciaPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/avaliacoes" element={<PrivateRoute><LayoutPlaceholder><AvaliacoesPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/projetos" element={<PrivateRoute><LayoutPlaceholder><ProjetosSociaisPage /></LayoutPlaceholder></PrivateRoute>} />
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
