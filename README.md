@@ -57,14 +57,14 @@ O SEGECS utiliza uma arquitetura **Frontend-Only (Serverless)**, eliminando a ne
 
 ### Pré-requisitos
 
-- Node.js 18+
+- Node.js 20+
 - Projeto no [Supabase](https://supabase.com)
 
 ### Configuração Local
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/segecs.git
+   git clone https://github.com/prof-raimundo/segecs.git
    cd segecs
    ```
 2. Instale as dependências:
@@ -75,7 +75,7 @@ O SEGECS utiliza uma arquitetura **Frontend-Only (Serverless)**, eliminando a ne
    Crie um arquivo `.env` baseado no `.env.example`:
    ```env
    VITE_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-publica
+   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica
    ```
 4. Banco de Dados:
    Copie o conteúdo de `supabase_schema.sql` e execute no SQL Editor do seu projeto Supabase.
