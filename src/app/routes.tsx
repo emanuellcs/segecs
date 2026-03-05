@@ -11,6 +11,8 @@ import AlunosPage from '@/features/alunos/pages/AlunosPage';
 import EmpresasPage from '@/features/empresas/pages/EmpresasPage';
 import OrientadoresPage from '@/features/orientadores/pages/OrientadoresPage';
 import SupervisoresPage from '@/features/supervisores/pages/SupervisoresPage';
+import VagasPage from '@/features/estagios/pages/VagasPage';
+import EstagiosPage from '@/features/estagios/pages/EstagiosPage';
 
 // Placeholder para o Layout que será migrado
 const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
@@ -20,6 +22,10 @@ const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
       <nav className="space-y-1">
         <Link to="/dashboard" className="block p-2 hover:bg-blue-800 rounded transition-colors">Dashboard</Link>
         
+        <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Operacional</div>
+        <Link to="/vagas" className="block p-2 hover:bg-blue-800 rounded transition-colors">Vagas</Link>
+        <Link to="/estagios" className="block p-2 hover:bg-blue-800 rounded transition-colors">Alocação (TCE)</Link>
+
         <div className="pt-4 pb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Cadastros Base</div>
         <Link to="/cidades" className="block p-2 hover:bg-blue-800 rounded transition-colors">Cidades</Link>
         <Link to="/niveis" className="block p-2 hover:bg-blue-800 rounded transition-colors">Níveis</Link>
@@ -63,104 +69,17 @@ export default function AppRoutes() {
         }
       />
 
-      <Route
-        path="/cidades"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <CidadesPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/niveis"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <NiveisPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/escolas"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <EscolasPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/cursos"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <CursosPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/responsaveis"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <ResponsaveisPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/alunos"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <AlunosPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/empresas"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <EmpresasPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/orientadores"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <OrientadoresPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/supervisores"
-        element={
-          <PrivateRoute>
-            <LayoutPlaceholder>
-              <SupervisoresPage />
-            </LayoutPlaceholder>
-          </PrivateRoute>
-        }
-      />
+      <Route path="/cidades" element={<PrivateRoute><LayoutPlaceholder><CidadesPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/niveis" element={<PrivateRoute><LayoutPlaceholder><NiveisPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/escolas" element={<PrivateRoute><LayoutPlaceholder><EscolasPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/cursos" element={<PrivateRoute><LayoutPlaceholder><CursosPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/responsaveis" element={<PrivateRoute><LayoutPlaceholder><ResponsaveisPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/alunos" element={<PrivateRoute><LayoutPlaceholder><AlunosPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/empresas" element={<PrivateRoute><LayoutPlaceholder><EmpresasPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/orientadores" element={<PrivateRoute><LayoutPlaceholder><OrientadoresPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/supervisores" element={<PrivateRoute><LayoutPlaceholder><SupervisoresPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/vagas" element={<PrivateRoute><LayoutPlaceholder><VagasPage /></LayoutPlaceholder></PrivateRoute>} />
+      <Route path="/estagios" element={<PrivateRoute><LayoutPlaceholder><EstagiosPage /></LayoutPlaceholder></PrivateRoute>} />
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
