@@ -7,6 +7,8 @@ import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
+import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
+import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
 
 const estagioSchema = z.object({
@@ -141,6 +143,8 @@ export default function EstagiosPage() {
     );
   });
 
+  const { listLayout } = useListLayout();
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -159,26 +163,32 @@ export default function EstagiosPage() {
         </button>
       </div>
 
-      {/* Busca */}
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
-        <input
-          type="text"
-          placeholder="Buscar por aluno ou empresa..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
-        />
+      {/* Busca e Layout Toggle */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative group flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar por aluno ou empresa..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+          />
+        </div>
+        <ListLayoutToggle />
       </div>
 
-      {/* Listagem Responsiva */}
-      <div className="grid grid-cols-1 gap-4 lg:hidden">
+      {/* Listagem Responsiva (Cards) */}
+      <div className={cn(
+        "grid grid-cols-1 gap-4",
+        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
+      )}>
         {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando estágios...
           </div>
         ) : filteredEstagios.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum estágio encontrado.
           </div>
         ) : (
@@ -250,97 +260,99 @@ export default function EstagiosPage() {
       </div>
 
       {/* Tabela Desktop */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Aluno</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Empresa / Vaga</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Período</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading ? (
+      {listLayout === 'table' && (
+        <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
-                  Carregando lista de estágios...
-                </td>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Aluno</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Empresa / Vaga</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Período</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
               </tr>
-            ) : filteredEstagios.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
-                  Nenhum estágio cadastrado.
-                </td>
-              </tr>
-            ) : (
-              filteredEstagios.map((est) => {
-                const aluno = alunos.find(a => a.id === est.aluno_id);
-                const vaga = vagas.find(v => v.id === est.vaga_id);
-                const empresa = empresas.find(e => e.id === vaga?.empresa_id);
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                    Carregando lista de estágios...
+                  </td>
+                </tr>
+              ) : filteredEstagios.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
+                    Nenhum estágio cadastrado.
+                  </td>
+                </tr>
+              ) : (
+                filteredEstagios.map((est) => {
+                  const aluno = alunos.find(a => a.id === est.aluno_id);
+                  const vaga = vagas.find(v => v.id === est.vaga_id);
+                  const empresa = empresas.find(e => e.id === vaga?.empresa_id);
 
-                return (
-                  <tr key={est.id} className="hover:bg-blue-50/30 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
-                          {aluno?.nome.substring(0, 2)}
+                  return (
+                    <tr key={est.id} className="hover:bg-blue-50/30 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
+                            {aluno?.nome.substring(0, 2)}
+                          </div>
+                          <span className="text-gray-900 font-bold">{aluno?.nome}</span>
                         </div>
-                        <span className="text-gray-900 font-bold">{aluno?.nome}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-gray-900 font-medium">{vaga?.titulo}</span>
-                        <span className="text-xs text-gray-500">{empresa?.razao_social}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium text-center text-sm">
-                      {new Date(est.data_inicio).toLocaleDateString('pt-BR')} - {new Date(est.data_fim).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={cn(
-                        'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                        est.status === 'ativo' ? 'bg-green-100 text-green-700' :
-                        est.status === 'concluido' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
-                      )}>
-                        {est.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => generateTCE(est)}
-                          className="p-2 text-orange-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-orange-100 transition-all"
-                          title="Gerar TCE"
-                        >
-                          <FileText size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(est)}
-                          className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
-                          title="Editar"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(est)}
-                          className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
-                          title="Excluir"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-gray-900 font-medium">{vaga?.titulo}</span>
+                          <span className="text-xs text-gray-500">{empresa?.razao_social}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 font-medium text-center text-sm">
+                        {new Date(est.data_inicio).toLocaleDateString('pt-BR')} - {new Date(est.data_fim).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={cn(
+                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
+                          est.status === 'ativo' ? 'bg-green-100 text-green-700' :
+                          est.status === 'concluido' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
+                        )}>
+                          {est.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => generateTCE(est)}
+                            className="p-2 text-orange-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-orange-100 transition-all"
+                            title="Gerar TCE"
+                          >
+                            <FileText size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(est)}
+                            className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
+                            title="Editar"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(est)}
+                            className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
+                            title="Excluir"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Form Modal */}
       <FormModal

@@ -7,6 +7,8 @@ import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
+import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
+import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
 
 const frequenciaSchema = z.object({
@@ -128,6 +130,8 @@ export default function FrequenciaPage() {
 
   const totalHoras = filteredFrequencias.reduce((acc, f) => acc + f.horas_realizadas, 0);
 
+  const { listLayout } = useListLayout();
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -185,26 +189,32 @@ export default function FrequenciaPage() {
         </div>
       </div>
 
-      {/* Busca */}
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
-        <input
-          type="text"
-          placeholder="Buscar por atividades ou nome do aluno..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
-        />
+      {/* Busca e Layout Toggle */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative group flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar por atividades ou nome do aluno..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+          />
+        </div>
+        <ListLayoutToggle />
       </div>
 
-      {/* Listagem Responsiva */}
-      <div className="grid grid-cols-1 gap-4 lg:hidden">
+      {/* Listagem Responsiva (Cards) */}
+      <div className={cn(
+        "grid grid-cols-1 gap-4",
+        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
+      )}>
         {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando registros...
           </div>
         ) : filteredFrequencias.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum registro encontrado.
           </div>
         ) : (
@@ -267,90 +277,92 @@ export default function FrequenciaPage() {
       </div>
 
       {/* Tabela Desktop */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Data / Aluno</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Atividades</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Horas</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Validação</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading ? (
+      {listLayout === 'table' && (
+        <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
-                  Carregando lista de frequências...
-                </td>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Data / Aluno</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Atividades</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Horas</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Validação</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
               </tr>
-            ) : filteredFrequencias.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
-                  Nenhum lançamento encontrado.
-                </td>
-              </tr>
-            ) : (
-              filteredFrequencias.map((freq) => {
-                const estagio = estagios.find(e => e.id === freq.estagio_id);
-                const aluno = alunos.find(a => a.id === estagio?.aluno_id);
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                    Carregando lista de frequências...
+                  </td>
+                </tr>
+              ) : filteredFrequencias.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
+                    Nenhum lançamento encontrado.
+                  </td>
+                </tr>
+              ) : (
+                filteredFrequencias.map((freq) => {
+                  const estagio = estagios.find(e => e.id === freq.estagio_id);
+                  const aluno = alunos.find(a => a.id === estagio?.aluno_id);
 
-                return (
-                  <tr key={freq.id} className="hover:bg-blue-50/30 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-gray-900 font-bold">{new Date(freq.data).toLocaleDateString('pt-BR')}</span>
-                        <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-gray-600 text-sm max-w-md truncate" title={freq.atividades}>
-                        {freq.atividades}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg font-black text-sm">
-                        {freq.horas_realizadas}h
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center gap-2">
-                        <span className={cn(
-                          "px-2 py-1 rounded text-[9px] font-black border",
-                          freq.validado_supervisor ? "bg-green-50 text-green-700 border-green-100" : "bg-gray-50 text-gray-400 border-gray-100"
-                        )}>SUP</span>
-                        <span className={cn(
-                          "px-2 py-1 rounded text-[9px] font-black border",
-                          freq.validado_orientador ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-gray-50 text-gray-400 border-gray-100"
-                        )}>ORI</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => handleEdit(freq)}
-                          className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
-                          title="Editar"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(freq)}
-                          className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
-                          title="Excluir"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                  return (
+                    <tr key={freq.id} className="hover:bg-blue-50/30 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-gray-900 font-bold">{new Date(freq.data).toLocaleDateString('pt-BR')}</span>
+                          <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-gray-600 text-sm max-w-md truncate" title={freq.atividades}>
+                          {freq.atividades}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg font-black text-sm">
+                          {freq.horas_realizadas}h
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center gap-2">
+                          <span className={cn(
+                            "px-2 py-1 rounded text-[9px] font-black border",
+                            freq.validado_supervisor ? "bg-green-50 text-green-700 border-green-100" : "bg-gray-50 text-gray-400 border-gray-100"
+                          )}>SUP</span>
+                          <span className={cn(
+                            "px-2 py-1 rounded text-[9px] font-black border",
+                            freq.validado_orientador ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-gray-50 text-gray-400 border-gray-100"
+                          )}>ORI</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleEdit(freq)}
+                            className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
+                            title="Editar"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(freq)}
+                            className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
+                            title="Excluir"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Form Modal */}
       <FormModal

@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils';
 import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { InputMask } from '@/components/ui/InputMask';
+import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
+import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
 
 const orientadorSchema = z.object({
@@ -114,6 +116,8 @@ export default function OrientadoresPage() {
     (orientador.cpf || '').includes(searchTerm)
   );
 
+  const { listLayout } = useListLayout();
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -132,26 +136,32 @@ export default function OrientadoresPage() {
         </button>
       </div>
 
-      {/* Busca */}
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
-        <input
-          type="text"
-          placeholder="Buscar por nome ou CPF..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
-        />
+      {/* Busca e Layout Toggle */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative group flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar por nome ou CPF..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+          />
+        </div>
+        <ListLayoutToggle />
       </div>
 
-      {/* Listagem Responsiva */}
-      <div className="grid grid-cols-1 gap-4 lg:hidden">
+      {/* Listagem Responsiva (Cards) */}
+      <div className={cn(
+        "grid grid-cols-1 gap-4",
+        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
+      )}>
         {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando orientadores...
           </div>
         ) : filteredOrientadores.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum orientador encontrado.
           </div>
         ) : (

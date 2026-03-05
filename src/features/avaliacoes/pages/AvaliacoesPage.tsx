@@ -7,6 +7,8 @@ import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
+import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
+import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
 
 const avaliacaoSchema = z.object({
@@ -122,6 +124,8 @@ export default function AvaliacoesPage() {
     ? (filteredAvaliacoes.reduce((acc, a) => acc + a.nota, 0) / filteredAvaliacoes.length).toFixed(1)
     : '0.0';
 
+  const { listLayout } = useListLayout();
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -179,26 +183,32 @@ export default function AvaliacoesPage() {
         </div>
       </div>
 
-      {/* Busca */}
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
-        <input
-          type="text"
-          placeholder="Buscar por nome do aluno..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
-        />
+      {/* Busca e Layout Toggle */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative group flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar por nome do aluno..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+          />
+        </div>
+        <ListLayoutToggle />
       </div>
 
-      {/* Listagem Responsiva */}
-      <div className="grid grid-cols-1 gap-4 lg:hidden">
+      {/* Listagem Responsiva (Cards) */}
+      <div className={cn(
+        "grid grid-cols-1 gap-4",
+        listLayout === 'table' ? "lg:hidden" : "lg:grid-cols-2 xl:grid-cols-3"
+      )}>
         {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
             Carregando avaliações...
           </div>
         ) : filteredAvaliacoes.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100">
+          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhuma avaliação encontrada.
           </div>
         ) : (
@@ -250,83 +260,85 @@ export default function AvaliacoesPage() {
       </div>
 
       {/* Tabela Desktop */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Aluno</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Avaliação</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Data</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Nota</th>
-              <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading ? (
+      {listLayout === 'table' && (
+        <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
-                  Carregando lista de avaliações...
-                </td>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Aluno</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Avaliação</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">Data</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Nota</th>
+                <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right">Ações</th>
               </tr>
-            ) : filteredAvaliacoes.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
-                  Nenhuma avaliação registrada.
-                </td>
-              </tr>
-            ) : (
-              filteredAvaliacoes.map((aval) => {
-                const estagio = estagios.find(e => e.id === aval.estagio_id);
-                const aluno = alunos.find(a => a.id === estagio?.aluno_id);
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse">
+                    Carregando lista de avaliações...
+                  </td>
+                </tr>
+              ) : filteredAvaliacoes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
+                    Nenhuma avaliação registrada.
+                  </td>
+                </tr>
+              ) : (
+                filteredAvaliacoes.map((aval) => {
+                  const estagio = estagios.find(e => e.id === aval.estagio_id);
+                  const aluno = alunos.find(a => a.id === estagio?.aluno_id);
 
-                return (
-                  <tr key={aval.id} className="hover:bg-blue-50/30 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
-                          {aluno?.nome.substring(0, 2)}
+                  return (
+                    <tr key={aval.id} className="hover:bg-blue-50/30 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
+                            {aluno?.nome.substring(0, 2)}
+                          </div>
+                          <span className="text-gray-900 font-bold">{aluno?.nome}</span>
                         </div>
-                        <span className="text-gray-900 font-bold">{aluno?.nome}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-black uppercase tracking-wider text-gray-600">
-                        {aval.tipo}ª NOTA
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium text-sm">
-                      {new Date(aval.data_avaliacao).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-blue-900 font-black text-xl">
-                        {aval.nota.toFixed(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => handleEdit(aval)}
-                          className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
-                          title="Editar"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(aval)}
-                          className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
-                          title="Excluir"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-black uppercase tracking-wider text-gray-600">
+                          {aval.tipo}ª NOTA
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 font-medium text-sm">
+                        {new Date(aval.data_avaliacao).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="text-blue-900 font-black text-xl">
+                          {aval.nota.toFixed(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleEdit(aval)}
+                            className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
+                            title="Editar"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(aval)}
+                            className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
+                            title="Excluir"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Form Modal */}
       <FormModal
