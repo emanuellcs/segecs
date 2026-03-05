@@ -23,6 +23,7 @@ import { InputMask } from '@/components/ui/InputMask';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 const empresaSchema = z.object({
   razao_social: z.string().min(3, 'A razão social deve ter pelo menos 3 caracteres'),
@@ -151,6 +152,8 @@ export default function EmpresasPage() {
 
   const { listLayout } = useListLayout();
 
+  if (isLoading) return <LoadingScreen />;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -194,11 +197,7 @@ export default function EmpresasPage() {
           listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando empresas...
-          </div>
-        ) : filteredEmpresas.length === 0 ? (
+        {filteredEmpresas.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhuma empresa encontrada.
           </div>
@@ -276,16 +275,7 @@ export default function EmpresasPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
-                  >
-                    Carregando lista de empresas...
-                  </td>
-                </tr>
-              ) : filteredEmpresas.length === 0 ? (
+              {filteredEmpresas.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhuma empresa cadastrada.

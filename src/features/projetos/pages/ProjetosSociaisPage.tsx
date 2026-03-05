@@ -10,6 +10,7 @@ import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 const projetoSchema = z.object({
   aluno_id: z.string().uuid('Selecione um aluno válido'),
@@ -125,6 +126,8 @@ export default function ProjetosSociaisPage() {
 
   const { listLayout } = useListLayout();
 
+  if (isLoading) return <LoadingScreen />;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -168,21 +171,17 @@ export default function ProjetosSociaisPage() {
           listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando projetos...
-          </div>
-        ) : filteredProjetos.length === 0 ? (
+        {filteredProjetos.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum projeto encontrado.
           </div>
         ) : (
-          filteredProjetos.map((proj) => {
-            const aluno = alunos.find((a) => a.id === proj.aluno_id);
+          filteredProjetos.map((projeto_social) => {
+            const aluno = alunos.find((a) => a.id === projeto_social.aluno_id);
 
             return (
               <div
-                key={proj.id}
+                key={projeto_social.id}
                 className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
               >
                 <div className="flex justify-between items-start">
@@ -191,19 +190,19 @@ export default function ProjetosSociaisPage() {
                       <Heart size={20} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 leading-tight">{proj.titulo}</h3>
+                      <h3 className="font-bold text-gray-900 leading-tight">{projeto_social.titulo}</h3>
                       <p className="text-xs text-gray-500 font-medium">{aluno?.nome}</p>
                     </div>
                   </div>
                   <span
                     className={cn(
                       'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                      proj.status === 'executado'
+                      projeto_social.status === 'executado'
                         ? 'bg-green-100 text-green-700'
                         : 'bg-yellow-100 text-yellow-700'
                     )}
                   >
-                    {proj.status}
+                    {projeto_social.status}
                   </span>
                 </div>
 
@@ -211,26 +210,26 @@ export default function ProjetosSociaisPage() {
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Calendar size={14} className="text-blue-500" />
                     <span className="truncate">
-                      {proj.data_execucao
-                        ? new Date(proj.data_execucao).toLocaleDateString('pt-BR')
+                      {projeto_social.data_execucao
+                        ? new Date(projeto_social.data_execucao).toLocaleDateString('pt-BR')
                         : 'Não executado'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Clock size={14} className="text-blue-500" />
-                    <span>{proj.horas_estimadas}h estimadas</span>
+                    <span>{projeto_social.horas_estimadas}h estimadas</span>
                   </div>
                 </div>
 
                 <div className="flex gap-2 pt-2 border-t border-gray-50">
                   <button
-                    onClick={() => handleEdit(proj)}
+                    onClick={() => handleEdit(projeto_social)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors"
                   >
                     <Edit2 size={16} /> Editar
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(proj)}
+                    onClick={() => handleDeleteClick(projeto_social)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 text-red-700 font-bold text-sm hover:bg-red-100 transition-colors"
                   >
                     <Trash2 size={16} /> Excluir
@@ -266,62 +265,53 @@ export default function ProjetosSociaisPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
-                  >
-                    Carregando lista de projetos...
-                  </td>
-                </tr>
-              ) : filteredProjetos.length === 0 ? (
+              {filteredProjetos.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum projeto registrado.
                   </td>
                 </tr>
               ) : (
-                filteredProjetos.map((proj) => {
-                  const aluno = alunos.find((a) => a.id === proj.aluno_id);
+                filteredProjetos.map((projeto_social) => {
+                  const aluno = alunos.find((a) => a.id === projeto_social.aluno_id);
 
                   return (
-                    <tr key={proj.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr key={projeto_social.id} className="hover:bg-blue-50/30 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-gray-900 font-bold">{proj.titulo}</span>
+                          <span className="text-gray-900 font-bold">{projeto_social.titulo}</span>
                           <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-600 font-bold">{proj.horas_estimadas}h</td>
+                      <td className="px-6 py-4 text-gray-600 font-bold">{projeto_social.horas_estimadas}h</td>
                       <td className="px-6 py-4 text-gray-600 font-medium text-sm">
-                        {proj.data_execucao
-                          ? new Date(proj.data_execucao).toLocaleDateString('pt-BR')
+                        {projeto_social.data_execucao
+                          ? new Date(projeto_social.data_execucao).toLocaleDateString('pt-BR')
                           : '-'}
                       </td>
                       <td className="px-6 py-4">
                         <span
                           className={cn(
                             'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                            proj.status === 'executado'
+                            projeto_social.status === 'executado'
                               ? 'bg-green-100 text-green-700'
                               : 'bg-yellow-100 text-yellow-700'
                           )}
                         >
-                          {proj.status}
+                          {projeto_social.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => handleEdit(proj)}
+                            onClick={() => handleEdit(projeto_social)}
                             className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
                             title="Editar"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteClick(proj)}
+                            onClick={() => handleDeleteClick(projeto_social)}
                             className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
                             title="Excluir"
                           >

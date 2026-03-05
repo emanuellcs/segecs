@@ -21,6 +21,7 @@ import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 const estagioSchema = z.object({
   aluno_id: z.string().uuid('Selecione um aluno'),
@@ -156,6 +157,8 @@ export default function EstagiosPage() {
 
   const { listLayout } = useListLayout();
 
+  if (isLoading) return <LoadingScreen />;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -199,23 +202,19 @@ export default function EstagiosPage() {
           listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando estágios...
-          </div>
-        ) : filteredEstagios.length === 0 ? (
+        {filteredEstagios.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum estágio encontrado.
           </div>
         ) : (
-          filteredEstagios.map((est) => {
-            const aluno = alunos.find((a) => a.id === est.aluno_id);
-            const vaga = vagas.find((v) => v.id === est.vaga_id);
+          filteredEstagios.map((estagio) => {
+            const aluno = alunos.find((a) => a.id === estagio.aluno_id);
+            const vaga = vagas.find((v) => v.id === estagio.vaga_id);
             const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
 
             return (
               <div
-                key={est.id}
+                key={estagio.id}
                 className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
               >
                 <div className="flex justify-between items-start">
@@ -231,14 +230,14 @@ export default function EstagiosPage() {
                   <span
                     className={cn(
                       'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                      est.status === 'ativo'
+                      estagio.status === 'ativo'
                         ? 'bg-green-100 text-green-700'
-                        : est.status === 'concluido'
+                        : estagio.status === 'concluido'
                           ? 'bg-blue-100 text-blue-700'
                           : 'bg-gray-100 text-gray-700'
                     )}
                   >
-                    {est.status}
+                    {estagio.status}
                   </span>
                 </div>
 
@@ -246,32 +245,32 @@ export default function EstagiosPage() {
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Calendar size={14} className="text-blue-500" />
                     <span className="truncate">
-                      {new Date(est.data_inicio).toLocaleDateString('pt-BR')} -{' '}
-                      {new Date(est.data_fim).toLocaleDateString('pt-BR')}
+                      {new Date(estagio.data_inicio).toLocaleDateString('pt-BR')} -{' '}
+                      {new Date(estagio.data_fim).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
                     <Clock size={14} className="text-blue-500" />
-                    <span>{est.carga_horaria_total}h totais</span>
+                    <span>{estagio.carga_horaria_total}h totais</span>
                   </div>
                 </div>
 
                 <div className="flex gap-2 pt-2 border-t border-gray-50">
                   <button
-                    onClick={() => generateTCE(est)}
+                    onClick={() => generateTCE(estagio)}
                     className="p-2.5 rounded-xl bg-orange-50 text-orange-700 font-bold hover:bg-orange-100 transition-colors"
                     title="Gerar TCE"
                   >
                     <FileText size={18} />
                   </button>
                   <button
-                    onClick={() => handleEdit(est)}
+                    onClick={() => handleEdit(estagio)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors"
                   >
                     <Edit2 size={16} /> Editar
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(est)}
+                    onClick={() => handleDeleteClick(estagio)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 text-red-700 font-bold text-sm hover:bg-red-100 transition-colors"
                   >
                     <Trash2 size={16} /> Excluir
@@ -307,29 +306,20 @@ export default function EstagiosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
-                  >
-                    Carregando lista de estágios...
-                  </td>
-                </tr>
-              ) : filteredEstagios.length === 0 ? (
+              {filteredEstagios.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum estágio cadastrado.
                   </td>
                 </tr>
               ) : (
-                filteredEstagios.map((est) => {
-                  const aluno = alunos.find((a) => a.id === est.aluno_id);
-                  const vaga = vagas.find((v) => v.id === est.vaga_id);
+                filteredEstagios.map((estagio) => {
+                  const aluno = alunos.find((a) => a.id === estagio.aluno_id);
+                  const vaga = vagas.find((v) => v.id === estagio.vaga_id);
                   const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
 
                   return (
-                    <tr key={est.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr key={estagio.id} className="hover:bg-blue-50/30 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -345,41 +335,41 @@ export default function EstagiosPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-600 font-medium text-center text-sm">
-                        {new Date(est.data_inicio).toLocaleDateString('pt-BR')} -{' '}
-                        {new Date(est.data_fim).toLocaleDateString('pt-BR')}
+                        {new Date(estagio.data_inicio).toLocaleDateString('pt-BR')} -{' '}
+                        {new Date(estagio.data_fim).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="px-6 py-4">
                         <span
                           className={cn(
                             'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-                            est.status === 'ativo'
+                            estagio.status === 'ativo'
                               ? 'bg-green-100 text-green-700'
-                              : est.status === 'concluido'
+                              : estagio.status === 'concluido'
                                 ? 'bg-blue-100 text-blue-700'
                                 : 'bg-gray-100 text-gray-700'
                           )}
                         >
-                          {est.status}
+                          {estagio.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => generateTCE(est)}
+                            onClick={() => generateTCE(estagio)}
                             className="p-2 text-orange-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-orange-100 transition-all"
                             title="Gerar TCE"
                           >
                             <FileText size={16} />
                           </button>
                           <button
-                            onClick={() => handleEdit(est)}
+                            onClick={() => handleEdit(estagio)}
                             className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
                             title="Editar"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteClick(est)}
+                            onClick={() => handleDeleteClick(estagio)}
                             className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
                             title="Excluir"
                           >

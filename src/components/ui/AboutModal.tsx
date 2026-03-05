@@ -20,8 +20,8 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
           <div className="bg-blue-900 p-4 rounded-3xl shadow-xl shadow-blue-900/20 mb-4 inline-flex">
             <ShieldCheck className="text-white" size={40} />
           </div>
-          <DialogTitle className="text-2xl font-black text-blue-900 tracking-tighter uppercase">
-            Sobre o SEGECS
+          <DialogTitle className="text-2xl font-black text-blue-900 tracking-tighter">
+            SEGECS
           </DialogTitle>
           <DialogDescription className="text-gray-500 font-medium text-center">
             Sistema Escolar de Gestão do Estágio Curricular Supervisionado
@@ -93,7 +93,7 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
 
         <div className="text-center">
           <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-            &copy; {new Date().getFullYear()} SEGECS v1.0.0
+            &copy; {new Date().getFullYear()} SEGECS v0.1.0
           </p>
         </div>
       </DialogContent>

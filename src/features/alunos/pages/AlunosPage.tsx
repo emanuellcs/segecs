@@ -21,6 +21,7 @@ import { InputMask } from '@/components/ui/InputMask';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 const alunoSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
@@ -138,6 +139,10 @@ export default function AlunosPage() {
   );
 
   const { listLayout } = useListLayout();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="space-y-6">

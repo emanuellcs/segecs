@@ -10,6 +10,7 @@ import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 const vagaSchema = z.object({
   empresa_id: z.string().uuid('Selecione uma empresa válida'),
@@ -128,6 +129,8 @@ export default function VagasPage() {
 
   const { listLayout } = useListLayout();
 
+  if (isLoading) return <LoadingScreen />;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -171,11 +174,7 @@ export default function VagasPage() {
           listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando vagas...
-          </div>
-        ) : filteredVagas.length === 0 ? (
+        {filteredVagas.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhuma vaga encontrada.
           </div>
@@ -267,23 +266,15 @@ export default function VagasPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {filteredVagas.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
-                  >
-                    Carregando lista de vagas...
-                  </td>
-                </tr>
-              ) : filteredVagas.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhuma vaga cadastrada.
                   </td>
                 </tr>
               ) : (
                 filteredVagas.map((vaga) => (
+
                   <tr key={vaga.id} className="hover:bg-blue-50/30 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex flex-col">

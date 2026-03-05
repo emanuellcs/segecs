@@ -20,6 +20,7 @@ import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 const frequenciaSchema = z.object({
   estagio_id: z.string().uuid('Selecione um estágio válido'),
@@ -143,6 +144,10 @@ export default function FrequenciaPage() {
 
   const { listLayout } = useListLayout();
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -242,13 +247,13 @@ export default function FrequenciaPage() {
             Nenhum registro encontrado.
           </div>
         ) : (
-          filteredFrequencias.map((freq) => {
-            const estagio = estagios.find((e) => e.id === freq.estagio_id);
+          filteredFrequencias.map((frequencia) => {
+            const estagio = estagios.find((e) => e.id === frequencia.estagio_id);
             const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
             return (
               <div
-                key={freq.id}
+                key={frequencia.id}
                 className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
               >
                 <div className="flex justify-between items-start">
@@ -259,7 +264,7 @@ export default function FrequenciaPage() {
                     <div>
                       <h3 className="font-bold text-gray-900 leading-tight">{aluno?.nome}</h3>
                       <p className="text-xs text-gray-500 font-medium">
-                        {new Date(freq.data).toLocaleDateString('pt-BR')}
+                        {new Date(frequencia.data).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
                   </div>
@@ -267,7 +272,7 @@ export default function FrequenciaPage() {
                     <span
                       className={cn(
                         'px-1.5 py-0.5 rounded text-[8px] font-black border',
-                        freq.validado_supervisor
+                        frequencia.validado_supervisor
                           ? 'bg-green-50 text-green-700 border-green-100'
                           : 'bg-gray-50 text-gray-400 border-gray-100'
                       )}
@@ -277,7 +282,7 @@ export default function FrequenciaPage() {
                     <span
                       className={cn(
                         'px-1.5 py-0.5 rounded text-[8px] font-black border',
-                        freq.validado_orientador
+                        frequencia.validado_orientador
                           ? 'bg-blue-50 text-blue-700 border-blue-100'
                           : 'bg-gray-50 text-gray-400 border-gray-100'
                       )}
@@ -288,23 +293,23 @@ export default function FrequenciaPage() {
                 </div>
 
                 <p className="text-sm text-gray-600 line-clamp-2 bg-gray-50 p-3 rounded-xl border border-gray-100 italic">
-                  "{freq.atividades}"
+                  "{frequencia.atividades}"
                 </p>
 
                 <div className="flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2 text-blue-700 font-black">
                     <Clock size={16} />
-                    <span>{freq.horas_realizadas}h realizadas</span>
+                    <span>{frequencia.horas_realizadas}h realizadas</span>
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleEdit(freq)}
+                      onClick={() => handleEdit(frequencia)}
                       className="p-2.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
                     >
                       <Edit2 size={16} />
                     </button>
                     <button
-                      onClick={() => handleDeleteClick(freq)}
+                      onClick={() => handleDeleteClick(frequencia)}
                       className="p-2.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
                     >
                       <Trash2 size={16} />
@@ -357,16 +362,16 @@ export default function FrequenciaPage() {
                   </td>
                 </tr>
               ) : (
-                filteredFrequencias.map((freq) => {
-                  const estagio = estagios.find((e) => e.id === freq.estagio_id);
+                filteredFrequencias.map((frequencia) => {
+                  const estagio = estagios.find((e) => e.id === frequencia.estagio_id);
                   const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
                   return (
-                    <tr key={freq.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <tr key={frequencia.id} className="hover:bg-blue-50/30 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="text-gray-900 font-bold">
-                            {new Date(freq.data).toLocaleDateString('pt-BR')}
+                            {new Date(frequencia.data).toLocaleDateString('pt-BR')}
                           </span>
                           <span className="text-xs text-gray-500 font-medium">{aluno?.nome}</span>
                         </div>
@@ -374,14 +379,14 @@ export default function FrequenciaPage() {
                       <td className="px-6 py-4">
                         <p
                           className="text-gray-600 text-sm max-w-md truncate"
-                          title={freq.atividades}
+                          title={frequencia.atividades}
                         >
-                          {freq.atividades}
+                          {frequencia.atividades}
                         </p>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg font-black text-sm">
-                          {freq.horas_realizadas}h
+                          {frequencia.horas_realizadas}h
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -389,7 +394,7 @@ export default function FrequenciaPage() {
                           <span
                             className={cn(
                               'px-2 py-1 rounded text-[9px] font-black border',
-                              freq.validado_supervisor
+                              frequencia.validado_supervisor
                                 ? 'bg-green-50 text-green-700 border-green-100'
                                 : 'bg-gray-50 text-gray-400 border-gray-100'
                             )}
@@ -399,7 +404,7 @@ export default function FrequenciaPage() {
                           <span
                             className={cn(
                               'px-2 py-1 rounded text-[9px] font-black border',
-                              freq.validado_orientador
+                              frequencia.validado_orientador
                                 ? 'bg-blue-50 text-blue-700 border-blue-100'
                                 : 'bg-gray-50 text-gray-400 border-gray-100'
                             )}
@@ -411,14 +416,14 @@ export default function FrequenciaPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => handleEdit(freq)}
+                            onClick={() => handleEdit(frequencia)}
                             className="p-2 text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-blue-100 transition-all"
                             title="Editar"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteClick(freq)}
+                            onClick={() => handleDeleteClick(frequencia)}
                             className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-red-100 transition-all"
                             title="Excluir"
                           >

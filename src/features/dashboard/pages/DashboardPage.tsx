@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -194,16 +195,7 @@ export default function DashboardPage() {
   ];
 
   if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-100 border-t-blue-600"></div>
-          <p className="text-gray-500 font-semibold animate-pulse text-sm">
-            Sincronizando dados...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
