@@ -46,9 +46,22 @@ export default function DashboardPage() {
         .select(`
           id,
           status,
-          created_at,
-          alunos (nome, matricula),
-          empresas (razao_social)
+          data_inicio,
+          data_fim,
+          carga_horaria_total,
+          carga_horaria_diaria,
+          alunos (
+            nome, 
+            matricula, 
+            cpf,
+            cursos (nome)
+          ),
+          vagas (
+            titulo,
+            empresas (razao_social, cnpj)
+          ),
+          orientadores (nome),
+          supervisores (nome)
         `);
 
       if (error) throw error;
@@ -58,36 +71,80 @@ export default function DashboardPage() {
         return;
       }
 
-      // Simples conversão para CSV
-      const headers = ['ID', 'Aluno', 'Matrícula', 'Empresa', 'Status', 'Data Início'];
-      const csvData = estagios.map(e => [
-        e.id,
-        (e.alunos as any)?.nome || '',
-        (e.alunos as any)?.matricula || '',
-        (e.empresas as any)?.razao_social || '',
-        e.status,
-        new Date(e.created_at).toLocaleDateString('pt-BR')
-      ]);
+      // Cabeçalhos detalhados para o relatório completo
+      const headers = [
+        'ID Estágio',
+        'Nome do Aluno',
+        'Matrícula',
+        'CPF Aluno',
+        'Curso',
+        'Empresa Parceira',
+        'CNPJ Empresa',
+        'Vaga/Cargo',
+        'Professor Orientador',
+        'Supervisor de Campo',
+        'Data Início',
+        'Data Fim',
+        'Carga Horária Total',
+        'CH Diária',
+        'Status do Contrato'
+      ];
+
+      const csvData = estagios.map(e => {
+        const aluno = e.alunos as any;
+        const vaga = e.vagas as any;
+        const empresa = vaga?.empresas;
+        const orientador = e.orientadores as any;
+        const supervisor = e.supervisores as any;
+
+        return [
+          e.id,
+          aluno?.nome || '',
+          aluno?.matricula || '',
+          aluno?.cpf || '',
+          aluno?.cursos?.nome || '',
+          empresa?.razao_social || '',
+          empresa?.cnpj || '',
+          vaga?.titulo || '',
+          orientador?.nome || '',
+          supervisor?.nome || '',
+          e.data_inicio ? new Date(e.data_inicio).toLocaleDateString('pt-BR') : '',
+          e.data_fim ? new Date(e.data_fim).toLocaleDateString('pt-BR') : '',
+          `${e.carga_horaria_total}h`,
+          `${e.carga_horaria_diaria}h`,
+          (e.status || '').toUpperCase()
+        ];
+      });
+
+      // Função para sanitizar campos do CSV (escapar vírgulas e aspas)
+      const escapeCSV = (field: any) => {
+        const str = String(field);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
 
       const csvContent = [
         headers.join(','),
-        ...csvData.map(row => row.join(','))
+        ...csvData.map(row => row.map(escapeCSV).join(','))
       ].join('\n');
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // Adiciona o BOM para o Excel reconhecer UTF-8 corretamente
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `relatorio_sice_${new Date().getTime()}.csv`);
+      link.setAttribute('download', `relatorio_sice_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      toast.success('Relatório SICE exportado com sucesso!');
+      toast.success('Relatório Detalhado SICE exportado!');
     } catch (error) {
       console.error('Erro ao exportar:', error);
-      toast.error('Erro ao gerar relatório SICE.');
+      toast.error('Erro ao gerar relatório detalhado.');
     }
   };
 
