@@ -22,6 +22,8 @@ import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 const alunoSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
@@ -138,6 +140,8 @@ export default function AlunosPage() {
       (aluno.cpf || '').includes(searchTerm)
   );
 
+  const pagination = usePagination(filteredAlunos);
+
   const { listLayout } = useListLayout();
 
   if (isLoading) {
@@ -196,7 +200,7 @@ export default function AlunosPage() {
             Nenhum aluno encontrado.
           </div>
         ) : (
-          filteredAlunos.map((aluno) => (
+          pagination.currentItems.map((aluno) => (
             <div
               key={aluno.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -299,7 +303,7 @@ export default function AlunosPage() {
                   </td>
                 </tr>
               ) : (
-                filteredAlunos.map((aluno) => (
+                pagination.currentItems.map((aluno) => (
                   <tr key={aluno.id} className="hover:bg-blue-50/30 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -352,6 +356,15 @@ export default function AlunosPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal

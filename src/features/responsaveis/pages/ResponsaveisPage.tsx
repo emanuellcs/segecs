@@ -10,6 +10,8 @@ import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { InputMask } from '@/components/ui/InputMask';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
@@ -107,6 +109,7 @@ export default function ResponsaveisPage() {
       (resp.cpf || '').includes(searchTerm)
   );
 
+  const pagination = usePagination(filteredResponsaveis);
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
@@ -159,7 +162,7 @@ export default function ResponsaveisPage() {
             Nenhum responsável encontrado.
           </div>
         ) : (
-          filteredResponsaveis.map((resp) => (
+          pagination.currentItems.map((resp) => (
             <div
               key={resp.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -228,7 +231,7 @@ export default function ResponsaveisPage() {
                   </td>
                 </tr>
               ) : (
-                filteredResponsaveis.map((resp) => (
+                pagination.currentItems.map((resp) => (
                   <tr key={resp.id} className="hover:bg-blue-50/30 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -263,6 +266,15 @@ export default function ResponsaveisPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal

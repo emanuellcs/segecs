@@ -12,6 +12,8 @@ import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 const orientadorSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
@@ -118,6 +120,8 @@ export default function OrientadoresPage() {
       (orientador.cpf || '').includes(searchTerm)
   );
 
+  const pagination = usePagination(filteredOrientadores);
+
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
@@ -165,12 +169,12 @@ export default function OrientadoresPage() {
           listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
-        {filteredOrientadores.length === 0 ? (
+        {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum orientador encontrado.
           </div>
         ) : (
-          filteredOrientadores.map((orientador) => (
+          pagination.currentItems.map((orientador) => (
             <div
               key={orientador.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -247,14 +251,14 @@ export default function OrientadoresPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredOrientadores.length === 0 ? (
+              {pagination.currentItems.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum orientador cadastrado.
                   </td>
                 </tr>
               ) : (
-                filteredOrientadores.map((orientador) => (
+                pagination.currentItems.map((orientador) => (
 
                   <tr key={orientador.id} className="hover:bg-blue-50/30 transition-colors group">
                     <td className="px-6 py-4">
@@ -297,6 +301,15 @@ export default function OrientadoresPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal

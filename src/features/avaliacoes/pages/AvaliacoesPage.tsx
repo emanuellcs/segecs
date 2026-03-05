@@ -19,6 +19,8 @@ import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
@@ -131,6 +133,8 @@ export default function AvaliacoesPage() {
     return matchesSearch && matchesEstagio;
   });
 
+  const pagination = usePagination(filteredAvaliacoes);
+
   const mediaGeral =
     filteredAvaliacoes.length > 0
       ? (
@@ -230,12 +234,12 @@ export default function AvaliacoesPage() {
           listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
-        {filteredAvaliacoes.length === 0 ? (
+        {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhuma avaliação encontrada.
           </div>
         ) : (
-          filteredAvaliacoes.map((avaliacao) => {
+          pagination.currentItems.map((avaliacao) => {
             const estagio = estagios.find((e) => e.id === avaliacao.estagio_id);
             const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
@@ -311,14 +315,14 @@ export default function AvaliacoesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredAvaliacoes.length === 0 ? (
+              {pagination.currentItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhuma avaliação cadastrada.
                   </td>
                 </tr>
               ) : (
-                filteredAvaliacoes.map((avaliacao) => {
+                pagination.currentItems.map((avaliacao) => {
                   const estagio = estagios.find((e) => e.id === avaliacao.estagio_id);
                   const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
@@ -371,6 +375,15 @@ export default function AvaliacoesPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal

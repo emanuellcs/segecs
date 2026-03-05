@@ -9,6 +9,8 @@ import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
@@ -106,6 +108,7 @@ export default function CursosPage() {
     (curso.nome?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
+  const pagination = usePagination(filteredCursos);
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
@@ -158,7 +161,7 @@ export default function CursosPage() {
             Nenhum curso encontrado.
           </div>
         ) : (
-          filteredCursos.map((curso) => (
+          pagination.currentItems.map((curso) => (
             <div
               key={curso.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -231,7 +234,7 @@ export default function CursosPage() {
                   </td>
                 </tr>
               ) : (
-                filteredCursos.map((curso) => (
+                pagination.currentItems.map((curso) => (
 
                   <tr key={curso.id} className="hover:bg-blue-50/30 transition-colors group">
                     <td className="px-6 py-4">
@@ -273,6 +276,15 @@ export default function CursosPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal

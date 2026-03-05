@@ -9,6 +9,8 @@ import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
@@ -103,6 +105,7 @@ export default function CidadesPage() {
       (cidade.uf?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
+  const pagination = usePagination(filteredCidades);
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
@@ -155,7 +158,7 @@ export default function CidadesPage() {
             Nenhuma cidade encontrada.
           </div>
         ) : (
-          filteredCidades.map((cidade) => (
+          pagination.currentItems.map((cidade) => (
             <div
               key={cidade.id}
               className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
@@ -216,7 +219,7 @@ export default function CidadesPage() {
                   </td>
                 </tr>
               ) : (
-                filteredCidades.map((cidade) => (
+                pagination.currentItems.map((cidade) => (
                   <tr key={cidade.id} className="hover:bg-blue-50/30 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -252,6 +255,15 @@ export default function CidadesPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal

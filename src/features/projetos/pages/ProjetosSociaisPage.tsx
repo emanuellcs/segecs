@@ -9,6 +9,8 @@ import { FormModal } from '@/components/ui/FormModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
@@ -124,6 +126,8 @@ export default function ProjetosSociaisPage() {
     );
   });
 
+  const pagination = usePagination(filteredProjetos);
+
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
@@ -171,12 +175,12 @@ export default function ProjetosSociaisPage() {
           listLayout === 'table' ? 'lg:hidden' : 'lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
-        {filteredProjetos.length === 0 ? (
+        {pagination.currentItems.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum projeto encontrado.
           </div>
         ) : (
-          filteredProjetos.map((projeto_social) => {
+          pagination.currentItems.map((projeto_social) => {
             const aluno = alunos.find((a) => a.id === projeto_social.aluno_id);
 
             return (
@@ -265,14 +269,14 @@ export default function ProjetosSociaisPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredProjetos.length === 0 ? (
+              {pagination.currentItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-bold">
                     Nenhum projeto registrado.
                   </td>
                 </tr>
               ) : (
-                filteredProjetos.map((projeto_social) => {
+                pagination.currentItems.map((projeto_social) => {
                   const aluno = alunos.find((a) => a.id === projeto_social.aluno_id);
 
                   return (
@@ -327,6 +331,15 @@ export default function ProjetosSociaisPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal

@@ -21,6 +21,8 @@ import { ListLayoutToggle } from '@/components/ui/ListLayoutToggle';
 import { useListLayout } from '@/hooks/useListLayout';
 import { toast } from 'sonner';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 const frequenciaSchema = z.object({
   estagio_id: z.string().uuid('Selecione um estágio válido'),
@@ -142,6 +144,8 @@ export default function FrequenciaPage() {
 
   const totalHoras = filteredFrequencias.reduce((acc, f) => acc + f.horas_realizadas, 0);
 
+  const pagination = usePagination(filteredFrequencias);
+
   const { listLayout } = useListLayout();
 
   if (isLoading) {
@@ -247,7 +251,7 @@ export default function FrequenciaPage() {
             Nenhum registro encontrado.
           </div>
         ) : (
-          filteredFrequencias.map((frequencia) => {
+          pagination.currentItems.map((frequencia) => {
             const estagio = estagios.find((e) => e.id === frequencia.estagio_id);
             const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
@@ -362,7 +366,7 @@ export default function FrequenciaPage() {
                   </td>
                 </tr>
               ) : (
-                filteredFrequencias.map((frequencia) => {
+                pagination.currentItems.map((frequencia) => {
                   const estagio = estagios.find((e) => e.id === frequencia.estagio_id);
                   const aluno = alunos.find((a) => a.id === estagio?.aluno_id);
 
@@ -439,6 +443,15 @@ export default function FrequenciaPage() {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.goToPage}
+        itemsPerPage={pagination.itemsPerPage}
+        onItemsPerPageChange={pagination.setItemsPerPage}
+        totalItems={pagination.totalItems}
+      />
 
       {/* Form Modal */}
       <FormModal
