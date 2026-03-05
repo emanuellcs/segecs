@@ -85,13 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const signOut = async () => {
+    console.log('AuthContext: Executando signOut do Supabase...');
     try {
       await supabase.auth.signOut();
+      console.log('AuthContext: Supabase signOut concluído.');
       // Limpa explicitamente o sessionStorage para garantir
       window.sessionStorage.clear();
       setSession(null);
       setProfile(null);
       queryClient.clear();
+      console.log('AuthContext: Estado e QueryClient limpos.');
     } catch (error) {
       console.error('Error signing out:', error);
     }

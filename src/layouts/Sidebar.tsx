@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -16,11 +17,13 @@ import {
   Award,
   Heart,
   LogOut,
+  Info,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AboutModal } from '@/components/ui/AboutModal';
 
 const menuItems = [
   { group: 'Principal', items: [{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }] },
@@ -69,11 +72,18 @@ interface SidebarProps {
 export default function Sidebar({ onClose, className, isCollapsed = false }: SidebarProps) {
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
-    if (onClose) onClose();
+    console.log('Iniciando logout...');
+    try {
+      await signOut();
+      console.log('Logout realizado com sucesso, redirecionando...');
+      navigate('/login');
+      if (onClose) onClose();
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
   };
 
   return (
@@ -167,6 +177,18 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
         )}
         
         <button
+          onClick={() => setIsAboutOpen(true)}
+          title={isCollapsed ? "Sobre o Sistema" : undefined}
+          className={cn(
+            "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-blue-300 hover:bg-blue-400/10 rounded-xl transition-all mb-1",
+            isCollapsed && "px-0"
+          )}
+        >
+          <Info size={18} />
+          {!isCollapsed && <span className="uppercase tracking-widest text-xs font-bold">Sobre</span>}
+        </button>
+        
+        <button
           onClick={handleLogout}
           title={isCollapsed ? "Sair do Sistema" : undefined}
           className={cn(
@@ -177,6 +199,8 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
           <LogOut size={18} />
           {!isCollapsed && <span className="uppercase tracking-widest text-xs font-bold">Sair</span>}
         </button>
+
+        <AboutModal isOpen={isAboutOpen} onOpenChange={setIsAboutOpen} />
       </div>
     </aside>
   );

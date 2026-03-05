@@ -123,10 +123,31 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-12 pt-8 border-t border-gray-100 text-center">
+        <div className="mt-12 pt-8 border-t border-gray-100 text-center space-y-4">
           <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
             &copy; {new Date().getFullYear()} SEGECS
           </p>
+          <div className="flex flex-col gap-1">
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Desenvolvido por:</p>
+            <div className="flex justify-center gap-4">
+              <a 
+                href="https://github.com/prof-raimundo" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[10px] font-black text-blue-900 hover:text-blue-600 transition-colors uppercase tracking-tighter"
+              >
+                Prof. Raimundo Nonato
+              </a>
+              <a 
+                href="https://github.com/emanuellcs" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[10px] font-black text-blue-900 hover:text-blue-600 transition-colors uppercase tracking-tighter"
+              >
+                Emanuel Lázaro
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
