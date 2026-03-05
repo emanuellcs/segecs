@@ -66,7 +66,7 @@ export default function LoginPage() {
 
         <h1 className="text-4xl font-black text-center text-blue-900 tracking-tighter mb-2">SEGECS</h1>
         <p className="text-center text-gray-400 mb-10 font-black uppercase tracking-[0.2em] text-[10px]">
-          Gestão de Estágios • EEEP
+          Sistema Escolar de Gestão do Estágio Curricular Supervisionado
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -125,7 +125,7 @@ export default function LoginPage() {
 
         <div className="mt-12 pt-8 border-t border-gray-100 text-center">
           <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
-            &copy; {new Date().getFullYear()} SEGECS • Governo do Estado do Ceará
+            &copy; {new Date().getFullYear()} SEGECS
           </p>
         </div>
       </div>

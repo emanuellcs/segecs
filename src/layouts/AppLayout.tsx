@@ -119,7 +119,7 @@ export default function AppLayout() {
                 SEGECS
               </h1>
               <p className="text-[10px] text-blue-500 font-semibold uppercase tracking-wider mt-0.5">
-                EEEP - Ceará
+                Sistema de Gestão do Estágio
               </p>
             </Link>
           </div>

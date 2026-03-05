@@ -86,14 +86,8 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
     >
       {/* Header - Apenas para Mobile */}
       {!isCollapsed && onClose && (
-        <div className="p-6 flex items-center justify-between lg:hidden">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">SEGECS</h1>
-            <p className="text-[10px] text-blue-300 font-semibold uppercase tracking-wider mt-1">
-              EEEP - Ceará
-            </p>
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-blue-800 rounded-lg">
+        <div className="p-4 flex items-center justify-end lg:hidden">
+          <button onClick={onClose} className="p-2 hover:bg-blue-800 rounded-lg text-blue-200 transition-colors">
             <X size={24} />
           </button>
         </div>
