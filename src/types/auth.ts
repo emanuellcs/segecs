@@ -1,3 +1,5 @@
+import { Session } from '@supabase/supabase-js';
+
 export type UserRole = 'admin' | 'coordenador' | 'orientador' | 'aluno' | 'supervisor';
 
 export interface Profile {
@@ -11,6 +13,6 @@ export interface Profile {
 
 export interface AuthState {
   profile: Profile | null;
-  session: any | null;
+  session: Session | null;
   isLoading: boolean;
 }

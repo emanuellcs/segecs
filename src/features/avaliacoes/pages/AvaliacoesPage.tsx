@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Award, Plus, Edit2, Trash2, TrendingUp } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -7,26 +7,17 @@ import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { Avaliacao, Estagio, Aluno } from '@/types/database';
 
 const avaliacaoSchema = z.object({
   estagio_id: z.string().uuid('Selecione um estágio válido'),
   tipo: z.number().min(1).max(3), // 1ª, 2ª ou 3ª avaliação
   nota: z.number().min(0).max(10),
-  comentarios: z.string().optional(),
+  comentarios: z.string().optional().or(z.literal('')),
   data_avaliacao: z.string(),
 });
 
 type AvaliacaoFormValues = z.infer<typeof avaliacaoSchema>;
-
-interface Avaliacao {
-  id: string;
-  estagio_id: string;
-  tipo: number;
-  nota: number;
-  comentarios: string | null;
-  data_avaliacao: string;
-  created_at: string;
-}
 
 export default function AvaliacoesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -35,19 +26,19 @@ export default function AvaliacoesPage() {
 
   const { items: avaliacoes, isLoading, create, update, remove } = useSupabaseCrud<Avaliacao>('avaliacoes', ['avaliacoes', selectedEstagioId]);
   
-  const { data: estagios = [] } = useQuery({
+  const { data: estagios = [] } = useQuery<Estagio[]>({
     queryKey: ['estagios-simples'],
     queryFn: async () => {
       const { data } = await supabase.from('estagios').select('id, aluno_id, status');
-      return data || [];
+      return (data || []) as Estagio[];
     }
   });
 
-  const { data: alunos = [] } = useQuery({
+  const { data: alunos = [] } = useQuery<Aluno[]>({
     queryKey: ['alunos-simples'],
     queryFn: async () => {
       const { data } = await supabase.from('alunos').select('id, nome');
-      return data || [];
+      return (data || []) as Aluno[];
     }
   });
 
@@ -113,9 +104,9 @@ export default function AvaliacoesPage() {
             onChange={(e) => setSelectedEstagioId(e.target.value)}
           >
             <option value="">Todos os estágios</option>
-            {estagios.map((est: any) => (
+            {estagios.map((est) => (
               <option key={est.id} value={est.id}>
-                {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
+                {alunos.find((a) => a.id === est.aluno_id)?.nome}
               </option>
             ))}
           </select>
@@ -144,9 +135,9 @@ export default function AvaliacoesPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Estágio / Aluno</label>
               <select {...register('estagio_id')} className={cn("w-full p-2 border rounded-lg", errors.estagio_id ? "border-red-500" : "border-gray-300")}>
                 <option value="">Selecione o estágio</option>
-                {estagios.map((est: any) => (
+                {estagios.map((est) => (
                   <option key={est.id} value={est.id}>
-                    {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
+                    {alunos.find((a) => a.id === est.aluno_id)?.nome}
                   </option>
                 ))}
               </select>
@@ -204,7 +195,7 @@ export default function AvaliacoesPage() {
                 .map((av) => (
                 <tr key={av.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 text-gray-700 font-medium">
-                    {alunos.find((a: any) => a.id === estagios.find((e: any) => e.id === av.estagio_id)?.aluno_id)?.nome}
+                    {alunos.find((a) => a.id === estagios.find((e) => e.id === av.estagio_id)?.aluno_id)?.nome}
                   </td>
                   <td className="px-6 py-4 text-gray-600">
                     <span className="px-2 py-1 bg-gray-100 rounded text-xs font-bold">{av.tipo}ª NOTA</span>

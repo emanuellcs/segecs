@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,7 +64,9 @@ export default function LoginPage() {
               placeholder="seu@email.com"
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
             />
-            {errors.email && <span className="text-red-500 text-xs mt-1">{errors.email.message}</span>}
+            {errors.email && (
+              <span className="text-red-500 text-xs mt-1">{errors.email.message}</span>
+            )}
           </div>
 
           <div>
@@ -75,7 +77,9 @@ export default function LoginPage() {
               placeholder="••••••••"
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
             />
-            {errors.password && <span className="text-red-500 text-xs mt-1">{errors.password.message}</span>}
+            {errors.password && (
+              <span className="text-red-500 text-xs mt-1">{errors.password.message}</span>
+            )}
           </div>
 
           <button

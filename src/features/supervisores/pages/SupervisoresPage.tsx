@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { UserCog, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -19,19 +19,31 @@ interface Supervisor {
   id: string;
   nome: string;
   empresa_id: string;
-  cargo: string | null;
-  formacao: string | null;
+  cargo?: string | null;
+  formacao?: string | null;
   created_at: string;
 }
 
 export default function SupervisoresPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  
-  const { items: supervisores, isLoading, create, update, remove } = useSupabaseCrud<Supervisor>('supervisores', ['supervisores']);
+
+  const {
+    items: supervisores,
+    isLoading,
+    create,
+    update,
+    remove,
+  } = useSupabaseCrud<Supervisor>('supervisores', ['supervisores']);
   const { items: empresas } = useSupabaseCrud<any>('empresas', ['empresas']);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<SupervisorFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<SupervisorFormValues>({
     resolver: zodResolver(supervisorSchema),
   });
 
@@ -66,7 +78,9 @@ export default function SupervisoresPage() {
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <UserCog className="text-blue-600" /> Supervisores de Campo
           </h1>
-          <p className="text-gray-500">Gerencie os profissionais que acompanham os alunos nas empresas.</p>
+          <p className="text-gray-500">
+            Gerencie os profissionais que acompanham os alunos nas empresas.
+          </p>
         </div>
         {!showForm && (
           <button
@@ -80,33 +94,72 @@ export default function SupervisoresPage() {
 
       {showForm && (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-top-4">
-          <h2 className="text-lg font-semibold mb-4">{editingId ? 'Editar Supervisor' : 'Novo Supervisor'}</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {editingId ? 'Editar Supervisor' : 'Novo Supervisor'}
+          </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-              <input {...register('nome')} className={cn("w-full p-2 border rounded-lg", errors.nome ? "border-red-500" : "border-gray-300")} />
+              <input
+                {...register('nome')}
+                className={cn(
+                  'w-full p-2 border rounded-lg',
+                  errors.nome ? 'border-red-500' : 'border-gray-300'
+                )}
+              />
               {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome.message}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
-              <select {...register('empresa_id')} className={cn("w-full p-2 border rounded-lg", errors.empresa_id ? "border-red-500" : "border-gray-300")}>
+              <select
+                {...register('empresa_id')}
+                className={cn(
+                  'w-full p-2 border rounded-lg',
+                  errors.empresa_id ? 'border-red-500' : 'border-gray-300'
+                )}
+              >
                 <option value="">Selecione a empresa</option>
-                {empresas.map(e => <option key={e.id} value={e.id}>{e.razao_social}</option>)}
+                {empresas.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.razao_social}
+                  </option>
+                ))}
               </select>
-              {errors.empresa_id && <p className="text-red-500 text-xs mt-1">{errors.empresa_id.message}</p>}
+              {errors.empresa_id && (
+                <p className="text-red-500 text-xs mt-1">{errors.empresa_id.message}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cargo/Função</label>
-              <input {...register('cargo')} className="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ex: Analista de Sistemas" />
+              <input
+                {...register('cargo')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="Ex: Analista de Sistemas"
+              />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Formação Acadêmica</label>
-              <input {...register('formacao')} className="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ex: Bacharel em Ciência da Computação" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Formação Acadêmica
+              </label>
+              <input
+                {...register('formacao')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="Ex: Bacharel em Ciência da Computação"
+              />
             </div>
 
             <div className="md:col-span-2 flex justify-end gap-2 mt-4">
-              <button type="button" onClick={handleCancel} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-              <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+              >
                 {editingId ? 'Atualizar' : 'Salvar'}
               </button>
             </div>
@@ -126,20 +179,38 @@ export default function SupervisoresPage() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
-              <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Carregando supervisores...</td></tr>
+              <tr>
+                <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                  Carregando supervisores...
+                </td>
+              </tr>
             ) : supervisores.length === 0 ? (
-              <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Nenhum supervisor cadastrado.</td></tr>
+              <tr>
+                <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                  Nenhum supervisor cadastrado.
+                </td>
+              </tr>
             ) : (
               supervisores.map((sup) => (
                 <tr key={sup.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-gray-700 font-medium">{sup.nome}</td>
                   <td className="px-6 py-4 text-gray-600">
-                    {empresas.find(e => e.id === sup.empresa_id)?.razao_social || 'N/A'}
+                    {empresas.find((e) => e.id === sup.empresa_id)?.razao_social || 'N/A'}
                   </td>
                   <td className="px-6 py-4 text-gray-600 text-sm">{sup.cargo || '-'}</td>
                   <td className="px-6 py-4 text-right flex justify-end gap-2">
-                    <button onClick={() => handleEdit(sup)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={16} /></button>
-                    <button onClick={() => confirm('Excluir?') && remove(sup.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                    <button
+                      onClick={() => handleEdit(sup)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => confirm('Excluir?') && remove(sup.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
               ))

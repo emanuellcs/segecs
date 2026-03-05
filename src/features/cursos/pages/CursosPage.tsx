@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BookOpen, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -25,12 +25,24 @@ interface Curso {
 export default function CursosPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  
-  const { items: cursos, isLoading, create, update, remove } = useSupabaseCrud<Curso>('cursos', ['cursos']);
+
+  const {
+    items: cursos,
+    isLoading,
+    create,
+    update,
+    remove,
+  } = useSupabaseCrud<Curso>('cursos', ['cursos']);
   const { items: escolas } = useSupabaseCrud<any>('escolas', ['escolas']);
   const { items: niveis } = useSupabaseCrud<any>('niveis', ['niveis']);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CursoFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<CursoFormValues>({
     resolver: zodResolver(cursoSchema),
   });
 
@@ -78,15 +90,17 @@ export default function CursosPage() {
 
       {showForm && (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-top-4">
-          <h2 className="text-lg font-semibold mb-4">{editingId ? 'Editar Curso' : 'Novo Curso'}</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {editingId ? 'Editar Curso' : 'Novo Curso'}
+          </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Curso</label>
               <input
                 {...register('nome')}
                 className={cn(
-                  "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all",
-                  errors.nome ? "border-red-500" : "border-gray-300"
+                  'w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all',
+                  errors.nome ? 'border-red-500' : 'border-gray-300'
                 )}
                 placeholder="Ex: Técnico em Informática"
               />
@@ -97,32 +111,40 @@ export default function CursosPage() {
               <select
                 {...register('escola_id')}
                 className={cn(
-                  "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all",
-                  errors.escola_id ? "border-red-500" : "border-gray-300"
+                  'w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all',
+                  errors.escola_id ? 'border-red-500' : 'border-gray-300'
                 )}
               >
                 <option value="">Selecione a escola</option>
-                {escolas.map(e => (
-                  <option key={e.id} value={e.id}>{e.nome}</option>
+                {escolas.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.nome}
+                  </option>
                 ))}
               </select>
-              {errors.escola_id && <p className="text-red-500 text-xs mt-1">{errors.escola_id.message}</p>}
+              {errors.escola_id && (
+                <p className="text-red-500 text-xs mt-1">{errors.escola_id.message}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nível</label>
               <select
                 {...register('nivel_id')}
                 className={cn(
-                  "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all",
-                  errors.nivel_id ? "border-red-500" : "border-gray-300"
+                  'w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all',
+                  errors.nivel_id ? 'border-red-500' : 'border-gray-300'
                 )}
               >
                 <option value="">Selecione o nível</option>
-                {niveis.map(n => (
-                  <option key={n.id} value={n.id}>{n.descricao}</option>
+                {niveis.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    {n.descricao}
+                  </option>
                 ))}
               </select>
-              {errors.nivel_id && <p className="text-red-500 text-xs mt-1">{errors.nivel_id.message}</p>}
+              {errors.nivel_id && (
+                <p className="text-red-500 text-xs mt-1">{errors.nivel_id.message}</p>
+              )}
             </div>
             <div className="md:col-span-2 flex justify-end gap-2 mt-2">
               <button
@@ -156,21 +178,25 @@ export default function CursosPage() {
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-400">Carregando cursos...</td>
+                <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                  Carregando cursos...
+                </td>
               </tr>
             ) : cursos.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-400">Nenhum curso cadastrado.</td>
+                <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                  Nenhum curso cadastrado.
+                </td>
               </tr>
             ) : (
               cursos.map((curso) => (
                 <tr key={curso.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 text-gray-700 font-medium">{curso.nome}</td>
                   <td className="px-6 py-4 text-gray-600">
-                    {escolas.find(e => e.id === curso.escola_id)?.nome || 'N/A'}
+                    {escolas.find((e) => e.id === curso.escola_id)?.nome || 'N/A'}
                   </td>
                   <td className="px-6 py-4 text-gray-600">
-                    {niveis.find(n => n.id === curso.nivel_id)?.descricao || 'N/A'}
+                    {niveis.find((n) => n.id === curso.nivel_id)?.descricao || 'N/A'}
                   </td>
                   <td className="px-6 py-4 text-right flex justify-end gap-2">
                     <button

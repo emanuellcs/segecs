@@ -1,5 +1,5 @@
-import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
@@ -48,17 +48,19 @@ const styles = StyleSheet.create({
     width: 150,
     textAlign: 'center',
     paddingTop: 5,
-  }
+  },
 });
+
+import { Aluno, Empresa, Escola, Estagio, Supervisor, Orientador } from '@/types/database';
 
 interface TCEProps {
   data: {
-    aluno: any;
-    empresa: any;
-    escola: any;
-    estagio: any;
-    supervisor: any;
-    orientador: any;
+    aluno: Aluno;
+    empresa: Empresa;
+    escola: Escola;
+    estagio: Estagio;
+    supervisor: Supervisor;
+    orientador: Orientador;
   };
 }
 
@@ -77,18 +79,25 @@ export const TCETemplate = ({ data }: TCEProps) => (
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Concedente:</Text>
-          <Text style={styles.content}>{data.empresa?.razao_social} - CNPJ: {data.empresa?.cnpj}</Text>
+          <Text style={styles.content}>
+            {data.empresa?.razao_social} - CNPJ: {data.empresa?.cnpj}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Estagiário:</Text>
-          <Text style={styles.content}>{data.aluno?.nome} - CPF: {data.aluno?.cpf}</Text>
+          <Text style={styles.content}>
+            {data.aluno?.nome} - CPF: {data.aluno?.cpf}
+          </Text>
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.title}>2. DO ESTÁGIO</Text>
         <Text>
-          O estágio terá duração de {data.estagio?.carga_horaria_total} horas, com início em {new Date(data.estagio?.data_inicio).toLocaleDateString('pt-BR')} e término em {new Date(data.estagio?.data_fim).toLocaleDateString('pt-BR')}, respeitando a jornada de {data.estagio?.carga_horaria_diaria} horas diárias.
+          O estágio terá duração de {data.estagio?.carga_horaria_total} horas, com início em{' '}
+          {new Date(data.estagio?.data_inicio).toLocaleDateString('pt-BR')} e término em{' '}
+          {new Date(data.estagio?.data_fim).toLocaleDateString('pt-BR')}, respeitando a jornada de{' '}
+          {data.estagio?.carga_horaria_diaria} horas diárias.
         </Text>
       </View>
 
@@ -108,7 +117,9 @@ export const TCETemplate = ({ data }: TCEProps) => (
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Supervisor:</Text>
-          <Text style={styles.content}>{data.supervisor?.nome} ({data.supervisor?.cargo})</Text>
+          <Text style={styles.content}>
+            {data.supervisor?.nome} ({data.supervisor?.cargo})
+          </Text>
         </View>
       </View>
 

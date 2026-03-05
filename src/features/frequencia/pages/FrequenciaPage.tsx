@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Clock, Plus, Edit2, Trash2, CheckCircle2 } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -7,28 +7,18 @@ import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { Frequencia, Estagio, Aluno } from '@/types/database';
 
 const frequenciaSchema = z.object({
   estagio_id: z.string().uuid('Selecione um estágio válido'),
   data: z.string(),
   horas_realizadas: z.number().min(1, 'Mínimo 1 hora').max(10, 'Máximo 10 horas'),
   atividades: z.string().min(10, 'Descreva as atividades brevemente'),
-  validado_supervisor: z.boolean().default(false),
-  validado_orientador: z.boolean().default(false),
+  validado_supervisor: z.boolean(),
+  validado_orientador: z.boolean(),
 });
 
 type FrequenciaFormValues = z.infer<typeof frequenciaSchema>;
-
-interface Frequencia {
-  id: string;
-  estagio_id: string;
-  data: string;
-  horas_realizadas: number;
-  atividades: string;
-  validado_supervisor: boolean;
-  validado_orientador: boolean;
-  created_at: string;
-}
 
 export default function FrequenciaPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -37,20 +27,19 @@ export default function FrequenciaPage() {
 
   const { items: frequencias, isLoading, create, update, remove } = useSupabaseCrud<Frequencia>('frequencias', ['frequencias', selectedEstagioId]);
   
-  // Buscar estágios ativos para o seletor
-  const { data: estagios = [] } = useQuery({
+  const { data: estagios = [] } = useQuery<Estagio[]>({
     queryKey: ['estagios-ativos'],
     queryFn: async () => {
       const { data } = await supabase.from('estagios').select('id, aluno_id, status').eq('status', 'ativo');
-      return data || [];
+      return (data || []) as Estagio[];
     }
   });
 
-  const { data: alunos = [] } = useQuery({
+  const { data: alunos = [] } = useQuery<Aluno[]>({
     queryKey: ['alunos-simples'],
     queryFn: async () => {
       const { data } = await supabase.from('alunos').select('id, nome');
-      return data || [];
+      return (data || []) as Aluno[];
     }
   });
 
@@ -117,9 +106,9 @@ export default function FrequenciaPage() {
             onChange={(e) => setSelectedEstagioId(e.target.value)}
           >
             <option value="">Todos os estágios</option>
-            {estagios.map((est: any) => (
+            {estagios.map((est) => (
               <option key={est.id} value={est.id}>
-                {alunos.find((a: any) => a.id === est.aluno_id)?.nome || 'Aluno Desconhecido'}
+                {alunos.find((a) => a.id === est.aluno_id)?.nome || 'Aluno Desconhecido'}
               </option>
             ))}
           </select>
@@ -148,9 +137,9 @@ export default function FrequenciaPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Estágio / Aluno</label>
               <select {...register('estagio_id')} className={cn("w-full p-2 border rounded-lg", errors.estagio_id ? "border-red-500" : "border-gray-300")}>
                 <option value="">Selecione o estágio</option>
-                {estagios.map((est: any) => (
+                {estagios.map((est) => (
                   <option key={est.id} value={est.id}>
-                    {alunos.find((a: any) => a.id === est.aluno_id)?.nome || 'Aluno Desconhecido'}
+                    {alunos.find((a) => a.id === est.aluno_id)?.nome || 'Aluno Desconhecido'}
                   </option>
                 ))}
               </select>

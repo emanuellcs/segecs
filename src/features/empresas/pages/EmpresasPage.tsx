@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Building2, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -24,24 +24,36 @@ interface Empresa {
   id: string;
   razao_social: string;
   cnpj: string;
-  endereco: string | null;
+  endereco?: string | null;
   cidade_id: string;
-  contato_nome: string | null;
-  contato_email: string | null;
-  contato_telefone: string | null;
-  convenio_numero: string | null;
-  convenio_validade: string | null;
+  contato_nome?: string | null;
+  contato_email?: string | null;
+  contato_telefone?: string | null;
+  convenio_numero?: string | null;
+  convenio_validade?: string | null;
   created_at: string;
 }
 
 export default function EmpresasPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  
-  const { items: empresas, isLoading, create, update, remove } = useSupabaseCrud<Empresa>('empresas', ['empresas']);
+
+  const {
+    items: empresas,
+    isLoading,
+    create,
+    update,
+    remove,
+  } = useSupabaseCrud<Empresa>('empresas', ['empresas']);
   const { items: cidades } = useSupabaseCrud<any>('cidades', ['cidades']);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<EmpresaFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<EmpresaFormValues>({
     resolver: zodResolver(empresaSchema),
   });
 
@@ -95,56 +107,115 @@ export default function EmpresasPage() {
 
       {showForm && (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-top-4">
-          <h2 className="text-lg font-semibold mb-4">{editingId ? 'Editar Empresa' : 'Nova Empresa'}</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {editingId ? 'Editar Empresa' : 'Nova Empresa'}
+          </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Razão Social</label>
-              <input {...register('razao_social')} className={cn("w-full p-2 border rounded-lg", errors.razao_social ? "border-red-500" : "border-gray-300")} />
+              <input
+                {...register('razao_social')}
+                className={cn(
+                  'w-full p-2 border rounded-lg',
+                  errors.razao_social ? 'border-red-500' : 'border-gray-300'
+                )}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
-              <input {...register('cnpj')} className={cn("w-full p-2 border rounded-lg", errors.cnpj ? "border-red-500" : "border-gray-300")} placeholder="00.000.000/0000-00" />
+              <input
+                {...register('cnpj')}
+                className={cn(
+                  'w-full p-2 border rounded-lg',
+                  errors.cnpj ? 'border-red-500' : 'border-gray-300'
+                )}
+                placeholder="00.000.000/0000-00"
+              />
             </div>
-            
+
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
-              <input {...register('endereco')} className="w-full p-2 border border-gray-300 rounded-lg" />
+              <input
+                {...register('endereco')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
-              <select {...register('cidade_id')} className={cn("w-full p-2 border rounded-lg", errors.cidade_id ? "border-red-500" : "border-gray-300")}>
+              <select
+                {...register('cidade_id')}
+                className={cn(
+                  'w-full p-2 border rounded-lg',
+                  errors.cidade_id ? 'border-red-500' : 'border-gray-300'
+                )}
+              >
                 <option value="">Selecione uma cidade</option>
-                {cidades.map(c => <option key={c.id} value={c.id}>{c.nome} - {c.uf}</option>)}
+                {cidades.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome} - {c.uf}
+                  </option>
+                ))}
               </select>
             </div>
 
-            <div className="pt-4 border-t border-gray-100 md:col-span-3 font-semibold text-gray-800">Dados de Contato</div>
+            <div className="pt-4 border-t border-gray-100 md:col-span-3 font-semibold text-gray-800">
+              Dados de Contato
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nome Contato</label>
-              <input {...register('contato_nome')} className="w-full p-2 border border-gray-300 rounded-lg" />
+              <input
+                {...register('contato_nome')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email Contato</label>
-              <input {...register('contato_email')} className="w-full p-2 border border-gray-300 rounded-lg" />
+              <input
+                {...register('contato_email')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Telefone Contato</label>
-              <input {...register('contato_telefone')} className="w-full p-2 border border-gray-300 rounded-lg" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Telefone Contato
+              </label>
+              <input
+                {...register('contato_telefone')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
 
-            <div className="pt-4 border-t border-gray-100 md:col-span-3 font-semibold text-gray-800">Dados do Convênio</div>
+            <div className="pt-4 border-t border-gray-100 md:col-span-3 font-semibold text-gray-800">
+              Dados do Convênio
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nº Convênio</label>
-              <input {...register('convenio_numero')} className="w-full p-2 border border-gray-300 rounded-lg" />
+              <input
+                {...register('convenio_numero')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Validade</label>
-              <input type="date" {...register('convenio_validade')} className="w-full p-2 border border-gray-300 rounded-lg" />
+              <input
+                type="date"
+                {...register('convenio_validade')}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
 
             <div className="md:col-span-3 flex justify-end gap-2 mt-4">
-              <button type="button" onClick={handleCancel} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-              <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+              >
                 {editingId ? 'Atualizar' : 'Salvar'}
               </button>
             </div>
@@ -165,24 +236,45 @@ export default function EmpresasPage() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
-              <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400">Carregando empresas...</td></tr>
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
+                  Carregando empresas...
+                </td>
+              </tr>
             ) : empresas.length === 0 ? (
-              <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400">Nenhuma empresa cadastrada.</td></tr>
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
+                  Nenhuma empresa cadastrada.
+                </td>
+              </tr>
             ) : (
               empresas.map((emp) => (
                 <tr key={emp.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-gray-700 font-medium">{emp.razao_social}</td>
                   <td className="px-6 py-4 text-gray-600 text-sm">{emp.cnpj}</td>
                   <td className="px-6 py-4 text-gray-600 text-sm">
-                    {emp.contato_nome}<br/>
+                    {emp.contato_nome}
+                    <br />
                     <span className="text-xs text-gray-400">{emp.contato_email}</span>
                   </td>
                   <td className="px-6 py-4 text-gray-600">
-                    {emp.convenio_validade ? new Date(emp.convenio_validade).toLocaleDateString('pt-BR') : '-'}
+                    {emp.convenio_validade
+                      ? new Date(emp.convenio_validade).toLocaleDateString('pt-BR')
+                      : '-'}
                   </td>
                   <td className="px-6 py-4 text-right flex justify-end gap-2">
-                    <button onClick={() => handleEdit(emp)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={16} /></button>
-                    <button onClick={() => confirm('Excluir?') && remove(emp.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                    <button
+                      onClick={() => handleEdit(emp)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => confirm('Excluir?') && remove(emp.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
               ))

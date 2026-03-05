@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { Profile } from '@/types/auth';
+import { Profile, UserRole } from '@/types/auth';
 import { useEffect } from 'react';
 
 export function useAuth() {
@@ -18,30 +18,32 @@ export function useAuth() {
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
       if (!session?.user) return null;
-      
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();
-      
+
       if (error) {
         // Fallback para quando o perfil ainda não existe (durante migração ou primeiro login)
         return {
           id: session.user.id,
           email: session.user.email,
           full_name: session.user.user_metadata?.full_name || 'Usuário',
-          role: (session.user.user_metadata?.role as any) || 'aluno',
+          role: (session.user.user_metadata['role'] as UserRole) || 'aluno',
         } as Profile;
       }
-      
+
       return data as Profile;
     },
     enabled: !!session?.user,
   });
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       queryClient.setQueryData(['session'], session);
       if (!session) {
         queryClient.setQueryData(['profile'], null);

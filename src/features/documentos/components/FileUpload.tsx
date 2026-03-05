@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Upload, File, X, Check } from 'lucide-react';
+import { useState } from 'react';
+import { Upload, File, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -18,26 +18,29 @@ export default function FileUpload({ bucket, path, onSuccess, label }: FileUploa
     try {
       setUploading(true);
       if (!e.target.files || e.target.files.length === 0) return;
-      
-      const file = e.target.files[0];
-      setFile(file);
-      
-      const fileExt = file.name.split('.').pop();
+
+      const selectedFile = e.target.files[0];
+      if (!selectedFile) return;
+
+      setFile(selectedFile);
+
+      const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${path}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file);
+        .upload(filePath, selectedFile);
 
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      
+
       onSuccess(data.publicUrl);
       toast.success('Arquivo enviado com sucesso!');
-    } catch (error: any) {
-      toast.error('Erro no upload: ' + error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Ocorreu um erro inesperado';
+      toast.error('Erro no upload: ' + message);
     } finally {
       setUploading(false);
     }

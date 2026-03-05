@@ -1,7 +1,8 @@
-import React from 'react';
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '@/features/auth/pages/LoginPage';
 import PrivateRoute from '@/features/auth/components/PrivateRoute';
+import AppLayout from '@/layouts/AppLayout';
+
 import CidadesPage from '@/features/cidades/pages/CidadesPage';
 import NiveisPage from '@/features/niveis/pages/NiveisPage';
 import EscolasPage from '@/features/escolas/pages/EscolasPage';
@@ -18,63 +19,34 @@ import AvaliacoesPage from '@/features/avaliacoes/pages/AvaliacoesPage';
 import ProjetosSociaisPage from '@/features/projetos/pages/ProjetosSociaisPage';
 import DashboardPage from '@/features/dashboard/pages/DashboardPage';
 
-// Placeholder para o Layout que será migrado
-const LayoutPlaceholder = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex min-h-screen bg-gray-50">
-    <aside className="w-64 bg-blue-900 text-white p-6 sticky top-0 h-screen overflow-y-auto">
-      <h2 className="text-2xl font-bold mb-8">SEGECS</h2>
-      <nav className="space-y-1">
-        <Link to="/dashboard" className="block p-2 hover:bg-blue-800 rounded transition-colors font-medium">Dashboard</Link>
-        
-        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Operacional</div>
-        <Link to="/vagas" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Vagas</Link>
-        <Link to="/estagios" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Alocação (TCE)</Link>
-        <Link to="/frequencia" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Frequência</Link>
-
-        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Avaliação & Conclusão</div>
-        <Link to="/avaliacoes" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Avaliações</Link>
-        <Link to="/projetos" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Projetos Sociais</Link>
-
-        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Cadastros Base</div>
-        <Link to="/cidades" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Cidades</Link>
-        <Link to="/niveis" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Níveis</Link>
-        <Link to="/escolas" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Escolas</Link>
-        <Link to="/cursos" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Cursos</Link>
-        
-        <div className="pt-4 pb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest">Pessoas & Parceiros</div>
-        <Link to="/responsaveis" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Responsáveis</Link>
-        <Link to="/alunos" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Alunos</Link>
-        <Link to="/orientadores" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Orientadores</Link>
-        <Link to="/empresas" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Empresas</Link>
-        <Link to="/supervisores" className="block p-2 hover:bg-blue-800 rounded transition-colors text-sm">Supervisores</Link>
-      </nav>
-    </aside>
-    <main className="flex-1 overflow-auto">
-      {children}
-    </main>
-  </div>
-);
-
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      
-      <Route path="/dashboard" element={<PrivateRoute><LayoutPlaceholder><DashboardPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/cidades" element={<PrivateRoute><LayoutPlaceholder><CidadesPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/niveis" element={<PrivateRoute><LayoutPlaceholder><NiveisPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/escolas" element={<PrivateRoute><LayoutPlaceholder><EscolasPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/cursos" element={<PrivateRoute><LayoutPlaceholder><CursosPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/responsaveis" element={<PrivateRoute><LayoutPlaceholder><ResponsaveisPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/alunos" element={<PrivateRoute><LayoutPlaceholder><AlunosPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/empresas" element={<PrivateRoute><LayoutPlaceholder><EmpresasPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/orientadores" element={<PrivateRoute><LayoutPlaceholder><OrientadoresPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/supervisores" element={<PrivateRoute><LayoutPlaceholder><SupervisoresPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/vagas" element={<PrivateRoute><LayoutPlaceholder><VagasPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/estagios" element={<PrivateRoute><LayoutPlaceholder><EstagiosPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/frequencia" element={<PrivateRoute><LayoutPlaceholder><FrequenciaPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/avaliacoes" element={<PrivateRoute><LayoutPlaceholder><AvaliacoesPage /></LayoutPlaceholder></PrivateRoute>} />
-      <Route path="/projetos" element={<PrivateRoute><LayoutPlaceholder><ProjetosSociaisPage /></LayoutPlaceholder></PrivateRoute>} />
+
+      <Route
+        element={
+          <PrivateRoute>
+            <AppLayout />
+          </PrivateRoute>
+        }
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/cidades" element={<CidadesPage />} />
+        <Route path="/niveis" element={<NiveisPage />} />
+        <Route path="/escolas" element={<EscolasPage />} />
+        <Route path="/cursos" element={<CursosPage />} />
+        <Route path="/responsaveis" element={<ResponsaveisPage />} />
+        <Route path="/alunos" element={<AlunosPage />} />
+        <Route path="/empresas" element={<EmpresasPage />} />
+        <Route path="/orientadores" element={<OrientadoresPage />} />
+        <Route path="/supervisores" element={<SupervisoresPage />} />
+        <Route path="/vagas" element={<VagasPage />} />
+        <Route path="/estagios" element={<EstagiosPage />} />
+        <Route path="/frequencia" element={<FrequenciaPage />} />
+        <Route path="/avaliacoes" element={<AvaliacoesPage />} />
+        <Route path="/projetos" element={<ProjetosSociaisPage />} />
+      </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

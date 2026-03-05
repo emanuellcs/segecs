@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Layers, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -21,9 +21,21 @@ interface Nivel {
 export default function NiveisPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const { items: niveis, isLoading, create, update, remove } = useSupabaseCrud<Nivel>('niveis', ['niveis']);
+  const {
+    items: niveis,
+    isLoading,
+    create,
+    update,
+    remove,
+  } = useSupabaseCrud<Nivel>('niveis', ['niveis']);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<NivelFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<NivelFormValues>({
     resolver: zodResolver(nivelSchema),
   });
 
@@ -69,19 +81,23 @@ export default function NiveisPage() {
 
       {showForm && (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-top-4">
-          <h2 className="text-lg font-semibold mb-4">{editingId ? 'Editar Nível' : 'Novo Nível'}</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {editingId ? 'Editar Nível' : 'Novo Nível'}
+          </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
               <input
                 {...register('descricao')}
                 className={cn(
-                  "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all",
-                  errors.descricao ? "border-red-500" : "border-gray-300"
+                  'w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all',
+                  errors.descricao ? 'border-red-500' : 'border-gray-300'
                 )}
                 placeholder="Ex: Ensino Médio Integrado"
               />
-              {errors.descricao && <p className="text-red-500 text-xs mt-1">{errors.descricao.message}</p>}
+              {errors.descricao && (
+                <p className="text-red-500 text-xs mt-1">{errors.descricao.message}</p>
+              )}
             </div>
             <div className="flex items-end gap-2">
               <button
@@ -113,11 +129,15 @@ export default function NiveisPage() {
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
               <tr>
-                <td colSpan={2} className="px-6 py-8 text-center text-gray-400">Carregando níveis...</td>
+                <td colSpan={2} className="px-6 py-8 text-center text-gray-400">
+                  Carregando níveis...
+                </td>
               </tr>
             ) : niveis.length === 0 ? (
               <tr>
-                <td colSpan={2} className="px-6 py-8 text-center text-gray-400">Nenhum nível cadastrado.</td>
+                <td colSpan={2} className="px-6 py-8 text-center text-gray-400">
+                  Nenhum nível cadastrado.
+                </td>
               </tr>
             ) : (
               niveis.map((nivel) => (

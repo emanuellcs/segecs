@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Heart, Plus, Edit2, Trash2, CheckCircle } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -7,28 +7,18 @@ import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { ProjetoSocial, Aluno } from '@/types/database';
 
 const projetoSchema = z.object({
   aluno_id: z.string().uuid('Selecione um aluno válido'),
   titulo: z.string().min(5, 'Título deve ter pelo menos 5 caracteres'),
-  descricao: z.string().optional(),
-  horas_estimadas: z.number().default(30),
-  data_execucao: z.string().optional(),
-  status: z.enum(['planejado', 'executado']).default('planejado'),
+  descricao: z.string().optional().or(z.literal('')),
+  horas_estimadas: z.number().min(1, 'Mínimo 1 hora'),
+  data_execucao: z.string().optional().or(z.literal('')),
+  status: z.enum(['planejado', 'executado']),
 });
 
 type ProjetoFormValues = z.infer<typeof projetoSchema>;
-
-interface ProjetoSocial {
-  id: string;
-  aluno_id: string;
-  titulo: string;
-  descricao: string | null;
-  horas_estimadas: number;
-  data_execucao: string | null;
-  status: string;
-  created_at: string;
-}
 
 export default function ProjetosSociaisPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -36,11 +26,11 @@ export default function ProjetosSociaisPage() {
   
   const { items: projetos, isLoading, create, update, remove } = useSupabaseCrud<ProjetoSocial>('projetos_sociais', ['projetos_sociais']);
   
-  const { data: alunos = [] } = useQuery({
+  const { data: alunos = [] } = useQuery<Aluno[]>({
     queryKey: ['alunos-simples'],
     queryFn: async () => {
       const { data } = await supabase.from('alunos').select('id, nome');
-      return data || [];
+      return (data || []) as Aluno[];
     }
   });
 
@@ -65,7 +55,7 @@ export default function ProjetosSociaisPage() {
     setValue('descricao', proj.descricao || '');
     setValue('horas_estimadas', proj.horas_estimadas);
     setValue('data_execucao', proj.data_execucao || '');
-    setValue('status', proj.status as any);
+    setValue('status', proj.status);
     setShowForm(true);
   };
 
@@ -107,7 +97,7 @@ export default function ProjetosSociaisPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Aluno Responsável</label>
               <select {...register('aluno_id')} className={cn("w-full p-2 border rounded-lg", errors.aluno_id ? "border-red-500" : "border-gray-300")}>
                 <option value="">Selecione o aluno</option>
-                {alunos.map((a: any) => <option key={a.id} value={a.id}>{a.nome}</option>)}
+                {alunos.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
               </select>
             </div>
             <div>
@@ -161,7 +151,7 @@ export default function ProjetosSociaisPage() {
                 <tr key={proj.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="text-gray-700 font-medium">{proj.titulo}</div>
-                    <div className="text-xs text-gray-400">{alunos.find((a: any) => a.id === proj.aluno_id)?.nome}</div>
+                    <div className="text-xs text-gray-400">{alunos.find((a) => a.id === proj.aluno_id)?.nome}</div>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{proj.horas_estimadas}h</td>
                   <td className="px-6 py-4 text-gray-500 text-sm">

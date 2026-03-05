@@ -1,12 +1,12 @@
-import React from 'react';
-import { 
-  Users, 
-  Briefcase, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Clock, 
+
+import {
+  Users,
+  Briefcase,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
   TrendingUp,
-  FileSpreadsheet
+  FileSpreadsheet,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -20,27 +20,51 @@ export default function DashboardPage() {
         supabase.from('alunos').select('id', { count: 'exact' }),
         supabase.from('estagios').select('id, status', { count: 'exact' }),
         supabase.from('frequencias').select('horas_realizadas'),
-        supabase.from('vagas').select('id', { count: 'exact' }).eq('status', 'aberta')
+        supabase.from('vagas').select('id', { count: 'exact' }).eq('status', 'aberta'),
       ]);
 
       const totalHoras = frequencias.data?.reduce((acc, f) => acc + f.horas_realizadas, 0) || 0;
-      const estagiosAtivos = estagios.data?.filter(e => e.status === 'ativo').length || 0;
+      const estagiosAtivos = estagios.data?.filter((e) => e.status === 'ativo').length || 0;
 
       return {
         totalAlunos: alunos.count || 0,
         estagiosAtivos,
         totalHoras,
         vagasAbertas: vagas.count || 0,
-        concluidos: estagios.data?.filter(e => e.status === 'concluido').length || 0
+        concluidos: estagios.data?.filter((e) => e.status === 'concluido').length || 0,
       };
-    }
+    },
   });
 
   const cards = [
-    { label: 'Total de Alunos', value: stats?.totalAlunos, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Estágios Ativos', value: stats?.estagiosAtivos, icon: Briefcase, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'Horas Acumuladas', value: `${stats?.totalHoras}h`, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
-    { label: 'Vagas Abertas', value: stats?.vagasAbertas, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
+    {
+      label: 'Total de Alunos',
+      value: stats?.totalAlunos,
+      icon: Users,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: 'Estágios Ativos',
+      value: stats?.estagiosAtivos,
+      icon: Briefcase,
+      color: 'text-green-600',
+      bg: 'bg-green-50',
+    },
+    {
+      label: 'Horas Acumuladas',
+      value: `${stats?.totalHoras}h`,
+      icon: Clock,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+    },
+    {
+      label: 'Vagas Abertas',
+      value: stats?.vagasAbertas,
+      icon: TrendingUp,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+    },
   ];
 
   if (isLoading) {
@@ -60,12 +84,17 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className={cn("p-3 rounded-xl", card.bg)}>
+          <div
+            key={i}
+            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4"
+          >
+            <div className={cn('p-3 rounded-xl', card.bg)}>
               <card.icon className={card.color} size={24} />
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{card.label}</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                {card.label}
+              </p>
               <h2 className="text-2xl font-black text-gray-800">{card.value}</h2>
             </div>
           </div>
@@ -80,20 +109,30 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-100">
               <div className="flex items-center gap-3">
-                <div className="bg-orange-500 text-white p-2 rounded-lg"><Clock size={16} /></div>
+                <div className="bg-orange-500 text-white p-2 rounded-lg">
+                  <Clock size={16} />
+                </div>
                 <div>
                   <p className="text-sm font-bold text-orange-900">Contratos Vencendo</p>
-                  <p className="text-xs text-orange-700">3 alunos com contrato terminando em menos de 15 dias.</p>
+                  <p className="text-xs text-orange-700">
+                    3 alunos com contrato terminando em menos de 15 dias.
+                  </p>
                 </div>
               </div>
-              <button className="text-xs font-bold text-orange-600 hover:underline">VER ALUNOS</button>
+              <button className="text-xs font-bold text-orange-600 hover:underline">
+                VER ALUNOS
+              </button>
             </div>
             <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
               <div className="flex items-center gap-3">
-                <div className="bg-blue-500 text-white p-2 rounded-lg"><TrendingUp size={16} /></div>
+                <div className="bg-blue-500 text-white p-2 rounded-lg">
+                  <TrendingUp size={16} />
+                </div>
                 <div>
                   <p className="text-sm font-bold text-blue-900">Avaliações Pendentes</p>
-                  <p className="text-xs text-blue-700">8 estágios ativos sem a 1ª avaliação lançada.</p>
+                  <p className="text-xs text-blue-700">
+                    8 estágios ativos sem a 1ª avaliação lançada.
+                  </p>
                 </div>
               </div>
               <button className="text-xs font-bold text-blue-600 hover:underline">LANÇAR</button>

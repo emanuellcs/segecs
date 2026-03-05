@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MapPin, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useSupabaseCrud } from '@/hooks/useSupabaseCrud';
 import { useForm } from 'react-hook-form';
@@ -23,11 +23,23 @@ interface Cidade {
 export default function CidadesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const { items: cidades, isLoading, create, update, remove } = useSupabaseCrud<Cidade>('cidades', ['cidades']);
+  const {
+    items: cidades,
+    isLoading,
+    create,
+    update,
+    remove,
+  } = useSupabaseCrud<Cidade>('cidades', ['cidades']);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CidadeFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<CidadeFormValues>({
     resolver: zodResolver(cidadeSchema),
-    defaultValues: { uf: 'CE' }
+    defaultValues: { uf: 'CE' },
   });
 
   const onSubmit = async (data: CidadeFormValues) => {
@@ -73,15 +85,17 @@ export default function CidadesPage() {
 
       {showForm && (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-top-4">
-          <h2 className="text-lg font-semibold mb-4">{editingId ? 'Editar Cidade' : 'Nova Cidade'}</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {editingId ? 'Editar Cidade' : 'Nova Cidade'}
+          </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Nome da Cidade</label>
               <input
                 {...register('nome')}
                 className={cn(
-                  "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all",
-                  errors.nome ? "border-red-500" : "border-gray-300"
+                  'w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all',
+                  errors.nome ? 'border-red-500' : 'border-gray-300'
                 )}
                 placeholder="Ex: Fortaleza"
               />
@@ -92,8 +106,8 @@ export default function CidadesPage() {
               <input
                 {...register('uf')}
                 className={cn(
-                  "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all",
-                  errors.uf ? "border-red-500" : "border-gray-300"
+                  'w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all',
+                  errors.uf ? 'border-red-500' : 'border-gray-300'
                 )}
                 placeholder="Ex: CE"
                 maxLength={2}
@@ -131,11 +145,15 @@ export default function CidadesPage() {
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
               <tr>
-                <td colSpan={3} className="px-6 py-8 text-center text-gray-400">Carregando cidades...</td>
+                <td colSpan={3} className="px-6 py-8 text-center text-gray-400">
+                  Carregando cidades...
+                </td>
               </tr>
             ) : cidades.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-6 py-8 text-center text-gray-400">Nenhuma cidade cadastrada.</td>
+                <td colSpan={3} className="px-6 py-8 text-center text-gray-400">
+                  Nenhuma cidade cadastrada.
+                </td>
               </tr>
             ) : (
               cidades.map((cidade) => (
