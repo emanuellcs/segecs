@@ -10,12 +10,13 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
   }
 
   /* Personalização da Barra de Rolagem */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
 
   ::-webkit-scrollbar-track {
@@ -34,5 +35,11 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
+  }
+}
+
+@layer utilities {
+  .font-inter {
+    font-family: 'Inter', sans-serif;
   }
 }

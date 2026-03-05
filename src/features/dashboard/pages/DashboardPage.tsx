@@ -137,7 +137,7 @@ export default function DashboardPage() {
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-100 border-t-blue-600"></div>
-          <p className="text-gray-500 font-bold animate-pulse text-sm">Sincronizando inteligência...</p>
+          <p className="text-gray-500 font-semibold animate-pulse text-sm">Sincronizando inteligência...</p>
         </div>
       </div>
     );
@@ -156,13 +156,13 @@ export default function DashboardPage() {
             <LayoutDashboard size={32} />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-blue-900 tracking-tighter leading-none">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-blue-900 tracking-tight leading-none">Dashboard</h1>
             <p className="text-gray-500 font-medium mt-1">Bem-vindo à central de inteligência SEGECS.</p>
           </div>
         </div>
         <button 
           onClick={handleExportSICE}
-          className="flex items-center gap-3 px-6 py-4 bg-blue-50 text-blue-700 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-100 transition-all active:scale-95"
+          className="flex items-center gap-3 px-6 py-4 bg-blue-50 text-blue-700 rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-blue-100 transition-all active:scale-95"
         >
           <FileSpreadsheet size={18} /> Exportar SICE Completo
         </button>
@@ -182,8 +182,8 @@ export default function DashboardPage() {
               <card.icon className={card.color} size={28} />
             </div>
             <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{card.label}</p>
-              <h2 className="text-3xl font-black text-blue-900 tracking-tighter">{card.value}</h2>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">{card.label}</p>
+              <h2 className="text-3xl font-bold text-blue-900 tracking-tight">{card.value}</h2>
             </div>
           </motion.div>
         ))}
@@ -194,7 +194,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* Distribuição de Alunos */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-black text-blue-900 mb-8 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-blue-900 mb-8 flex items-center gap-2">
               <GraduationCap className="text-blue-600" size={20} /> Distribuição de Alunos
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -207,8 +207,8 @@ export default function DashboardPage() {
                 return (
                   <div key={idx} className="space-y-3">
                     <div className="flex justify-between items-end">
-                      <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{item.label}</span>
-                      <span className="text-sm font-black text-blue-900">{item.value} ({percentage}%)</span>
+                      <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{item.label}</span>
+                      <span className="text-sm font-bold text-blue-900">{item.value} ({percentage}%)</span>
                     </div>
                     <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                       <motion.div 
@@ -227,10 +227,10 @@ export default function DashboardPage() {
           {/* Atividades Recentes */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-lg font-black text-blue-900 flex items-center gap-2">
+              <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
                 <Clock className="text-orange-500" size={20} /> Últimas Alocações
               </h3>
-              <button onClick={() => navigate('/estagios')} className="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline flex items-center gap-1">
+              <button onClick={() => navigate('/estagios')} className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
                 Ver Tudo <ArrowRight size={14} />
               </button>
             </div>
@@ -238,18 +238,18 @@ export default function DashboardPage() {
               {stats?.recentActivities.map((activity, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl transition-colors border border-transparent hover:border-gray-100">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-xs">
                       {activity.aluno_nome.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-900">{activity.aluno_nome}</p>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
+                      <p className="text-sm font-semibold text-gray-900">{activity.aluno_nome}</p>
+                      <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-tight">
                         Iniciado em {new Date(activity.created_at).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
                   </div>
                   <span className={cn(
-                    'px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider',
+                    'px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider',
                     activity.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
                   )}>
                     {activity.status}
@@ -273,14 +273,14 @@ export default function DashboardPage() {
               {(stats?.compliance.totalAlertas ?? 0) > 0 ? <AlertTriangle size={80} /> : <CheckCircle2 size={80} />}
             </div>
             
-            <h3 className="text-lg font-black mb-6 relative z-10 flex items-center gap-2">
+            <h3 className="text-lg font-bold mb-6 relative z-10 flex items-center gap-2">
               Compliance 
               {(stats?.compliance.totalAlertas ?? 0) > 0 ? (
-                <span className="bg-orange-500 text-[10px] px-2 py-0.5 rounded-full uppercase">
+                <span className="bg-orange-500 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">
                   {stats?.compliance.totalAlertas} ALERTAS
                 </span>
               ) : (
-                <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full uppercase">
+                <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">
                   SISTEMA OK
                 </span>
               )}
@@ -291,17 +291,17 @@ export default function DashboardPage() {
                 <>
                   {stats?.compliance.vencendo ? (
                     <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-blue-300 mb-1">Prazos</p>
-                      <p className="text-sm font-bold">{stats.compliance.vencendo} Contratos vencendo em 15 dias</p>
-                      <button onClick={() => navigate('/estagios')} className="mt-3 text-[10px] font-black uppercase tracking-widest text-orange-400 hover:text-orange-300">Resolver Agora →</button>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-300 mb-1">Prazos</p>
+                      <p className="text-sm font-semibold">{stats.compliance.vencendo} Contratos vencendo em 15 dias</p>
+                      <button onClick={() => navigate('/estagios')} className="mt-3 text-[10px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 transition-colors">Resolver Agora →</button>
                     </div>
                   ) : null}
                   
                   {stats?.compliance.semAvaliacao ? (
                     <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-blue-300 mb-1">Avaliações</p>
-                      <p className="text-sm font-bold">{stats.compliance.semAvaliacao} Estágios sem nota lançada</p>
-                      <button onClick={() => navigate('/avaliacoes')} className="mt-3 text-[10px] font-black uppercase tracking-widest text-orange-400 hover:text-orange-300">Lançar Notas →</button>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-300 mb-1">Avaliações</p>
+                      <p className="text-sm font-semibold">{stats.compliance.semAvaliacao} Estágios sem nota lançada</p>
+                      <button onClick={() => navigate('/avaliacoes')} className="mt-3 text-[10px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 transition-colors">Lançar Notas →</button>
                     </div>
                   ) : null}
                 </>
@@ -316,15 +316,15 @@ export default function DashboardPage() {
 
           {/* Parceiros em Destaque */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-black text-blue-900 mb-6 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-blue-900 mb-6 flex items-center gap-2">
               <Building2 className="text-purple-600" size={20} /> Vagas em Aberto
             </h3>
             <div className="bg-purple-50 p-6 rounded-2xl text-center border border-purple-100">
-              <p className="text-3xl font-black text-purple-700">{stats?.vagasAbertas}</p>
-              <p className="text-[10px] font-black text-purple-400 uppercase tracking-widest mt-1">Oportunidades Disponíveis</p>
+              <p className="text-3xl font-bold text-purple-700">{stats?.vagasAbertas}</p>
+              <p className="text-[10px] font-semibold text-purple-400 uppercase tracking-widest mt-1">Oportunidades Disponíveis</p>
               <button 
                 onClick={() => navigate('/vagas')}
-                className="w-full mt-4 bg-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-purple-700 shadow-sm hover:shadow-md transition-all active:scale-95"
+                className="w-full mt-4 bg-white py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest text-purple-700 shadow-sm hover:shadow-md transition-all active:scale-95"
               >
                 Gerenciar Vagas
               </button>

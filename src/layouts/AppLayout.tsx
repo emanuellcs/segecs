@@ -115,10 +115,10 @@ export default function AppLayout() {
               to="/dashboard" 
               className="flex flex-col group transition-transform active:scale-95"
             >
-              <h1 className="text-xl font-black tracking-tighter text-blue-900 leading-none group-hover:text-blue-700 transition-colors">
+              <h1 className="text-xl font-bold tracking-tight text-blue-900 leading-none group-hover:text-blue-700 transition-colors">
                 SEGECS
               </h1>
-              <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mt-0.5">
+              <p className="text-[10px] text-blue-500 font-semibold uppercase tracking-wider mt-0.5">
                 EEEP - Ceará
               </p>
             </Link>
@@ -129,7 +129,7 @@ export default function AppLayout() {
               onClick={handleSync}
               disabled={isRefreshing}
               className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-black transition-all duration-300 border shadow-sm",
+                "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 border shadow-sm",
                 isRefreshing
                   ? 'bg-blue-50 text-blue-400 border-blue-100'
                   : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-400 active:scale-95'
@@ -137,7 +137,7 @@ export default function AppLayout() {
               title="Sincronizar com Banco de Dados"
             >
               <RefreshCcw size={14} className={isRefreshing ? 'animate-spin' : ''} />
-              <span className="hidden sm:inline uppercase tracking-widest text-[10px]">Sincronizar</span>
+              <span className="hidden sm:inline uppercase tracking-wide text-[10px]">Sincronizar</span>
             </button>
           </div>
         </header>

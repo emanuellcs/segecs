@@ -79,7 +79,8 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
   return (
     <aside 
       className={cn(
-        "flex flex-col h-full bg-blue-900 text-white shadow-xl w-full",
+        "flex flex-col h-full bg-blue-900 text-white shadow-xl transition-all duration-300",
+        isCollapsed ? "w-20" : "w-64",
         className
       )}
     >
@@ -87,8 +88,8 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
       {!isCollapsed && onClose && (
         <div className="p-6 flex items-center justify-between lg:hidden">
           <div>
-            <h1 className="text-2xl font-black tracking-tighter">SEGECS</h1>
-            <p className="text-[10px] text-blue-300 font-bold uppercase tracking-widest mt-1">
+            <h1 className="text-2xl font-bold tracking-tight">SEGECS</h1>
+            <p className="text-[10px] text-blue-300 font-semibold uppercase tracking-wider mt-1">
               EEEP - Ceará
             </p>
           </div>
@@ -110,7 +111,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
-                  className="px-2 mb-2 text-[10px] font-bold text-blue-400 uppercase tracking-widest whitespace-nowrap"
+                  className="px-2 mb-2 text-[10px] font-semibold text-blue-400 uppercase tracking-widest whitespace-nowrap"
                 >
                   {group.group}
                 </motion.h3>
@@ -127,7 +128,7 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
                     cn(
                       'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
                       isActive
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50 font-semibold'
                         : 'text-blue-100 hover:bg-blue-800 hover:text-white',
                       isCollapsed && "justify-center px-0"
                     )
@@ -153,19 +154,19 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
       <div className={cn("p-4 bg-blue-950/50 border-t border-blue-800 transition-all", isCollapsed && "items-center px-2")}>
         {!isCollapsed ? (
           <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-black text-xs uppercase shrink-0">
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-xs uppercase shrink-0">
               {profile?.full_name?.substring(0, 2) || 'U'}
             </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-black truncate">{profile?.full_name}</p>
-              <p className="text-[10px] text-blue-400 uppercase font-black tracking-tighter">
+              <p className="text-xs font-bold truncate">{profile?.full_name}</p>
+              <p className="text-[10px] text-blue-400 uppercase font-semibold tracking-wider">
                 {profile?.role}
               </p>
             </div>
           </div>
         ) : (
           <div className="flex justify-center mb-4">
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-black text-xs uppercase" title={profile?.full_name}>
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-xs uppercase" title={profile?.full_name}>
               {profile?.full_name?.substring(0, 2) || 'U'}
             </div>
           </div>
@@ -175,12 +176,12 @@ export default function Sidebar({ onClose, className, isCollapsed = false }: Sid
           onClick={handleLogout}
           title={isCollapsed ? "Sair do Sistema" : undefined}
           className={cn(
-            "w-full flex items-center justify-center gap-2 py-3 text-sm font-black text-red-400 hover:bg-red-500/10 rounded-xl transition-all",
+            "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-all",
             isCollapsed && "px-0"
           )}
         >
           <LogOut size={18} />
-          {!isCollapsed && <span className="uppercase tracking-widest text-xs">Sair</span>}
+          {!isCollapsed && <span className="uppercase tracking-widest text-xs font-bold">Sair</span>}
         </button>
       </div>
     </aside>
