@@ -21,10 +21,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async (userId: string, user: any) => {
+    console.log('AuthProvider: Fetching profile for:', userId);
     try {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      // Adicionamos um timeout de 5 segundos na busca de perfil para evitar travar o carregamento
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+      );
 
-      if (error) {
+      const profilePromise = supabase.from('profiles').select('*').eq('id', userId).single();
+      
+      const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
+
+      if (!data || error) {
+        console.warn('AuthProvider: Profile not found or error, using default:', error);
         setProfile({
           id: userId,
           email: user.email || '',
@@ -37,50 +46,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error('AuthProvider: Profile fetch error:', err);
+      // Em caso de erro, definimos um perfil básico para não travar a navegação
+      setProfile({
+        id: userId,
+        email: user.email || '',
+        full_name: user.user_metadata?.['full_name'] || 'Usuário',
+        role: (user.user_metadata?.['role'] as UserRole) || 'aluno',
+        created_at: new Date().toISOString(),
+      });
     }
   };
 
   useEffect(() => {
     let mounted = true;
 
-    const initAuth = async () => {
-      try {
-        const {
-          data: { session: initialSession },
-        } = await supabase.auth.getSession();
-        if (!mounted) return;
-
-        setSession(initialSession);
-        if (initialSession?.user) {
-          await fetchProfile(initialSession.user.id, initialSession.user);
-        }
-      } catch (error) {
-        console.error('AuthProvider: Init error:', error);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-
-    initAuth();
-
+    // O onAuthStateChange do Supabase v2 dispara um evento INITIAL_SESSION logo no início
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      console.log('AuthProvider: Auth state changed:', event, !!newSession);
+      
       if (!mounted) return;
 
-      setSession(newSession);
-      if (newSession?.user) {
-        await fetchProfile(newSession.user.id, newSession.user);
-      } else {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
+        setSession(newSession);
+        if (newSession?.user) {
+          await fetchProfile(newSession.user.id, newSession.user);
+        } else {
+          setProfile(null);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setSession(null);
         setProfile(null);
         queryClient.clear();
       }
+
+      // Garantimos que o loading pare
       setIsLoading(false);
     });
+
+    // Como segurança adicional, se após 10 segundos ainda estiver carregando, forçamos o encerramento
+    const backupTimeout = setTimeout(() => {
+      if (mounted && isLoading) {
+        console.warn('AuthProvider: Forcing isLoading false after timeout');
+        setIsLoading(false);
+      }
+    }, 10000);
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      clearTimeout(backupTimeout);
     };
   }, [queryClient]);
 

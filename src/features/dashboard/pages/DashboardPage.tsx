@@ -199,7 +199,7 @@ export default function DashboardPage() {
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-100 border-t-blue-600"></div>
           <p className="text-gray-500 font-semibold animate-pulse text-sm">
-            Sincronizando inteligência...
+            Sincronizando dados...
           </p>
         </div>
       </div>
