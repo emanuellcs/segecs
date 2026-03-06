@@ -119,10 +119,9 @@ export default function Sidebar({
         </div>
       )}
 
-      {/* Espaçador para Desktop quando não tem header */}
       <div className={cn("hidden lg:block", isCollapsed ? "h-6" : "h-6")} />
 
-      <nav className="flex-1 overflow-y-auto px-4 space-y-6 pb-8 custom-scrollbar">
+      <nav className="flex-1 overflow-y-auto px-4 space-y-6 pb-8 sidebar-scrollbar">
         {menuItems.map((group, idx) => (
           <div key={idx} className="transition-all duration-300">
             <AnimatePresence mode="wait">

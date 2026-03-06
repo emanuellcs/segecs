@@ -36,6 +36,34 @@
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
   }
+
+  /* Barra de Rolagem da Sidebar (oculta por padrão, mostra no hover) */
+  .sidebar-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+  }
+
+  .sidebar-scrollbar:hover {
+    scrollbar-width: thin; /* Firefox */
+  }
+
+  .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 @layer utilities {

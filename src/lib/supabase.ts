@@ -17,12 +17,12 @@ const customStorage = {
   },
   setItem: (key: string, value: string) => {
     if (typeof window === "undefined") return;
-    
+
     // Consideramos 'true' por padrão a menos que explicitamente marcado como 'false'
     // Isso garante que não se perca o login em caso de inconsistência no storage
     const rememberMeRaw = localStorage.getItem("sb-remember-me");
     const isRememberMe = rememberMeRaw !== "false";
-    
+
     if (isRememberMe) {
       localStorage.setItem(key, value);
       sessionStorage.removeItem(key); // Limpa do volátil se está no persistente
