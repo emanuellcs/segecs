@@ -124,11 +124,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     console.log("AuthContext: Iniciando processo de logout...");
 
-    // Limpamos o estado local IMEDIATAMENTE para garantir que o usuário saia da tela atual
+    // Limpamos o estado local para garantir que o usuário saia da tela atual
     const clearLocalData = () => {
-      console.log("AuthContext: Limpando estado local e storages...");
-      window.sessionStorage.clear();
-      window.localStorage.clear();
+      console.log("AuthContext: Limpando estado local e limpando cache...");
       setSession(null);
       setProfile(null);
       queryClient.clear();
