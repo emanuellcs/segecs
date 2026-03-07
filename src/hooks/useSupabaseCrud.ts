@@ -73,6 +73,35 @@ export function useSupabaseCrud<T extends { id: string }>(
     },
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from(table).delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async ({
+      ids,
+      updateData,
+    }: {
+      ids: string[];
+      updateData: Partial<T>;
+    }) => {
+      const { error } = await supabase
+        .from(table)
+        .update(updateData)
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
   return {
     items: query.data || [],
     isLoading: query.isLoading,
@@ -81,8 +110,12 @@ export function useSupabaseCrud<T extends { id: string }>(
     create: createMutation.mutateAsync,
     update: updateMutation.mutateAsync,
     remove: deleteMutation.mutateAsync,
+    bulkRemove: bulkDeleteMutation.mutateAsync,
+    bulkUpdate: bulkUpdateMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    isBulkDeleting: bulkDeleteMutation.isPending,
+    isBulkUpdating: bulkUpdateMutation.isPending,
   };
 }

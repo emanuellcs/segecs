@@ -9,6 +9,8 @@ import {
   User,
   Calendar,
   Activity,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
 import { useForm } from "react-hook-form";
@@ -17,8 +19,12 @@ import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { FormModal } from "@/components/ui/FormModal";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ConfirmBulkDeleteModal } from "@/components/ui/ConfirmBulkDeleteModal";
+import { BulkEditModal } from "@/components/ui/BulkEditModal";
+import { BulkActionsToolbar } from "@/components/ui/BulkActionsToolbar";
 import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
 import { useListLayout } from "@/hooks/useListLayout";
+import { useSelection } from "@/hooks/useSelection";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
@@ -38,7 +44,13 @@ const frequenciaSchema = z.object({
   validado_orientador: z.boolean().default(false),
 });
 
+const bulkEditSchema = z.object({
+  validado_supervisor: z.boolean().optional(),
+  validado_orientador: z.boolean().optional(),
+});
+
 type FrequenciaFormValues = z.infer<typeof frequenciaSchema>;
+type BulkEditValues = z.infer<typeof bulkEditSchema>;
 
 interface Frequencia {
   id: string;
@@ -54,6 +66,8 @@ interface Frequencia {
 export default function FrequenciaPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedFreq, setSelectedFreq] = useState<Frequencia | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEstagioId, setSelectedEstagioId] = useState<string>("");
@@ -64,6 +78,9 @@ export default function FrequenciaPage() {
     create,
     update,
     remove,
+    bulkRemove,
+    bulkUpdate,
+    isBulkDeleting,
   } = useSupabaseCrud<Frequencia>("frequencias", ["frequencias"]);
 
   const { items: estagios } = useSupabaseCrud<any>("estagios", ["estagios"]);
@@ -86,6 +103,15 @@ export default function FrequenciaPage() {
     },
   });
 
+  const {
+    register: registerBulk,
+    handleSubmit: handleSubmitBulk,
+    reset: resetBulk,
+    formState: { isSubmitting: isSubmittingBulk },
+  } = useForm<BulkEditValues>({
+    resolver: zodResolver(bulkEditSchema),
+  });
+
   const onSubmit = async (data: any) => {
     try {
       if (selectedFreq) {
@@ -96,6 +122,30 @@ export default function FrequenciaPage() {
         toast.success("Frequência lançada com sucesso!");
       }
       handleCloseForm();
+    } catch (error) {
+      toast.error(translateError(error));
+    }
+  };
+
+  const onBulkEditSubmit = async (data: BulkEditValues) => {
+    const updateData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined),
+    );
+
+    if (Object.keys(updateData).length === 0) {
+      toast.error("Selecione pelo menos um campo para atualizar.");
+      return;
+    }
+
+    try {
+      await bulkUpdate({
+        ids: selection.selectedIds,
+        updateData,
+      });
+      toast.success("Registros atualizados com sucesso!");
+      setIsBulkEditOpen(false);
+      selection.clearSelection();
+      resetBulk();
     } catch (error) {
       toast.error(translateError(error));
     }
@@ -131,6 +181,17 @@ export default function FrequenciaPage() {
     }
   };
 
+  const confirmBulkDelete = async () => {
+    try {
+      await bulkRemove(selection.selectedIds);
+      toast.success("Registros removidos com sucesso!");
+      setIsBulkDeleteOpen(false);
+      selection.clearSelection();
+    } catch (error) {
+      toast.error(translateError(error));
+    }
+  };
+
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedFreq(null);
@@ -154,6 +215,7 @@ export default function FrequenciaPage() {
     0,
   );
 
+  const selection = useSelection(filteredFrequencias);
   const pagination = usePagination(filteredFrequencias);
 
   const { listLayout } = useListLayout();
@@ -163,7 +225,7 @@ export default function FrequenciaPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
@@ -256,11 +318,7 @@ export default function FrequenciaPage() {
             : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando registros...
-          </div>
-        ) : filteredFrequencias.length === 0 ? (
+        {filteredFrequencias.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum registro encontrado.
           </div>
@@ -274,8 +332,29 @@ export default function FrequenciaPage() {
             return (
               <div
                 key={frequencia.id}
-                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+                className={cn(
+                  "bg-white p-5 rounded-2xl shadow-sm border transition-all relative group space-y-4",
+                  selection.isSelected(frequencia.id)
+                    ? "border-blue-500 ring-2 ring-blue-50"
+                    : "border-gray-100",
+                )}
               >
+                <button
+                  onClick={() => selection.toggleSelect(frequencia.id)}
+                  className={cn(
+                    "absolute top-4 right-4 p-2 rounded-lg transition-all z-10",
+                    selection.isSelected(frequencia.id)
+                      ? "text-blue-600 bg-blue-50"
+                      : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                  )}
+                >
+                  {selection.isSelected(frequencia.id) ? (
+                    <CheckSquare size={20} />
+                  ) : (
+                    <Square size={20} />
+                  )}
+                </button>
+
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -350,6 +429,23 @@ export default function FrequenciaPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
+                <th className="px-6 py-4 w-10">
+                  <button
+                    onClick={selection.handleSelectAllToggle}
+                    className={cn(
+                      "p-1 rounded transition-colors",
+                      selection.isAllSelected
+                        ? "text-blue-600"
+                        : "text-gray-300 hover:text-gray-400",
+                    )}
+                  >
+                    {selection.isAllSelected ? (
+                      <CheckSquare size={20} />
+                    ) : (
+                      <Square size={20} />
+                    )}
+                  </button>
+                </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
                   Data / Aluno
                 </th>
@@ -368,19 +464,10 @@ export default function FrequenciaPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {filteredFrequencias.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
-                  >
-                    Carregando lista de frequências...
-                  </td>
-                </tr>
-              ) : filteredFrequencias.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
                     Nenhum lançamento encontrado.
@@ -396,8 +483,28 @@ export default function FrequenciaPage() {
                   return (
                     <tr
                       key={frequencia.id}
-                      className="hover:bg-blue-50/30 transition-colors group"
+                      className={cn(
+                        "hover:bg-blue-50/30 transition-colors group",
+                        selection.isSelected(frequencia.id) && "bg-blue-50/50",
+                      )}
                     >
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => selection.toggleSelect(frequencia.id)}
+                          className={cn(
+                            "p-1 rounded transition-colors",
+                            selection.isSelected(frequencia.id)
+                              ? "text-blue-600"
+                              : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                          )}
+                        >
+                          {selection.isSelected(frequencia.id) ? (
+                            <CheckSquare size={20} />
+                          ) : (
+                            <Square size={20} />
+                          )}
+                        </button>
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="text-gray-900 font-bold">
@@ -481,6 +588,14 @@ export default function FrequenciaPage() {
         itemsPerPage={pagination.itemsPerPage}
         onItemsPerPageChange={pagination.setItemsPerPage}
         totalItems={pagination.totalItems}
+      />
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selection.selectedIds.length}
+        onClearSelection={selection.clearSelection}
+        onBulkDelete={() => setIsBulkDeleteOpen(true)}
+        onBulkEdit={() => setIsBulkEditOpen(true)}
       />
 
       {/* Form Modal */}
@@ -656,12 +771,73 @@ export default function FrequenciaPage() {
         </form>
       </FormModal>
 
+      {/* Bulk Edit Modal */}
+      <BulkEditModal
+        isOpen={isBulkEditOpen}
+        onOpenChange={setIsBulkEditOpen}
+        count={selection.selectedIds.length}
+      >
+        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+          <div className="space-y-4">
+            <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-xl">
+              <p className="text-sm font-bold text-gray-700 mb-2">Validar registros selecionados:</p>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  {...registerBulk("validado_supervisor")}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
+                  Validado pelo Supervisor
+                </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  {...registerBulk("validado_orientador")}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
+                  Validado pelo Orientador
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setIsBulkEditOpen(false)}
+              className="flex-1 px-4 py-3 text-sm font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmittingBulk}
+              className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
+            >
+              {isSubmittingBulk ? "Atualizando..." : "Aplicar Alterações"}
+            </button>
+          </div>
+        </form>
+      </BulkEditModal>
+
       {/* Delete Confirmation */}
       <ConfirmDeleteModal
         isOpen={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         onConfirm={confirmDelete}
         itemName="este registro de frequência"
+      />
+
+      {/* Bulk Delete Confirmation */}
+      <ConfirmBulkDeleteModal
+        isOpen={isBulkDeleteOpen}
+        onOpenChange={setIsBulkDeleteOpen}
+        onConfirm={confirmBulkDelete}
+        count={selection.selectedIds.length}
+        isLoading={isBulkDeleting}
       />
     </div>
   );

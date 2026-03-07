@@ -9,6 +9,8 @@ import {
   BookOpen,
   Fingerprint,
   Calendar,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
 import { useForm, Controller } from "react-hook-form";
@@ -17,6 +19,9 @@ import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { FormModal } from "@/components/ui/FormModal";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ConfirmBulkDeleteModal } from "@/components/ui/ConfirmBulkDeleteModal";
+import { BulkEditModal } from "@/components/ui/BulkEditModal";
+import { BulkActionsToolbar } from "@/components/ui/BulkActionsToolbar";
 import { InputMask } from "@/components/ui/InputMask";
 import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
 import { useListLayout } from "@/hooks/useListLayout";
@@ -24,6 +29,7 @@ import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
+import { useSelection } from "@/hooks/useSelection";
 
 const alunoSchema = z.object({
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -37,7 +43,14 @@ const alunoSchema = z.object({
   }),
 });
 
+const bulkEditSchema = z.object({
+  curso_id: z.string().optional(),
+  responsavel_id: z.string().optional(),
+  status: z.enum(["pendente", "estagiando", "concluido", "evadido"]).optional(),
+});
+
 type AlunoFormValues = z.infer<typeof alunoSchema>;
+type BulkEditValues = z.infer<typeof bulkEditSchema>;
 
 interface Aluno {
   id: string;
@@ -54,6 +67,8 @@ interface Aluno {
 export default function AlunosPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -63,6 +78,9 @@ export default function AlunosPage() {
     create,
     update,
     remove,
+    bulkRemove,
+    bulkUpdate,
+    isBulkDeleting,
   } = useSupabaseCrud<Aluno>("alunos", ["alunos"]);
 
   const { items: cursos } = useSupabaseCrud<any>("cursos", ["cursos"]);
@@ -83,6 +101,24 @@ export default function AlunosPage() {
     },
   });
 
+  const {
+    register: registerBulk,
+    handleSubmit: handleSubmitBulk,
+    reset: resetBulk,
+    formState: { isSubmitting: isSubmittingBulk },
+  } = useForm<BulkEditValues>({
+    resolver: zodResolver(bulkEditSchema),
+  });
+
+  const filteredAlunos = alunos.filter(
+    (aluno) =>
+      (aluno.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (aluno.matricula || "").includes(searchTerm) ||
+      (aluno.cpf || "").includes(searchTerm),
+  );
+
+  const selection = useSelection(filteredAlunos);
+
   const onSubmit = async (data: AlunoFormValues) => {
     try {
       if (selectedAluno) {
@@ -93,6 +129,30 @@ export default function AlunosPage() {
         toast.success("Aluno cadastrado com sucesso!");
       }
       handleCloseForm();
+    } catch (error) {
+      toast.error(translateError(error));
+    }
+  };
+
+  const onBulkEditSubmit = async (data: BulkEditValues) => {
+    const updateData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+    );
+
+    if (Object.keys(updateData).length === 0) {
+      toast.error("Selecione pelo menos um campo para atualizar.");
+      return;
+    }
+
+    try {
+      await bulkUpdate({
+        ids: selection.selectedIds,
+        updateData,
+      });
+      toast.success("Registros atualizados com sucesso!");
+      setIsBulkEditOpen(false);
+      selection.clearSelection();
+      resetBulk();
     } catch (error) {
       toast.error(translateError(error));
     }
@@ -129,18 +189,22 @@ export default function AlunosPage() {
     }
   };
 
+  const confirmBulkDelete = async () => {
+    try {
+      await bulkRemove(selection.selectedIds);
+      toast.success("Registros removidos com sucesso!");
+      setIsBulkDeleteOpen(false);
+      selection.clearSelection();
+    } catch (error) {
+      toast.error(translateError(error));
+    }
+  };
+
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedAluno(null);
     reset();
   };
-
-  const filteredAlunos = alunos.filter(
-    (aluno) =>
-      (aluno.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (aluno.matricula || "").includes(searchTerm) ||
-      (aluno.cpf || "").includes(searchTerm),
-  );
 
   const pagination = usePagination(filteredAlunos);
 
@@ -151,7 +215,7 @@ export default function AlunosPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
@@ -197,11 +261,7 @@ export default function AlunosPage() {
             : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {isLoading ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-gray-400 animate-pulse font-bold col-span-full">
-            Carregando alunos...
-          </div>
-        ) : filteredAlunos.length === 0 ? (
+        {filteredAlunos.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhum aluno encontrado.
           </div>
@@ -209,8 +269,29 @@ export default function AlunosPage() {
           pagination.currentItems.map((aluno) => (
             <div
               key={aluno.id}
-              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+              className={cn(
+                "bg-white p-5 rounded-2xl shadow-sm border transition-all relative group",
+                selection.isSelected(aluno.id)
+                  ? "border-blue-500 ring-2 ring-blue-50"
+                  : "border-gray-100",
+              )}
             >
+              <button
+                onClick={() => selection.toggleSelect(aluno.id)}
+                className={cn(
+                  "absolute top-4 right-4 p-2 rounded-lg transition-all z-10",
+                  selection.isSelected(aluno.id)
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                )}
+              >
+                {selection.isSelected(aluno.id) ? (
+                  <CheckSquare size={20} />
+                ) : (
+                  <Square size={20} />
+                )}
+              </button>
+
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -278,6 +359,23 @@ export default function AlunosPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
+                <th className="px-6 py-4 w-10">
+                  <button
+                    onClick={selection.handleSelectAllToggle}
+                    className={cn(
+                      "p-1 rounded transition-colors",
+                      selection.isAllSelected
+                        ? "text-blue-600"
+                        : "text-gray-300 hover:text-gray-400",
+                    )}
+                  >
+                    {selection.isAllSelected ? (
+                      <CheckSquare size={20} />
+                    ) : (
+                      <Square size={20} />
+                    )}
+                  </button>
+                </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
                   Aluno
                 </th>
@@ -296,19 +394,10 @@ export default function AlunosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {filteredAlunos.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 font-bold animate-pulse"
-                  >
-                    Carregando lista de alunos...
-                  </td>
-                </tr>
-              ) : filteredAlunos.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
                     Nenhum aluno cadastrado.
@@ -318,8 +407,28 @@ export default function AlunosPage() {
                 pagination.currentItems.map((aluno) => (
                   <tr
                     key={aluno.id}
-                    className="hover:bg-blue-50/30 transition-colors group"
+                    className={cn(
+                      "hover:bg-blue-50/30 transition-colors group",
+                      selection.isSelected(aluno.id) && "bg-blue-50/50",
+                    )}
                   >
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => selection.toggleSelect(aluno.id)}
+                        className={cn(
+                          "p-1 rounded transition-colors",
+                          selection.isSelected(aluno.id)
+                            ? "text-blue-600"
+                            : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                        )}
+                      >
+                        {selection.isSelected(aluno.id) ? (
+                          <CheckSquare size={20} />
+                        ) : (
+                          <Square size={20} />
+                        )}
+                      </button>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -384,6 +493,14 @@ export default function AlunosPage() {
         itemsPerPage={pagination.itemsPerPage}
         onItemsPerPageChange={pagination.setItemsPerPage}
         totalItems={pagination.totalItems}
+      />
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selection.selectedIds.length}
+        onClearSelection={selection.clearSelection}
+        onBulkDelete={() => setIsBulkDeleteOpen(true)}
+        onBulkEdit={() => setIsBulkEditOpen(true)}
       />
 
       {/* Form Modal */}
@@ -578,12 +695,99 @@ export default function AlunosPage() {
         </form>
       </FormModal>
 
+      {/* Bulk Edit Modal */}
+      <BulkEditModal
+        isOpen={isBulkEditOpen}
+        onOpenChange={setIsBulkEditOpen}
+        count={selection.selectedIds.length}
+      >
+        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Novo Curso (Opcional)
+              </label>
+              <select
+                {...registerBulk("curso_id")}
+                className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white"
+              >
+                <option value="">Manter atual...</option>
+                {cursos.map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Novo Responsável Legal (Opcional)
+              </label>
+              <select
+                {...registerBulk("responsavel_id")}
+                className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white"
+              >
+                <option value="">Manter atual...</option>
+                {responsaveis.map((r: any) => (
+                  <option key={r.id} value={r.id}>
+                    {r.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Novo Status Acadêmico (Opcional)
+              </label>
+              <select
+                {...registerBulk("status")}
+                className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
+              >
+                <option value="">Manter atual...</option>
+                <option value="pendente">🟡 PENDENTE</option>
+                <option value="estagiando">🟢 ESTAGIANDO</option>
+                <option value="concluido">🔵 CONCLUÍDO</option>
+                <option value="evadido">🔴 EVADIDO</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setIsBulkEditOpen(false)}
+              className="flex-1 px-4 py-3 text-sm font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmittingBulk}
+              className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
+            >
+              {isSubmittingBulk ? "Atualizando..." : "Aplicar Alterações"}
+            </button>
+          </div>
+        </form>
+      </BulkEditModal>
+
       {/* Delete Confirmation */}
       <ConfirmDeleteModal
         isOpen={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         onConfirm={confirmDelete}
         itemName={selectedAluno?.nome}
+      />
+
+      {/* Bulk Delete Confirmation */}
+      <ConfirmBulkDeleteModal
+        isOpen={isBulkDeleteOpen}
+        onOpenChange={setIsBulkDeleteOpen}
+        onConfirm={confirmBulkDelete}
+        count={selection.selectedIds.length}
+        isLoading={isBulkDeleting}
       />
     </div>
   );

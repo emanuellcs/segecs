@@ -8,6 +8,8 @@ import {
   User,
   Phone,
   Fingerprint,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
 import { useForm, Controller } from "react-hook-form";
@@ -16,11 +18,14 @@ import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { FormModal } from "@/components/ui/FormModal";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ConfirmBulkDeleteModal } from "@/components/ui/ConfirmBulkDeleteModal";
+import { BulkActionsToolbar } from "@/components/ui/BulkActionsToolbar";
 import { InputMask } from "@/components/ui/InputMask";
 import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
 import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
+import { useSelection } from "@/hooks/useSelection";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
@@ -43,6 +48,7 @@ interface Responsavel {
 export default function ResponsaveisPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [selectedResp, setSelectedResp] = useState<Responsavel | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -52,6 +58,8 @@ export default function ResponsaveisPage() {
     create,
     update,
     remove,
+    bulkRemove,
+    isBulkDeleting,
   } = useSupabaseCrud<Responsavel>("responsaveis", ["responsaveis"]);
 
   const {
@@ -106,6 +114,17 @@ export default function ResponsaveisPage() {
     }
   };
 
+  const confirmBulkDelete = async () => {
+    try {
+      await bulkRemove(selection.selectedIds);
+      toast.success("Registros removidos com sucesso!");
+      setIsBulkDeleteOpen(false);
+      selection.clearSelection();
+    } catch (error) {
+      toast.error(translateError(error));
+    }
+  };
+
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedResp(null);
@@ -118,13 +137,14 @@ export default function ResponsaveisPage() {
       (resp.cpf || "").includes(searchTerm),
   );
 
+  const selection = useSelection(filteredResponsaveis);
   const pagination = usePagination(filteredResponsaveis);
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
@@ -176,8 +196,29 @@ export default function ResponsaveisPage() {
           pagination.currentItems.map((resp) => (
             <div
               key={resp.id}
-              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+              className={cn(
+                "bg-white p-5 rounded-2xl shadow-sm border transition-all relative group space-y-4",
+                selection.isSelected(resp.id)
+                  ? "border-blue-500 ring-2 ring-blue-50"
+                  : "border-gray-100",
+              )}
             >
+              <button
+                onClick={() => selection.toggleSelect(resp.id)}
+                className={cn(
+                  "absolute top-4 right-4 p-2 rounded-lg transition-all z-10",
+                  selection.isSelected(resp.id)
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                )}
+              >
+                {selection.isSelected(resp.id) ? (
+                  <CheckSquare size={20} />
+                ) : (
+                  <Square size={20} />
+                )}
+              </button>
+
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
                   <User size={20} />
@@ -224,6 +265,23 @@ export default function ResponsaveisPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
+                <th className="px-6 py-4 w-10">
+                  <button
+                    onClick={selection.handleSelectAllToggle}
+                    className={cn(
+                      "p-1 rounded transition-colors",
+                      selection.isAllSelected
+                        ? "text-blue-600"
+                        : "text-gray-300 hover:text-gray-400",
+                    )}
+                  >
+                    {selection.isAllSelected ? (
+                      <CheckSquare size={20} />
+                    ) : (
+                      <Square size={20} />
+                    )}
+                  </button>
+                </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
                   Responsável
                 </th>
@@ -242,7 +300,7 @@ export default function ResponsaveisPage() {
               {filteredResponsaveis.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
                     Nenhum responsável cadastrado.
@@ -252,8 +310,28 @@ export default function ResponsaveisPage() {
                 pagination.currentItems.map((resp) => (
                   <tr
                     key={resp.id}
-                    className="hover:bg-blue-50/30 transition-colors group"
+                    className={cn(
+                      "hover:bg-blue-50/30 transition-colors group",
+                      selection.isSelected(resp.id) && "bg-blue-50/50",
+                    )}
                   >
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => selection.toggleSelect(resp.id)}
+                        className={cn(
+                          "p-1 rounded transition-colors",
+                          selection.isSelected(resp.id)
+                            ? "text-blue-600"
+                            : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                        )}
+                      >
+                        {selection.isSelected(resp.id) ? (
+                          <CheckSquare size={20} />
+                        ) : (
+                          <Square size={20} />
+                        )}
+                      </button>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
@@ -301,6 +379,13 @@ export default function ResponsaveisPage() {
         itemsPerPage={pagination.itemsPerPage}
         onItemsPerPageChange={pagination.setItemsPerPage}
         totalItems={pagination.totalItems}
+      />
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selection.selectedIds.length}
+        onClearSelection={selection.clearSelection}
+        onBulkDelete={() => setIsBulkDeleteOpen(true)}
       />
 
       {/* Form Modal */}
@@ -404,6 +489,16 @@ export default function ResponsaveisPage() {
         onConfirm={confirmDelete}
         itemName={selectedResp?.nome}
       />
+
+      {/* Bulk Delete Confirmation */}
+      <ConfirmBulkDeleteModal
+        isOpen={isBulkDeleteOpen}
+        onOpenChange={setIsBulkDeleteOpen}
+        onConfirm={confirmBulkDelete}
+        count={selection.selectedIds.length}
+        isLoading={isBulkDeleting}
+      />
     </div>
   );
 }
+

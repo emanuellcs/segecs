@@ -8,6 +8,8 @@ import {
   Building2,
   BookOpen,
   Layers,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
 import { useForm } from "react-hook-form";
@@ -16,10 +18,14 @@ import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { FormModal } from "@/components/ui/FormModal";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { ConfirmBulkDeleteModal } from "@/components/ui/ConfirmBulkDeleteModal";
+import { BulkEditModal } from "@/components/ui/BulkEditModal";
+import { BulkActionsToolbar } from "@/components/ui/BulkActionsToolbar";
 import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
 import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
+import { useSelection } from "@/hooks/useSelection";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
@@ -34,7 +40,13 @@ const vagaSchema = z.object({
   }),
 });
 
+const bulkEditSchema = z.object({
+  curso_id: z.string().optional(),
+  status: z.enum(["aberta", "preenchida", "cancelada"]).optional(),
+});
+
 type VagaFormValues = z.infer<typeof vagaSchema>;
+type BulkEditValues = z.infer<typeof bulkEditSchema>;
 
 interface Vaga {
   id: string;
@@ -50,6 +62,8 @@ interface Vaga {
 export default function VagasPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedVaga, setSelectedVaga] = useState<Vaga | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -59,6 +73,9 @@ export default function VagasPage() {
     create,
     update,
     remove,
+    bulkRemove,
+    bulkUpdate,
+    isBulkDeleting,
   } = useSupabaseCrud<Vaga>("vagas", ["vagas"]);
 
   const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
@@ -77,6 +94,28 @@ export default function VagasPage() {
     },
   });
 
+  const {
+    register: registerBulk,
+    handleSubmit: handleSubmitBulk,
+    reset: resetBulk,
+    formState: { isSubmitting: isSubmittingBulk },
+  } = useForm<BulkEditValues>({
+    resolver: zodResolver(bulkEditSchema),
+  });
+
+  const filteredVagas = vagas.filter((vaga) => {
+    const empresa =
+      empresas.find((e) => e.id === vaga.empresa_id)?.razao_social || "";
+    const curso = cursos.find((c) => c.id === vaga.curso_id)?.nome || "";
+    return (
+      (vaga.titulo?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (empresa?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (curso?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+    );
+  });
+
+  const selection = useSelection(filteredVagas);
+
   const onSubmit = async (data: VagaFormValues) => {
     try {
       if (selectedVaga) {
@@ -87,6 +126,30 @@ export default function VagasPage() {
         toast.success("Vaga cadastrada com sucesso!");
       }
       handleCloseForm();
+    } catch (error) {
+      toast.error(translateError(error));
+    }
+  };
+
+  const onBulkEditSubmit = async (data: BulkEditValues) => {
+    const updateData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+    );
+
+    if (Object.keys(updateData).length === 0) {
+      toast.error("Selecione pelo menos um campo para atualizar.");
+      return;
+    }
+
+    try {
+      await bulkUpdate({
+        ids: selection.selectedIds,
+        updateData,
+      });
+      toast.success("Registros atualizados com sucesso!");
+      setIsBulkEditOpen(false);
+      selection.clearSelection();
+      resetBulk();
     } catch (error) {
       toast.error(translateError(error));
     }
@@ -122,22 +185,22 @@ export default function VagasPage() {
     }
   };
 
+  const confirmBulkDelete = async () => {
+    try {
+      await bulkRemove(selection.selectedIds);
+      toast.success("Registros removidos com sucesso!");
+      setIsBulkDeleteOpen(false);
+      selection.clearSelection();
+    } catch (error) {
+      toast.error(translateError(error));
+    }
+  };
+
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedVaga(null);
     reset();
   };
-
-  const filteredVagas = vagas.filter((vaga) => {
-    const empresa =
-      empresas.find((e) => e.id === vaga.empresa_id)?.razao_social || "";
-    const curso = cursos.find((c) => c.id === vaga.curso_id)?.nome || "";
-    return (
-      (vaga.titulo?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (empresa?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (curso?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-    );
-  });
 
   const pagination = usePagination(filteredVagas);
 
@@ -146,7 +209,7 @@ export default function VagasPage() {
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
@@ -192,7 +255,7 @@ export default function VagasPage() {
             : "lg:grid-cols-2 xl:grid-cols-3",
         )}
       >
-        {pagination.currentItems.length === 0 ? (
+        {filteredVagas.length === 0 ? (
           <div className="bg-white p-8 rounded-2xl text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 col-span-full">
             Nenhuma vaga encontrada.
           </div>
@@ -200,8 +263,29 @@ export default function VagasPage() {
           pagination.currentItems.map((vaga) => (
             <div
               key={vaga.id}
-              className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+              className={cn(
+                "bg-white p-5 rounded-2xl shadow-sm border transition-all relative group space-y-4",
+                selection.isSelected(vaga.id)
+                  ? "border-blue-500 ring-2 ring-blue-50"
+                  : "border-gray-100",
+              )}
             >
+              <button
+                onClick={() => selection.toggleSelect(vaga.id)}
+                className={cn(
+                  "absolute top-4 right-4 p-2 rounded-lg transition-all z-10",
+                  selection.isSelected(vaga.id)
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                )}
+              >
+                {selection.isSelected(vaga.id) ? (
+                  <CheckSquare size={20} />
+                ) : (
+                  <Square size={20} />
+                )}
+              </button>
+
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -271,6 +355,23 @@ export default function VagasPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
+                <th className="px-6 py-4 w-10">
+                  <button
+                    onClick={selection.handleSelectAllToggle}
+                    className={cn(
+                      "p-1 rounded transition-colors",
+                      selection.isAllSelected
+                        ? "text-blue-600"
+                        : "text-gray-300 hover:text-gray-400",
+                    )}
+                  >
+                    {selection.isAllSelected ? (
+                      <CheckSquare size={20} />
+                    ) : (
+                      <Square size={20} />
+                    )}
+                  </button>
+                </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
                   Título / Empresa
                 </th>
@@ -289,10 +390,10 @@ export default function VagasPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {pagination.currentItems.length === 0 ? (
+              {filteredVagas.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-12 text-center text-gray-400 font-bold"
                   >
                     Nenhuma vaga cadastrada.
@@ -302,8 +403,28 @@ export default function VagasPage() {
                 pagination.currentItems.map((vaga) => (
                   <tr
                     key={vaga.id}
-                    className="hover:bg-blue-50/30 transition-colors group"
+                    className={cn(
+                      "hover:bg-blue-50/30 transition-colors group",
+                      selection.isSelected(vaga.id) && "bg-blue-50/50",
+                    )}
                   >
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => selection.toggleSelect(vaga.id)}
+                        className={cn(
+                          "p-1 rounded transition-colors",
+                          selection.isSelected(vaga.id)
+                            ? "text-blue-600"
+                            : "text-gray-300 hover:text-gray-400 opacity-0 group-hover:opacity-100",
+                        )}
+                      >
+                        {selection.isSelected(vaga.id) ? (
+                          <CheckSquare size={20} />
+                        ) : (
+                          <Square size={20} />
+                        )}
+                      </button>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="text-gray-900 font-bold">
@@ -371,6 +492,14 @@ export default function VagasPage() {
         itemsPerPage={pagination.itemsPerPage}
         onItemsPerPageChange={pagination.setItemsPerPage}
         totalItems={pagination.totalItems}
+      />
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selection.selectedIds.length}
+        onClearSelection={selection.clearSelection}
+        onBulkDelete={() => setIsBulkDeleteOpen(true)}
+        onBulkEdit={() => setIsBulkEditOpen(true)}
       />
 
       {/* Form Modal */}
@@ -546,12 +675,81 @@ export default function VagasPage() {
         </form>
       </FormModal>
 
+      {/* Bulk Edit Modal */}
+      <BulkEditModal
+        isOpen={isBulkEditOpen}
+        onOpenChange={setIsBulkEditOpen}
+        count={selection.selectedIds.length}
+      >
+        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Novo Curso Destinado (Opcional)
+              </label>
+              <select
+                {...registerBulk("curso_id")}
+                className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white"
+              >
+                <option value="">Manter atual...</option>
+                {cursos.map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Novo Status (Opcional)
+              </label>
+              <select
+                {...registerBulk("status")}
+                className="w-full px-3 py-2.5 mt-1 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none bg-white font-bold"
+              >
+                <option value="">Manter atual...</option>
+                <option value="aberta">🟢 ABERTA</option>
+                <option value="preenchida">🔵 PREENCHIDA</option>
+                <option value="cancelada">🔴 CANCELADA</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setIsBulkEditOpen(false)}
+              className="flex-1 px-4 py-3 text-sm font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmittingBulk}
+              className="flex-[2] px-4 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
+            >
+              {isSubmittingBulk ? "Atualizando..." : "Aplicar Alterações"}
+            </button>
+          </div>
+        </form>
+      </BulkEditModal>
+
       {/* Delete Confirmation */}
       <ConfirmDeleteModal
         isOpen={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         onConfirm={confirmDelete}
         itemName={selectedVaga?.titulo}
+      />
+
+      {/* Bulk Delete Confirmation */}
+      <ConfirmBulkDeleteModal
+        isOpen={isBulkDeleteOpen}
+        onOpenChange={setIsBulkDeleteOpen}
+        onConfirm={confirmBulkDelete}
+        count={selection.selectedIds.length}
+        isLoading={isBulkDeleting}
       />
     </div>
   );
