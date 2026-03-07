@@ -17,16 +17,26 @@ export function translateError(error: any): string {
 export function useSupabaseCrud<T extends { id: string }>(
   table: string,
   queryKey: string[],
+  options?: {
+    orderBy?: { column: string; ascending?: boolean };
+  },
 ) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey,
+    queryKey: [...queryKey, options?.orderBy],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from(table)
-        .select("*")
-        .order("created_at", { ascending: false });
+      let q = supabase.from(table).select("*");
+
+      if (options?.orderBy) {
+        q = q.order(options.orderBy.column, {
+          ascending: options.orderBy.ascending ?? false,
+        });
+      } else {
+        q = q.order("created_at", { ascending: false });
+      }
+
+      const { data, error } = await q;
       if (error) throw error;
       return (data || []) as T[];
     },

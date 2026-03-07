@@ -30,6 +30,22 @@ import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
+
+const supervisorSortOptions: SortOption[] = [
+  { label: "Nome", column: "nome" },
+  { label: "Cargo", column: "cargo" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface SupervisorFilters {
+  empresa_id: string;
+}
+
+const initialFilters: SupervisorFilters = {
+  empresa_id: "",
+};
 
 const supervisorSchema = z.object({
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -70,6 +86,10 @@ export default function SupervisoresPage() {
   const [selectedSupervisor, setSelectedSupervisor] =
     useState<Supervisor | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("nome");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<SupervisorFilters>(initialFilters);
 
   const {
     items: supervisores,
@@ -80,9 +100,21 @@ export default function SupervisoresPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Supervisor>("supervisores", ["supervisores"]);
+  } = useSupabaseCrud<Supervisor>("supervisores", ["supervisores"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof SupervisorFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
 
   const {
     register,
@@ -120,7 +152,9 @@ export default function SupervisoresPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -189,15 +223,20 @@ export default function SupervisoresPage() {
     reset();
   };
 
-  const filteredSupervisores = supervisores.filter(
-    (supervisor) =>
+  const filteredSupervisores = supervisores.filter((supervisor) => {
+    const matchesSearch =
       (supervisor.nome?.toLowerCase() || "").includes(
         searchTerm.toLowerCase(),
       ) ||
       (supervisor.cargo?.toLowerCase() || "").includes(
         searchTerm.toLowerCase(),
-      ),
-  );
+      );
+
+    const matchesEmpresa =
+      !filters.empresa_id || supervisor.empresa_id === filters.empresa_id;
+
+    return matchesSearch && matchesEmpresa;
+  });
 
   const selection = useSelection(filteredSupervisores);
   const pagination = usePagination(filteredSupervisores);
@@ -241,8 +280,44 @@ export default function SupervisoresPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={supervisorSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Empresa
+          </label>
+          <select
+            value={filters.empresa_id}
+            onChange={(e) => handleFilterChange("empresa_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as Empresas</option>
+            {empresas.map((e: any) => (
+              <option key={e.id} value={e.id}>
+                {e.razao_social}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -645,7 +720,10 @@ export default function SupervisoresPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">
@@ -703,4 +781,3 @@ export default function SupervisoresPage() {
     </div>
   );
 }
-

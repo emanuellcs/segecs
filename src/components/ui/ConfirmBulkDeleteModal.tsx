@@ -50,14 +50,16 @@ export function ConfirmBulkDeleteModal({
           <DialogDescription className="text-center sm:text-left">
             {description}
             <span className="block mt-2 font-bold text-red-600">
-              {count} {count === 1 ? "registro selecionado" : "registros selecionados"}
+              {count}{" "}
+              {count === 1 ? "registro selecionado" : "registros selecionados"}
             </span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <p className="text-sm text-gray-500">
-            Para confirmar, digite <strong>apagar registros</strong> no campo abaixo:
+            Para confirmar, digite <strong>apagar registros</strong> no campo
+            abaixo:
           </p>
           <input
             type="text"

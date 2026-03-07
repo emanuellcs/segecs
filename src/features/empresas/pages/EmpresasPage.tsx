@@ -28,10 +28,26 @@ import { InputMask } from "@/components/ui/InputMask";
 import { ListLayoutToggle } from "@/components/ui/ListLayoutToggle";
 import { useListLayout } from "@/hooks/useListLayout";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
+
+const empresaSortOptions: SortOption[] = [
+  { label: "Razão Social", column: "razao_social" },
+  { label: "CNPJ", column: "cnpj" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface EmpresaFilters {
+  cidade_id: string;
+}
+
+const initialFilters: EmpresaFilters = {
+  cidade_id: "",
+};
 
 const empresaSchema = z.object({
   razao_social: z
@@ -76,6 +92,10 @@ export default function EmpresasPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("razao_social");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<EmpresaFilters>(initialFilters);
 
   const {
     items: empresas,
@@ -86,9 +106,35 @@ export default function EmpresasPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Empresa>("empresas", ["empresas"]);
+  } = useSupabaseCrud<Empresa>("empresas", ["empresas"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: cidades } = useSupabaseCrud<any>("cidades", ["cidades"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof EmpresaFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredEmpresas = empresas.filter((empresa) => {
+    const matchesSearch =
+      (empresa.razao_social?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase(),
+      ) || (empresa.cnpj || "").includes(searchTerm);
+
+    const matchesCidade =
+      !filters.cidade_id || empresa.cidade_id === filters.cidade_id;
+
+    return matchesSearch && matchesCidade;
+  });
+
+  const selection = useSelection(filteredEmpresas);
 
   const {
     register,
@@ -120,15 +166,6 @@ export default function EmpresasPage() {
     resolver: zodResolver(bulkEditSchema),
   });
 
-  const filteredEmpresas = empresas.filter(
-    (empresa) =>
-      (empresa.razao_social?.toLowerCase() || "").includes(
-        searchTerm.toLowerCase(),
-      ) || (empresa.cnpj || "").includes(searchTerm),
-  );
-
-  const selection = useSelection(filteredEmpresas);
-
   const onSubmit = async (data: any) => {
     try {
       if (selectedEmpresa) {
@@ -146,7 +183,9 @@ export default function EmpresasPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -259,8 +298,44 @@ export default function EmpresasPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={empresaSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Cidade
+          </label>
+          <select
+            value={filters.cidade_id}
+            onChange={(e) => handleFilterChange("cidade_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as Cidades</option>
+            {cidades.map((c: any) => (
+              <option key={c.id} value={c.id}>
+                {c.nome} - {c.uf}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -747,7 +822,10 @@ export default function EmpresasPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

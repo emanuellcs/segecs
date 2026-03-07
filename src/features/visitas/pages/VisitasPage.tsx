@@ -27,8 +27,26 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+const visitaSortOptions: SortOption[] = [
+  { label: "Data da Visita", column: "data_visita" },
+  { label: "Tipo", column: "tipo" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface VisitaFilters {
+  tipo: string;
+  empresa_id: string;
+}
+
+const initialFilters: VisitaFilters = {
+  tipo: "",
+  empresa_id: "",
+};
 
 const visitaSchema = z.object({
   estagio_id: z.string().uuid("Selecione um estágio válido"),
@@ -64,6 +82,10 @@ export default function VisitasPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedVisita, setSelectedVisita] = useState<Visita | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("data_visita");
+  const [isSortAsc, setIsSortAsc] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<VisitaFilters>(initialFilters);
 
   const {
     items: visitas,
@@ -74,12 +96,24 @@ export default function VisitasPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Visita>("visitas", ["visitas"]);
+  } = useSupabaseCrud<Visita>("visitas", ["visitas"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: estagios } = useSupabaseCrud<any>("estagios", ["estagios"]);
   const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
   const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
   const { items: vagas } = useSupabaseCrud<any>("vagas", ["vagas"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof VisitaFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
 
   const {
     register,
@@ -120,7 +154,9 @@ export default function VisitasPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -190,12 +226,19 @@ export default function VisitasPage() {
 
   const filteredVisitas = visitas.filter((visita) => {
     const estagio = estagios.find((e) => e.id === visita.estagio_id);
+    const vaga = vagas.find((v) => v.id === estagio?.vaga_id);
     const alunoNome =
       alunos.find((a) => a.id === estagio?.aluno_id)?.nome || "";
-    return (
+
+    const matchesSearch =
       alunoNome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      visita.resumo.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+      visita.resumo.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesTipo = !filters.tipo || visita.tipo === filters.tipo;
+    const matchesEmpresa =
+      !filters.empresa_id || vaga?.empresa_id === filters.empresa_id;
+
+    return matchesSearch && matchesTipo && matchesEmpresa;
   });
 
   const selection = useSelection(filteredVisitas);
@@ -239,8 +282,59 @@ export default function VisitasPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={visitaSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Tipo de Visita
+          </label>
+          <select
+            value={filters.tipo}
+            onChange={(e) => handleFilterChange("tipo", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Tipos</option>
+            <option value="presencial">Presencial</option>
+            <option value="remota">Remota</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Empresa
+          </label>
+          <select
+            value={filters.empresa_id}
+            onChange={(e) => handleFilterChange("empresa_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as Empresas</option>
+            {empresas.map((e: any) => (
+              <option key={e.id} value={e.id}>
+                {e.razao_social}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem */}
       <div
@@ -668,7 +762,10 @@ export default function VisitasPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">
@@ -723,4 +820,3 @@ export default function VisitasPage() {
     </div>
   );
 }
-

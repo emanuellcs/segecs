@@ -22,8 +22,24 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
+
+const nivelSortOptions: SortOption[] = [
+  { label: "Descrição", column: "descricao" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface NivelFilters {
+  mes_cadastro: string;
+}
+
+const initialFilters: NivelFilters = {
+  mes_cadastro: "",
+};
 
 const nivelSchema = z.object({
   descricao: z.string().min(3, "A descrição deve ter pelo menos 3 caracteres"),
@@ -43,6 +59,10 @@ export default function NiveisPage() {
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [selectedNivel, setSelectedNivel] = useState<Nivel | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("descricao");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<NivelFilters>(initialFilters);
 
   const {
     items: niveis,
@@ -52,7 +72,19 @@ export default function NiveisPage() {
     remove,
     bulkRemove,
     isBulkDeleting,
-  } = useSupabaseCrud<Nivel>("niveis", ["niveis"]);
+  } = useSupabaseCrud<Nivel>("niveis", ["niveis"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof NivelFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
 
   const {
     register,
@@ -120,9 +152,17 @@ export default function NiveisPage() {
     reset();
   };
 
-  const filteredNiveis = niveis.filter((nivel) =>
-    (nivel.descricao?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
-  );
+  const filteredNiveis = niveis.filter((nivel) => {
+    const matchesSearch = (nivel.descricao?.toLowerCase() || "").includes(
+      searchTerm.toLowerCase(),
+    );
+
+    const matchesMes =
+      !filters.mes_cadastro ||
+      nivel.created_at.startsWith(filters.mes_cadastro);
+
+    return matchesSearch && matchesMes;
+  });
 
   const selection = useSelection(filteredNiveis);
   const pagination = usePagination(filteredNiveis);
@@ -165,8 +205,38 @@ export default function NiveisPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={nivelSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Mês de Cadastro
+          </label>
+          <input
+            type="month"
+            value={filters.mes_cadastro}
+            onChange={(e) => handleFilterChange("mes_cadastro", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div

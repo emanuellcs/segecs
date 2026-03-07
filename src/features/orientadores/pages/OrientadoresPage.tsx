@@ -28,6 +28,22 @@ import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
+
+const orientadorSortOptions: SortOption[] = [
+  { label: "Nome", column: "nome" },
+  { label: "CPF", column: "cpf" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface OrientadorFilters {
+  escola_id: string;
+}
+
+const initialFilters: OrientadorFilters = {
+  escola_id: "",
+};
 
 const orientadorSchema = z.object({
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -60,6 +76,10 @@ export default function OrientadoresPage() {
   const [selectedOrientador, setSelectedOrientador] =
     useState<Orientador | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("nome");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<OrientadorFilters>(initialFilters);
 
   const {
     items: orientadores,
@@ -70,9 +90,36 @@ export default function OrientadoresPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Orientador>("orientadores", ["orientadores"]);
+  } = useSupabaseCrud<Orientador>("orientadores", ["orientadores"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: escolas } = useSupabaseCrud<any>("escolas", ["escolas"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof OrientadorFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredOrientadores = orientadores.filter((orientador) => {
+    const matchesSearch =
+      (orientador.nome?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase(),
+      ) || (orientador.cpf || "").includes(searchTerm);
+
+    const matchesEscola =
+      !filters.escola_id || orientador.escola_id === filters.escola_id;
+
+    return matchesSearch && matchesEscola;
+  });
+
+  const selection = useSelection(filteredOrientadores);
+  const pagination = usePagination(filteredOrientadores);
 
   const {
     register,
@@ -116,7 +163,9 @@ export default function OrientadoresPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -183,16 +232,6 @@ export default function OrientadoresPage() {
     reset();
   };
 
-  const filteredOrientadores = orientadores.filter(
-    (orientador) =>
-      (orientador.nome?.toLowerCase() || "").includes(
-        searchTerm.toLowerCase(),
-      ) || (orientador.cpf || "").includes(searchTerm),
-  );
-
-  const selection = useSelection(filteredOrientadores);
-  const pagination = usePagination(filteredOrientadores);
-
   const { listLayout } = useListLayout();
 
   if (isLoading) return <LoadingScreen />;
@@ -232,8 +271,44 @@ export default function OrientadoresPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={orientadorSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Escola
+          </label>
+          <select
+            value={filters.escola_id}
+            onChange={(e) => handleFilterChange("escola_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as Escolas</option>
+            {escolas.map((e: any) => (
+              <option key={e.id} value={e.id}>
+                {e.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -598,7 +673,10 @@ export default function OrientadoresPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

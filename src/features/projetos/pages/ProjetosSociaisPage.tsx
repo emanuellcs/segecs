@@ -27,8 +27,26 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
+
+const projetoSortOptions: SortOption[] = [
+  { label: "Título", column: "titulo" },
+  { label: "Status", column: "status" },
+  { label: "Data Execução", column: "data_execucao" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface ProjetoFilters {
+  status: string;
+}
+
+const initialFilters: ProjetoFilters = {
+  status: "",
+};
 
 const projetoSchema = z.object({
   aluno_id: z.string().uuid("Selecione um aluno válido"),
@@ -66,6 +84,10 @@ export default function ProjetosSociaisPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedProj, setSelectedProj] = useState<ProjetoSocial | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("titulo");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<ProjetoFilters>(initialFilters);
 
   const {
     items: projetos,
@@ -76,9 +98,21 @@ export default function ProjetosSociaisPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<ProjetoSocial>("projetos_sociais", ["projetos_sociais"]);
+  } = useSupabaseCrud<ProjetoSocial>("projetos_sociais", ["projetos_sociais"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof ProjetoFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
 
   const {
     register,
@@ -119,7 +153,9 @@ export default function ProjetosSociaisPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -190,10 +226,14 @@ export default function ProjetosSociaisPage() {
 
   const filteredProjetos = projetos.filter((proj) => {
     const alunoNome = alunos.find((a) => a.id === proj.aluno_id)?.nome || "";
-    return (
+
+    const matchesSearch =
       (proj.titulo?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (alunoNome?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-    );
+      (alunoNome?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+
+    const matchesStatus = !filters.status || proj.status === filters.status;
+
+    return matchesSearch && matchesStatus;
   });
 
   const selection = useSelection(filteredProjetos);
@@ -238,8 +278,41 @@ export default function ProjetosSociaisPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={projetoSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Status
+          </label>
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Status</option>
+            <option value="planejado">Planejado</option>
+            <option value="executado">Executado</option>
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -408,12 +481,15 @@ export default function ProjetosSociaisPage() {
                       key={projeto_social.id}
                       className={cn(
                         "hover:bg-blue-50/30 transition-colors group",
-                        selection.isSelected(projeto_social.id) && "bg-blue-50/50",
+                        selection.isSelected(projeto_social.id) &&
+                          "bg-blue-50/50",
                       )}
                     >
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => selection.toggleSelect(projeto_social.id)}
+                          onClick={() =>
+                            selection.toggleSelect(projeto_social.id)
+                          }
                           className={cn(
                             "p-1 rounded transition-colors",
                             selection.isSelected(projeto_social.id)
@@ -678,7 +754,10 @@ export default function ProjetosSociaisPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

@@ -11,6 +11,7 @@ import {
   MessageSquare,
   CheckSquare,
   Square,
+  Filter,
 } from "lucide-react";
 import { useSupabaseCrud, translateError } from "@/hooks/useSupabaseCrud";
 import { useForm } from "react-hook-form";
@@ -27,8 +28,28 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
+
+const avaliacaoSortOptions: SortOption[] = [
+  { label: "Data", column: "data_avaliacao" },
+  { label: "Nota", column: "nota" },
+  { label: "Tipo", column: "tipo" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface AvaliacaoFilters {
+  estagio_id: string;
+  tipo: string;
+}
+
+const initialFilters: AvaliacaoFilters = {
+  estagio_id: "",
+  tipo: "",
+};
 
 const avaliacaoSchema = z.object({
   estagio_id: z.string().uuid("Selecione um estágio válido"),
@@ -64,7 +85,10 @@ export default function AvaliacoesPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedAval, setSelectedAval] = useState<Avaliacao | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEstagioId, setSelectedEstagioId] = useState<string>("");
+  const [sortColumn, setSortColumn] = useState("data_avaliacao");
+  const [isSortAsc, setIsSortAsc] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<AvaliacaoFilters>(initialFilters);
 
   const {
     items: avaliacoes,
@@ -75,10 +99,41 @@ export default function AvaliacoesPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Avaliacao>("avaliacoes", ["avaliacoes"]);
+  } = useSupabaseCrud<Avaliacao>("avaliacoes", ["avaliacoes"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: estagios } = useSupabaseCrud<any>("estagios", ["estagios"]);
   const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof AvaliacaoFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredAvaliacoes = avaliacoes.filter((aval) => {
+    const estagio = estagios.find((e) => e.id === aval.estagio_id);
+    const alunoNome =
+      alunos.find((a) => a.id === estagio?.aluno_id)?.nome || "";
+
+    const matchesSearch = (alunoNome?.toLowerCase() || "").includes(
+      searchTerm.toLowerCase(),
+    );
+
+    const matchesEstagio =
+      !filters.estagio_id || aval.estagio_id === filters.estagio_id;
+
+    const matchesTipo = !filters.tipo || aval.tipo.toString() === filters.tipo;
+
+    return matchesSearch && matchesEstagio && matchesTipo;
+  });
+
+  const selection = useSelection(filteredAvaliacoes);
 
   const {
     register,
@@ -87,10 +142,6 @@ export default function AvaliacoesPage() {
     formState: { errors, isSubmitting },
   } = useForm<AvaliacaoFormValues>({
     resolver: zodResolver(avaliacaoSchema),
-    defaultValues: {
-      tipo: 1,
-      data_avaliacao: new Date().toISOString().split("T")[0],
-    },
   });
 
   const {
@@ -101,20 +152,6 @@ export default function AvaliacoesPage() {
   } = useForm<BulkEditValues>({
     resolver: zodResolver(bulkEditSchema),
   });
-
-  const filteredAvaliacoes = avaliacoes.filter((aval) => {
-    const estagio = estagios.find((e) => e.id === aval.estagio_id);
-    const alunoNome =
-      alunos.find((a) => a.id === estagio?.aluno_id)?.nome || "";
-    const matchesSearch = (alunoNome?.toLowerCase() || "").includes(
-      searchTerm.toLowerCase(),
-    );
-    const matchesEstagio =
-      !selectedEstagioId || aval.estagio_id === selectedEstagioId;
-    return matchesSearch && matchesEstagio;
-  });
-
-  const selection = useSelection(filteredAvaliacoes);
 
   const onSubmit = async (data: AvaliacaoFormValues) => {
     try {
@@ -133,7 +170,9 @@ export default function AvaliacoesPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -236,23 +275,19 @@ export default function AvaliacoesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-            Filtrar por Estágio
-          </label>
-          <select
-            className="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-            value={selectedEstagioId}
-            onChange={(e) => setSelectedEstagioId(e.target.value)}
-          >
-            <option value="">Todos os estágios</option>
-            {estagios.map((est: any) => (
-              <option key={est.id} value={est.id}>
-                {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
-              </option>
-            ))}
-          </select>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+          <div>
+            <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">
+              Filtro Ativo
+            </p>
+            <h2 className="text-xl font-black text-blue-900">
+              {activeFilterCount > 0 ? `${activeFilterCount} filtros` : "Todos"}
+            </h2>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-xl text-blue-500">
+            <Filter size={32} />
+          </div>
         </div>
 
         <div className="bg-orange-500 p-6 rounded-2xl shadow-lg shadow-orange-100 flex justify-between items-center text-white">
@@ -297,8 +332,60 @@ export default function AvaliacoesPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={avaliacaoSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Estágio / Aluno
+          </label>
+          <select
+            value={filters.estagio_id}
+            onChange={(e) => handleFilterChange("estagio_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os estágios</option>
+            {estagios.map((est: any) => (
+              <option key={est.id} value={est.id}>
+                {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Tipo de Avaliação
+          </label>
+          <select
+            value={filters.tipo}
+            onChange={(e) => handleFilterChange("tipo", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Tipos</option>
+            <option value="1">1ª Avaliação</option>
+            <option value="2">2ª Avaliação</option>
+            <option value="3">3ª Avaliação (Final)</option>
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -701,7 +788,10 @@ export default function AvaliacoesPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

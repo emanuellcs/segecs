@@ -28,12 +28,33 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { pdf } from "@react-pdf/renderer";
 import { TCETemplate } from "../templates/TCETemplate";
 import { PlanoAtividadesTemplate } from "../templates/PlanoAtividadesTemplate";
 import { TRETemplate } from "../templates/TRETemplate";
+
+const estagioSortOptions: SortOption[] = [
+  { label: "Início", column: "data_inicio" },
+  { label: "Fim", column: "data_fim" },
+  { label: "Status", column: "status" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface EstagioFilters {
+  status: string;
+  empresa_id: string;
+  curso_id: string;
+}
+
+const initialFilters: EstagioFilters = {
+  status: "",
+  empresa_id: "",
+  curso_id: "",
+};
 
 const estagioSchema = z.object({
   aluno_id: z.string().uuid("Selecione um aluno"),
@@ -82,6 +103,10 @@ export default function EstagiosPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedEstagio, setSelectedEstagio] = useState<Estagio | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("data_inicio");
+  const [isSortAsc, setIsSortAsc] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<EstagioFilters>(initialFilters);
 
   const {
     items: estagios,
@@ -92,7 +117,9 @@ export default function EstagiosPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Estagio>("estagios", ["estagios"]);
+  } = useSupabaseCrud<Estagio>("estagios", ["estagios"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
   const { items: vagas } = useSupabaseCrud<any>("vagas", ["vagas"]);
@@ -104,6 +131,38 @@ export default function EstagiosPage() {
   ]);
   const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
   const { items: cursos } = useSupabaseCrud<any>("cursos", ["cursos"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof EstagioFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredEstagios = estagios.filter((estagio) => {
+    const aluno = alunos.find((a) => a.id === estagio.aluno_id);
+    const alunoNome = aluno?.nome || "";
+    const vaga = vagas.find((v) => v.id === estagio.vaga_id);
+    const empresa = empresas.find((e) => e.id === vaga?.empresa_id);
+    const empresaNome = empresa?.razao_social || "";
+
+    const matchesSearch =
+      (alunoNome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (empresaNome?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+
+    const matchesStatus = !filters.status || estagio.status === filters.status;
+    const matchesEmpresa =
+      !filters.empresa_id || vaga?.empresa_id === filters.empresa_id;
+    const matchesCurso =
+      !filters.curso_id || aluno?.curso_id === filters.curso_id;
+
+    return matchesSearch && matchesStatus && matchesEmpresa && matchesCurso;
+  });
+
+  const selection = useSelection(filteredEstagios);
 
   const {
     register,
@@ -145,19 +204,6 @@ export default function EstagiosPage() {
     }
   }, [selectedAlunoId, alunos, cursos, setValue, selectedEstagio]);
 
-  const filteredEstagios = estagios.filter((estagio) => {
-    const aluno = alunos.find((a) => a.id === estagio.aluno_id)?.nome || "";
-    const vaga = vagas.find((v) => v.id === estagio.vaga_id);
-    const empresa =
-      empresas.find((e) => e.id === vaga?.empresa_id)?.razao_social || "";
-    return (
-      (aluno?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (empresa?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-    );
-  });
-
-  const selection = useSelection(filteredEstagios);
-
   const onSubmit = async (data: EstagioFormValues) => {
     try {
       if (selectedEstagio) {
@@ -175,7 +221,9 @@ export default function EstagiosPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -334,8 +382,78 @@ export default function EstagiosPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={estagioSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Status
+          </label>
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Status</option>
+            <option value="ativo">Ativo</option>
+            <option value="concluido">Concluído</option>
+            <option value="interrompido">Interrompido</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Empresa
+          </label>
+          <select
+            value={filters.empresa_id}
+            onChange={(e) => handleFilterChange("empresa_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as Empresas</option>
+            {empresas.map((e: any) => (
+              <option key={e.id} value={e.id}>
+                {e.razao_social}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Curso
+          </label>
+          <select
+            value={filters.curso_id}
+            onChange={(e) => handleFilterChange("curso_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Cursos</option>
+            {cursos.map((c: any) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -883,7 +1001,10 @@ export default function EstagiosPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

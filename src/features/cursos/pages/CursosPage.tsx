@@ -26,8 +26,25 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+const cursoSortOptions: SortOption[] = [
+  { label: "Nome", column: "nome" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface CursoFilters {
+  escola_id: string;
+  nivel_id: string;
+}
+
+const initialFilters: CursoFilters = {
+  escola_id: "",
+  nivel_id: "",
+};
 
 const cursoSchema = z.object({
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -61,6 +78,10 @@ export default function CursosPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedCurso, setSelectedCurso] = useState<Curso | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("nome");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<CursoFilters>(initialFilters);
 
   const {
     items: cursos,
@@ -71,10 +92,37 @@ export default function CursosPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Curso>("cursos", ["cursos"]);
+  } = useSupabaseCrud<Curso>("cursos", ["cursos"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: escolas } = useSupabaseCrud<any>("escolas", ["escolas"]);
   const { items: niveis } = useSupabaseCrud<any>("niveis", ["niveis"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof CursoFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredCursos = cursos.filter((curso) => {
+    const matchesSearch = (curso.nome?.toLowerCase() || "").includes(
+      searchTerm.toLowerCase(),
+    );
+
+    const matchesEscola =
+      !filters.escola_id || curso.escola_id === filters.escola_id;
+    const matchesNivel =
+      !filters.nivel_id || curso.nivel_id === filters.nivel_id;
+
+    return matchesSearch && matchesEscola && matchesNivel;
+  });
+
+  const selection = useSelection(filteredCursos);
 
   const {
     register,
@@ -97,12 +145,6 @@ export default function CursosPage() {
     resolver: zodResolver(bulkEditSchema),
   });
 
-  const filteredCursos = cursos.filter((curso) =>
-    (curso.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
-  );
-
-  const selection = useSelection(filteredCursos);
-
   const onSubmit = async (data: CursoFormValues) => {
     try {
       if (selectedCurso) {
@@ -120,7 +162,9 @@ export default function CursosPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -227,8 +271,62 @@ export default function CursosPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={cursoSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Escola
+          </label>
+          <select
+            value={filters.escola_id}
+            onChange={(e) => handleFilterChange("escola_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as Escolas</option>
+            {escolas.map((e: any) => (
+              <option key={e.id} value={e.id}>
+                {e.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Nível
+          </label>
+          <select
+            value={filters.nivel_id}
+            onChange={(e) => handleFilterChange("nivel_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Níveis</option>
+            {niveis.map((n: any) => (
+              <option key={n.id} value={n.id}>
+                {n.descricao}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -623,7 +721,10 @@ export default function CursosPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

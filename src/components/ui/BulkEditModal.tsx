@@ -37,13 +37,12 @@ export function BulkEditModal({
           <DialogDescription className="text-center sm:text-left">
             {description}
             <span className="block mt-2 font-bold text-blue-600">
-              {count} {count === 1 ? "registro selecionado" : "registros selecionados"}
+              {count}{" "}
+              {count === 1 ? "registro selecionado" : "registros selecionados"}
             </span>
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          {children}
-        </div>
+        <div className="py-4">{children}</div>
       </DialogContent>
     </Dialog>
   );

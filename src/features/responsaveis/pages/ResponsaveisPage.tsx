@@ -26,8 +26,15 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+const responsavelSortOptions: SortOption[] = [
+  { label: "Nome", column: "nome" },
+  { label: "CPF", column: "cpf" },
+  { label: "Cadastro", column: "created_at" },
+];
 
 const responsavelSchema = z.object({
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -51,6 +58,8 @@ export default function ResponsaveisPage() {
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [selectedResp, setSelectedResp] = useState<Responsavel | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("nome");
+  const [isSortAsc, setIsSortAsc] = useState(true);
 
   const {
     items: responsaveis,
@@ -60,7 +69,9 @@ export default function ResponsaveisPage() {
     remove,
     bulkRemove,
     isBulkDeleting,
-  } = useSupabaseCrud<Responsavel>("responsaveis", ["responsaveis"]);
+  } = useSupabaseCrud<Responsavel>("responsaveis", ["responsaveis"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const {
     register,
@@ -176,7 +187,18 @@ export default function ResponsaveisPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={responsavelSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
 
       {/* Listagem Responsiva (Cards) */}
@@ -501,4 +523,3 @@ export default function ResponsaveisPage() {
     </div>
   );
 }
-

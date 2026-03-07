@@ -29,6 +29,26 @@ import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
+
+const frequenciaSortOptions: SortOption[] = [
+  { label: "Data", column: "data" },
+  { label: "Horas", column: "horas_realizadas" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface FrequenciaFilters {
+  estagio_id: string;
+  validado_supervisor: string;
+  validado_orientador: string;
+}
+
+const initialFilters: FrequenciaFilters = {
+  estagio_id: "",
+  validado_supervisor: "",
+  validado_orientador: "",
+};
 
 const frequenciaSchema = z.object({
   estagio_id: z.string().uuid("Selecione um estágio válido"),
@@ -70,7 +90,10 @@ export default function FrequenciaPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedFreq, setSelectedFreq] = useState<Frequencia | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEstagioId, setSelectedEstagioId] = useState<string>("");
+  const [sortColumn, setSortColumn] = useState("data");
+  const [isSortAsc, setIsSortAsc] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FrequenciaFilters>(initialFilters);
 
   const {
     items: frequencias,
@@ -81,7 +104,9 @@ export default function FrequenciaPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Frequencia>("frequencias", ["frequencias"]);
+  } = useSupabaseCrud<Frequencia>("frequencias", ["frequencias"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: estagios } = useSupabaseCrud<any>("estagios", ["estagios"]);
   const { items: alunos } = useSupabaseCrud<any>("alunos", ["alunos"]);
@@ -198,6 +223,16 @@ export default function FrequenciaPage() {
     reset();
   };
 
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof FrequenciaFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
   const filteredFrequencias = frequencias.filter((freq) => {
     const estagio = estagios.find((e) => e.id === freq.estagio_id);
     const alunoNome =
@@ -205,9 +240,19 @@ export default function FrequenciaPage() {
     const matchesSearch =
       (alunoNome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (freq.atividades?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+
     const matchesEstagio =
-      !selectedEstagioId || freq.estagio_id === selectedEstagioId;
-    return matchesSearch && matchesEstagio;
+      !filters.estagio_id || freq.estagio_id === filters.estagio_id;
+    const matchesSupervisor =
+      !filters.validado_supervisor ||
+      freq.validado_supervisor === (filters.validado_supervisor === "true");
+    const matchesOrientador =
+      !filters.validado_orientador ||
+      freq.validado_orientador === (filters.validado_orientador === "true");
+
+    return (
+      matchesSearch && matchesEstagio && matchesSupervisor && matchesOrientador
+    );
   });
 
   const totalHoras = filteredFrequencias.reduce(
@@ -245,27 +290,7 @@ export default function FrequenciaPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-            Filtrar por Estágio
-          </label>
-          <select
-            className="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-            value={selectedEstagioId}
-            onChange={(e) => setSelectedEstagioId(e.target.value)}
-          >
-            <option value="">Todos os alunos ativos</option>
-            {estagios
-              .filter((e: any) => e.status === "ativo")
-              .map((est: any) => (
-                <option key={est.id} value={est.id}>
-                  {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
-                </option>
-              ))}
-          </select>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-100 flex justify-between items-center text-white">
           <div>
             <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-1">
@@ -306,8 +331,80 @@ export default function FrequenciaPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={frequenciaSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Estágio / Aluno
+          </label>
+          <select
+            value={filters.estagio_id}
+            onChange={(e) => handleFilterChange("estagio_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os alunos ativos</option>
+            {estagios
+              .filter((e: any) => e.status === "ativo")
+              .map((est: any) => (
+                <option key={est.id} value={est.id}>
+                  {alunos.find((a: any) => a.id === est.aluno_id)?.nome}
+                </option>
+              ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Status Supervisor
+          </label>
+          <select
+            value={filters.validado_supervisor}
+            onChange={(e) =>
+              handleFilterChange("validado_supervisor", e.target.value)
+            }
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos</option>
+            <option value="true">Validado</option>
+            <option value="false">Pendente</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Status Orientador
+          </label>
+          <select
+            value={filters.validado_orientador}
+            onChange={(e) =>
+              handleFilterChange("validado_orientador", e.target.value)
+            }
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos</option>
+            <option value="true">Validado</option>
+            <option value="false">Pendente</option>
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -777,10 +874,15 @@ export default function FrequenciaPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-xl">
-              <p className="text-sm font-bold text-gray-700 mb-2">Validar registros selecionados:</p>
+              <p className="text-sm font-bold text-gray-700 mb-2">
+                Validar registros selecionados:
+              </p>
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"

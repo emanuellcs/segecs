@@ -24,8 +24,24 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+const cidadeSortOptions: SortOption[] = [
+  { label: "Nome", column: "nome" },
+  { label: "UF", column: "uf" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface CidadeFilters {
+  uf: string;
+}
+
+const initialFilters: CidadeFilters = {
+  uf: "",
+};
 
 const cidadeSchema = z.object({
   nome: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
@@ -60,6 +76,10 @@ export default function CidadesPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedCidade, setSelectedCidade] = useState<Cidade | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("nome");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<CidadeFilters>(initialFilters);
 
   const {
     items: cidades,
@@ -70,7 +90,31 @@ export default function CidadesPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Cidade>("cidades", ["cidades"]);
+  } = useSupabaseCrud<Cidade>("cidades", ["cidades"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof CidadeFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredCidades = cidades.filter((cidade) => {
+    const matchesSearch =
+      (cidade.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (cidade.uf?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+
+    const matchesUF = !filters.uf || cidade.uf === filters.uf;
+
+    return matchesSearch && matchesUF;
+  });
+
+  const selection = useSelection(filteredCidades);
 
   const {
     register,
@@ -91,14 +135,6 @@ export default function CidadesPage() {
     resolver: zodResolver(bulkEditSchema),
   });
 
-  const filteredCidades = cidades.filter(
-    (cidade) =>
-      (cidade.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (cidade.uf?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
-  );
-
-  const selection = useSelection(filteredCidades);
-
   const onSubmit = async (data: CidadeFormValues) => {
     try {
       if (selectedCidade) {
@@ -116,7 +152,9 @@ export default function CidadesPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -221,8 +259,46 @@ export default function CidadesPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={cidadeSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Estado (UF)
+          </label>
+          <select
+            value={filters.uf}
+            onChange={(e) => handleFilterChange("uf", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as UFs</option>
+            {Array.from(new Set(cidades.map((c) => c.uf)))
+              .sort()
+              .map((uf) => (
+                <option key={uf} value={uf}>
+                  {uf}
+                </option>
+              ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -517,7 +593,10 @@ export default function CidadesPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

@@ -30,6 +30,27 @@ import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
+
+const alunoSortOptions: SortOption[] = [
+  { label: "Nome", column: "nome" },
+  { label: "Matrícula", column: "matricula" },
+  { label: "Nascimento", column: "data_nascimento" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface AlunoFilters {
+  status: string;
+  curso_id: string;
+  responsavel_id: string;
+}
+
+const initialFilters: AlunoFilters = {
+  status: "",
+  curso_id: "",
+  responsavel_id: "",
+};
 
 const alunoSchema = z.object({
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -71,6 +92,10 @@ export default function AlunosPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("nome");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<AlunoFilters>(initialFilters);
 
   const {
     items: alunos,
@@ -81,12 +106,42 @@ export default function AlunosPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Aluno>("alunos", ["alunos"]);
+  } = useSupabaseCrud<Aluno>("alunos", ["alunos"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: cursos } = useSupabaseCrud<any>("cursos", ["cursos"]);
   const { items: responsaveis } = useSupabaseCrud<any>("responsaveis", [
     "responsaveis",
   ]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof AlunoFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredAlunos = alunos.filter((aluno) => {
+    const matchesSearch =
+      (aluno.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (aluno.matricula || "").includes(searchTerm) ||
+      (aluno.cpf || "").includes(searchTerm);
+
+    const matchesStatus = !filters.status || aluno.status === filters.status;
+    const matchesCurso =
+      !filters.curso_id || aluno.curso_id === filters.curso_id;
+    const matchesResponsavel =
+      !filters.responsavel_id ||
+      aluno.responsavel_id === filters.responsavel_id;
+
+    return matchesSearch && matchesStatus && matchesCurso && matchesResponsavel;
+  });
+
+  const selection = useSelection(filteredAlunos);
 
   const {
     register,
@@ -110,15 +165,6 @@ export default function AlunosPage() {
     resolver: zodResolver(bulkEditSchema),
   });
 
-  const filteredAlunos = alunos.filter(
-    (aluno) =>
-      (aluno.nome?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (aluno.matricula || "").includes(searchTerm) ||
-      (aluno.cpf || "").includes(searchTerm),
-  );
-
-  const selection = useSelection(filteredAlunos);
-
   const onSubmit = async (data: AlunoFormValues) => {
     try {
       if (selectedAluno) {
@@ -136,7 +182,9 @@ export default function AlunosPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -234,7 +282,7 @@ export default function AlunosPage() {
         </button>
       </div>
 
-      {/* Busca e Layout Toggle */}
+      {/* Busca, Ordenação e Layout Toggle */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative group flex-1">
           <Search
@@ -249,8 +297,82 @@ export default function AlunosPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={alunoSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Status
+          </label>
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Status</option>
+            <option value="pendente">Pendente</option>
+            <option value="estagiando">Estagiando</option>
+            <option value="concluido">Concluído</option>
+            <option value="evadido">Evadido</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Curso
+          </label>
+          <select
+            value={filters.curso_id}
+            onChange={(e) => handleFilterChange("curso_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Cursos</option>
+            {cursos.map((c: any) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Responsável
+          </label>
+          <select
+            value={filters.responsavel_id}
+            onChange={(e) =>
+              handleFilterChange("responsavel_id", e.target.value)
+            }
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Responsáveis</option>
+            {responsaveis.map((r: any) => (
+              <option key={r.id} value={r.id}>
+                {r.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -701,7 +823,10 @@ export default function AlunosPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">

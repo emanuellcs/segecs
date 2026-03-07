@@ -26,8 +26,29 @@ import { useListLayout } from "@/hooks/useListLayout";
 import { usePagination } from "@/hooks/usePagination";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSelection } from "@/hooks/useSelection";
+import { ListSortControl, SortOption } from "@/components/ui/ListSortControl";
+import { ListFilterControl } from "@/components/ui/ListFilterControl";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+
+const vagaSortOptions: SortOption[] = [
+  { label: "Título", column: "titulo" },
+  { label: "Status", column: "status" },
+  { label: "Vagas", column: "quantidade" },
+  { label: "Cadastro", column: "created_at" },
+];
+
+interface VagaFilters {
+  status: string;
+  empresa_id: string;
+  curso_id: string;
+}
+
+const initialFilters: VagaFilters = {
+  status: "",
+  empresa_id: "",
+  curso_id: "",
+};
 
 const vagaSchema = z.object({
   empresa_id: z.string().uuid("Selecione uma empresa válida"),
@@ -66,6 +87,10 @@ export default function VagasPage() {
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [selectedVaga, setSelectedVaga] = useState<Vaga | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("titulo");
+  const [isSortAsc, setIsSortAsc] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<VagaFilters>(initialFilters);
 
   const {
     items: vagas,
@@ -76,10 +101,43 @@ export default function VagasPage() {
     bulkRemove,
     bulkUpdate,
     isBulkDeleting,
-  } = useSupabaseCrud<Vaga>("vagas", ["vagas"]);
+  } = useSupabaseCrud<Vaga>("vagas", ["vagas"], {
+    orderBy: { column: sortColumn, ascending: isSortAsc },
+  });
 
   const { items: empresas } = useSupabaseCrud<any>("empresas", ["empresas"]);
   const { items: cursos } = useSupabaseCrud<any>("cursos", ["cursos"]);
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const handleFilterChange = (key: keyof VagaFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  const filteredVagas = vagas.filter((vaga) => {
+    const empresa =
+      empresas.find((e) => e.id === vaga.empresa_id)?.razao_social || "";
+    const curso = cursos.find((c) => c.id === vaga.curso_id)?.nome || "";
+
+    const matchesSearch =
+      (vaga.titulo?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (empresa?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (curso?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+
+    const matchesStatus = !filters.status || vaga.status === filters.status;
+    const matchesEmpresa =
+      !filters.empresa_id || vaga.empresa_id === filters.empresa_id;
+    const matchesCurso =
+      !filters.curso_id || vaga.curso_id === filters.curso_id;
+
+    return matchesSearch && matchesStatus && matchesEmpresa && matchesCurso;
+  });
+
+  const selection = useSelection(filteredVagas);
 
   const {
     register,
@@ -103,19 +161,6 @@ export default function VagasPage() {
     resolver: zodResolver(bulkEditSchema),
   });
 
-  const filteredVagas = vagas.filter((vaga) => {
-    const empresa =
-      empresas.find((e) => e.id === vaga.empresa_id)?.razao_social || "";
-    const curso = cursos.find((c) => c.id === vaga.curso_id)?.nome || "";
-    return (
-      (vaga.titulo?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (empresa?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (curso?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-    );
-  });
-
-  const selection = useSelection(filteredVagas);
-
   const onSubmit = async (data: VagaFormValues) => {
     try {
       if (selectedVaga) {
@@ -133,7 +178,9 @@ export default function VagasPage() {
 
   const onBulkEditSubmit = async (data: BulkEditValues) => {
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => (v as unknown) !== "" && v !== undefined),
+      Object.entries(data).filter(
+        ([_, v]) => (v as unknown) !== "" && v !== undefined,
+      ),
     );
 
     if (Object.keys(updateData).length === 0) {
@@ -243,8 +290,78 @@ export default function VagasPage() {
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
           />
         </div>
-        <ListLayoutToggle />
+        <div className="flex items-center gap-2">
+          <ListSortControl
+            options={vagaSortOptions}
+            currentColumn={sortColumn}
+            ascending={isSortAsc}
+            onSortChange={(col, asc) => {
+              setSortColumn(col);
+              setIsSortAsc(asc);
+            }}
+          />
+          <ListLayoutToggle />
+        </div>
       </div>
+
+      <ListFilterControl
+        isOpen={isFilterOpen}
+        onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        onClear={clearFilters}
+        count={activeFilterCount}
+      >
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Status
+          </label>
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Status</option>
+            <option value="aberta">Aberta</option>
+            <option value="preenchida">Preenchida</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Empresa
+          </label>
+          <select
+            value={filters.empresa_id}
+            onChange={(e) => handleFilterChange("empresa_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todas as Empresas</option>
+            {empresas.map((e: any) => (
+              <option key={e.id} value={e.id}>
+                {e.razao_social}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+            Curso
+          </label>
+          <select
+            value={filters.curso_id}
+            onChange={(e) => handleFilterChange("curso_id", e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos os Cursos</option>
+            {cursos.map((c: any) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ListFilterControl>
 
       {/* Listagem Responsiva (Cards) */}
       <div
@@ -681,7 +798,10 @@ export default function VagasPage() {
         onOpenChange={setIsBulkEditOpen}
         count={selection.selectedIds.length}
       >
-        <form onSubmit={handleSubmitBulk(onBulkEditSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmitBulk(onBulkEditSubmit)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">
