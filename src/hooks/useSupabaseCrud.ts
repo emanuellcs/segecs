@@ -2,16 +2,33 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 /**
- * Traduz erros técnicos do Supabase/Postgres para mensagens amigáveis em português.
+ * Translates technical Supabase/Postgres errors into user-friendly messages.
+ * Note: Since this is used in components, we can pass the translation function.
+ */
+export function getFriendlyErrorMessage(
+  error: any,
+  t: (key: string) => string,
+): string {
+  if (error.code === "23503") {
+    return t("errors.foreignKeyViolation");
+  }
+  if (error.code === "23505") {
+    return t("errors.uniqueViolation");
+  }
+  return error.message || t("errors.unexpected");
+}
+
+/**
+ * Legacy support for translateError, but ideally components should use getFriendlyErrorMessage with 't'
  */
 export function translateError(error: any): string {
   if (error.code === "23503") {
-    return "Não é possível excluir este registro pois ele está vinculado a outros dados no sistema (ex: estágios, vagas ou avaliações).";
+    return "Cannot delete this record because it is linked to other data in the system (e.g., internships, vacancies, or evaluations).";
   }
   if (error.code === "23505") {
-    return "Já existe um registro com estes dados únicos (CPF, CNPJ ou Matrícula).";
+    return "A record with these unique data (CPF, CNPJ, or Registration) already exists.";
   }
-  return error.message || "Ocorreu um erro inesperado na operação.";
+  return error.message || "An unexpected error occurred during the operation.";
 }
 
 export function useSupabaseCrud<T extends { id: string }>(

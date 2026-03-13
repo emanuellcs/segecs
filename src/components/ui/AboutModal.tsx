@@ -6,6 +6,7 @@ import {
   DialogDescription,
 } from "@/components/ui/Dialog";
 import { Github, ExternalLink, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ interface AboutModalProps {
 }
 
 export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -24,14 +27,14 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
             SEGECS
           </DialogTitle>
           <DialogDescription className="text-gray-500 font-medium text-center">
-            Sistema Escolar de Gestão do Estágio Curricular Supervisionado
+            {t("about.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="space-y-3 text-center">
             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-              Desenvolvedores
+              {t("about.developers")}
             </h4>
             <div className="grid grid-cols-1 gap-3">
               <a
@@ -88,7 +91,7 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
 
           <div className="space-y-3 text-center">
             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-              Repositório do Projeto
+              {t("about.repository")}
             </h4>
             <a
               href="https://github.com/prof-raimundo/segecs"
@@ -96,7 +99,7 @@ export function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 py-3 px-6 bg-blue-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-800 transition-all active:scale-95 shadow-lg shadow-blue-900/20"
             >
-              <Github size={16} /> Ver Código Fonte no GitHub
+              <Github size={16} /> {t("about.sourceCode")}
             </a>
           </div>
         </div>

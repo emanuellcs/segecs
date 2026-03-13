@@ -8,6 +8,7 @@ import {
   DialogFooter,
 } from "./Dialog";
 import { AlertTriangle, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmBulkDeleteModalProps {
   isOpen: boolean;
@@ -23,19 +24,24 @@ export function ConfirmBulkDeleteModal({
   isOpen,
   onOpenChange,
   onConfirm,
-  title = "Excluir Registros em Lote",
-  description = "Tem certeza que deseja excluir estes registros? Esta ação não pode ser desfeita.",
+  title,
+  description,
   count,
   isLoading = false,
 }: ConfirmBulkDeleteModalProps) {
+  const { t } = useTranslation();
   const [confirmationText, setConfirmationText] = useState("");
-  const isValid = confirmationText === "apagar registros";
+  const requiredText = t("common.confirmText");
+  const isValid = confirmationText.toLowerCase() === requiredText.toLowerCase();
 
   useEffect(() => {
     if (!isOpen) {
       setConfirmationText("");
     }
   }, [isOpen]);
+
+  const displayTitle = title || t("common.deleteBulk");
+  const displayDescription = description || t("common.confirmDeletion");
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -45,28 +51,31 @@ export function ConfirmBulkDeleteModal({
             <AlertTriangle className="text-red-600 h-6 w-6" />
           </div>
           <DialogTitle className="text-xl font-bold text-gray-900">
-            {title}
+            {displayTitle}
           </DialogTitle>
           <DialogDescription className="text-center sm:text-left">
-            {description}
+            {displayDescription}
             <span className="block mt-2 font-bold text-red-600">
-              {count}{" "}
-              {count === 1 ? "registro selecionado" : "registros selecionados"}
+              {count} {t("common.selectedRecords")}
             </span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <p className="text-sm text-gray-500">
-            Para confirmar, digite <strong>apagar registros</strong> no campo
-            abaixo:
+            {t("common.typeToConfirm", { text: requiredText })
+              .replace("<strong>", "")
+              .replace("</strong>", "")}
+            <strong className="block mt-1 text-red-600 font-black">
+              {requiredText}
+            </strong>
           </p>
           <input
             type="text"
             value={confirmationText}
             onChange={(e) => setConfirmationText(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all"
-            placeholder="apagar registros"
+            placeholder={requiredText}
             autoFocus
           />
         </div>
@@ -78,7 +87,7 @@ export function ConfirmBulkDeleteModal({
             disabled={isLoading}
             className="flex-1 sm:flex-none px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            Cancelar
+            {t("common.cancel")}
           </button>
           <button
             type="button"
@@ -91,7 +100,7 @@ export function ConfirmBulkDeleteModal({
             ) : (
               <Trash2 size={16} />
             )}
-            Excluir permanentemente
+            {t("common.deletePermanently")}
           </button>
         </DialogFooter>
       </DialogContent>

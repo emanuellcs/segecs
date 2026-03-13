@@ -6,6 +6,7 @@ import {
   DialogDescription,
 } from "./Dialog";
 import { Edit2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface BulkEditModalProps {
   isOpen: boolean;
@@ -19,11 +20,16 @@ interface BulkEditModalProps {
 export function BulkEditModal({
   isOpen,
   onOpenChange,
-  title = "Editar em Lote",
-  description = "Os campos preenchidos serão aplicados a todos os registros selecionados.",
+  title,
+  description,
   count,
   children,
 }: BulkEditModalProps) {
+  const { t } = useTranslation();
+
+  const displayTitle = title || t("common.editBulk");
+  const displayDescription = description || t("courses.formDescription");
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-[95vw]">
@@ -32,13 +38,12 @@ export function BulkEditModal({
             <Edit2 className="text-blue-600 h-6 w-6" />
           </div>
           <DialogTitle className="text-xl font-bold text-gray-900">
-            {title}
+            {displayTitle}
           </DialogTitle>
           <DialogDescription className="text-center sm:text-left">
-            {description}
+            {displayDescription}
             <span className="block mt-2 font-bold text-blue-600">
-              {count}{" "}
-              {count === 1 ? "registro selecionado" : "registros selecionados"}
+              {count} {t("common.selectedRecords")}
             </span>
           </DialogDescription>
         </DialogHeader>

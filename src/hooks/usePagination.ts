@@ -1,12 +1,17 @@
 import { useState, useMemo } from "react";
 
+/**
+ * Custom hook for managing list pagination.
+ * @param items The array of items to paginate.
+ * @param initialItemsPerPage Number of items to display per page (default: 10).
+ */
 export function usePagination<T>(items: T[], initialItemsPerPage: number = 10) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
 
   const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
 
-  // Garante que a página atual não ultrapasse o total de páginas ao filtrar
+  // Ensures current page does not exceed total pages when filtering
   if (currentPage > totalPages && totalPages > 0) {
     setCurrentPage(totalPages);
   }

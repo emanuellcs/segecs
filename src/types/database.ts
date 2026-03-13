@@ -1,96 +1,150 @@
-export interface Aluno {
+export interface Student {
   id: string;
-  nome: string;
-  matricula?: string | null;
+  profile_id?: string | null;
+  name: string;
+  registration?: string | null;
   cpf?: string | null;
-  data_nascimento?: string | null;
-  curso_id: string;
-  responsavel_id: string;
-  status: "pendente" | "estagiando" | "concluido" | "evadido";
+  birth_date?: string | null;
+  course_id: string;
+  guardian_id: string;
+  status: "pending" | "interning" | "completed" | "dropped_out";
   created_at: string;
 }
 
-export interface Empresa {
+export interface Company {
   id: string;
-  razao_social: string;
+  business_name: string;
   cnpj: string;
-  endereco?: string | null;
-  cidade_id: string;
-  contato_nome?: string | null;
-  contato_email?: string | null;
-  contato_telefone?: string | null;
-  convenio_numero?: string | null;
-  convenio_validade?: string | null;
+  address?: string | null;
+  city_id: string;
+  contact_name?: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+  agreement_number?: string | null;
+  agreement_validity?: string | null;
   created_at: string;
 }
 
-export interface Escola {
+export interface School {
   id: string;
-  nome: string;
+  name: string;
   inep?: string | null;
-  cidade_id: string;
+  city_id: string;
   created_at: string;
 }
 
-export interface Estagio {
+export interface Internship {
   id: string;
-  aluno_id: string;
-  vaga_id: string;
-  orientador_id: string;
+  student_id: string;
+  vacancy_id: string;
+  advisor_id: string;
   supervisor_id: string;
-  data_inicio: string;
-  data_fim: string;
-  carga_horaria_total: number;
-  carga_horaria_diaria: number;
-  status: "ativo" | "concluido" | "interrompido";
+  start_date: string;
+  end_date: string;
+  total_workload: number;
+  daily_workload: number;
+  status: "active" | "completed" | "interrupted";
   created_at: string;
 }
 
 export interface Supervisor {
   id: string;
-  nome: string;
-  empresa_id: string;
-  cargo?: string | null;
-  formacao?: string | null;
+  profile_id?: string | null;
+  name: string;
+  company_id: string;
+  position?: string | null;
+  education?: string | null;
   created_at: string;
 }
 
-export interface Orientador {
+export interface Advisor {
   id: string;
-  nome: string;
+  profile_id?: string | null;
+  name: string;
   cpf?: string | null;
-  escola_id: string;
+  school_id: string;
   created_at: string;
 }
 
-export interface Frequencia {
+export interface Frequency {
   id: string;
-  estagio_id: string;
-  data: string;
-  horas_realizadas: number;
-  atividades: string;
-  validado_supervisor: boolean;
-  validado_orientador: boolean;
+  internship_id: string;
+  date: string;
+  performed_hours: number;
+  activities: string;
+  validated_by_supervisor: boolean;
+  validated_by_advisor: boolean;
   created_at: string;
 }
 
-export interface Avaliacao {
+export interface Evaluation {
   id: string;
-  estagio_id: string;
-  tipo: number;
-  nota: number;
-  comentarios?: string | null;
-  data_avaliacao: string;
+  internship_id: string;
+  type: number;
+  grade: number;
+  comments?: string | null;
+  evaluation_date: string;
   created_at: string;
 }
 
-export interface ProjetoSocial {
+export interface SocialProject {
   id: string;
-  aluno_id: string;
-  titulo: string;
-  descricao?: string | null;
-  horas_estimadas: number;
-  data_execucao?: string | null;
-  status: "planejado" | "executado";
+  student_id: string;
+  title: string;
+  description?: string | null;
+  estimated_hours: number;
+  execution_date?: string | null;
+  status: "planned" | "executed";
+  created_at: string;
+}
+
+export interface City {
+  id: string;
+  name: string;
+  state: string;
+  created_at: string;
+}
+
+export interface Level {
+  id: string;
+  description: string;
+  created_at: string;
+}
+
+export interface Course {
+  id: string;
+  name: string;
+  school_id: string;
+  level_id: string;
+  mandatory_workload: number;
+  created_at: string;
+}
+
+export interface Guardian {
+  id: string;
+  name: string;
+  cpf?: string | null;
+  phone?: string | null;
+  created_at: string;
+}
+
+export interface Vacancy {
+  id: string;
+  company_id: string;
+  course_id: string;
+  title: string;
+  description?: string | null;
+  quantity: number;
+  status: "open" | "filled" | "cancelled";
+  created_at: string;
+}
+
+export interface Visit {
+  id: string;
+  internship_id: string;
+  visit_date: string;
+  type: "in_person" | "remote";
+  summary: string;
+  observations?: string | null;
   created_at: string;
 }

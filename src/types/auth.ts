@@ -2,9 +2,9 @@ import { Session } from "@supabase/supabase-js";
 
 export type UserRole =
   | "admin"
-  | "coordenador"
-  | "orientador"
-  | "aluno"
+  | "coordinator"
+  | "advisor"
+  | "student"
   | "supervisor";
 
 export interface Profile {

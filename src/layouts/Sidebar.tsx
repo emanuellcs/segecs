@@ -4,7 +4,7 @@ import {
   LayoutDashboard,
   MapPin,
   Layers,
-  School,
+  School as SchoolIcon,
   BookOpen,
   Users,
   GraduationCap,
@@ -19,51 +19,87 @@ import {
   LogOut,
   Info,
   X,
+  Languages,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { AboutModal } from "@/components/ui/AboutModal";
+import { useTranslation } from "react-i18next";
 
-const menuItems = [
+const getMenuItems = (t: any) => [
   {
-    group: "Principal",
-    items: [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
-  },
-  {
-    group: "Operacional",
+    group: t("sidebar.groups.main"),
     items: [
-      { to: "/vagas", label: "Vagas", icon: Briefcase },
-      { to: "/estagios", label: "Alocação (TCE)", icon: ClipboardCheck },
-      { to: "/visitas", label: "Visitas Técnicas", icon: MapPin },
-      { to: "/frequencia", label: "Frequência", icon: Clock },
+      {
+        to: "/dashboard",
+        label: t("sidebar.items.dashboard"),
+        icon: LayoutDashboard,
+      },
     ],
   },
   {
-    group: "Avaliação & Conclusão",
+    group: t("sidebar.groups.operational"),
     items: [
-      { to: "/avaliacoes", label: "Avaliações", icon: Award },
-      { to: "/projetos", label: "Projetos Sociais", icon: Heart },
+      {
+        to: "/vacancies",
+        label: t("sidebar.items.vacancies"),
+        icon: Briefcase,
+      },
+      {
+        to: "/internships",
+        label: t("sidebar.items.allocation"),
+        icon: ClipboardCheck,
+      },
+      { to: "/visits", label: t("sidebar.items.visits"), icon: MapPin },
+      { to: "/frequency", label: t("sidebar.items.frequency"), icon: Clock },
     ],
   },
   {
-    group: "Pessoas & Parceiros",
+    group: t("sidebar.groups.evaluation"),
     items: [
-      { to: "/alunos", label: "Alunos", icon: GraduationCap },
-      { to: "/responsaveis", label: "Responsáveis", icon: Users },
-      { to: "/orientadores", label: "Orientadores", icon: UserCheck },
-      { to: "/supervisores", label: "Supervisores", icon: UserCog },
-      { to: "/empresas", label: "Empresas", icon: Building2 },
+      {
+        to: "/evaluations",
+        label: t("sidebar.items.evaluations"),
+        icon: Award,
+      },
+      {
+        to: "/social-projects",
+        label: t("sidebar.items.socialProjects"),
+        icon: Heart,
+      },
     ],
   },
   {
-    group: "Configurações Base",
+    group: t("sidebar.groups.people"),
     items: [
-      { to: "/cidades", label: "Cidades", icon: MapPin },
-      { to: "/niveis", label: "Níveis", icon: Layers },
-      { to: "/escolas", label: "Escolas", icon: School },
-      { to: "/cursos", label: "Cursos", icon: BookOpen },
+      {
+        to: "/students",
+        label: t("sidebar.items.students"),
+        icon: GraduationCap,
+      },
+      { to: "/guardians", label: t("sidebar.items.guardians"), icon: Users },
+      { to: "/advisors", label: t("sidebar.items.advisors"), icon: UserCheck },
+      {
+        to: "/supervisors",
+        label: t("sidebar.items.supervisors"),
+        icon: UserCog,
+      },
+      {
+        to: "/companies",
+        label: t("sidebar.items.companies"),
+        icon: Building2,
+      },
+    ],
+  },
+  {
+    group: t("sidebar.groups.settings"),
+    items: [
+      { to: "/cities", label: t("sidebar.items.cities"), icon: MapPin },
+      { to: "/levels", label: t("sidebar.items.levels"), icon: Layers },
+      { to: "/schools", label: t("sidebar.items.schools"), icon: SchoolIcon },
+      { to: "/courses", label: t("sidebar.items.courses"), icon: BookOpen },
     ],
   },
 ];
@@ -79,25 +115,35 @@ export default function Sidebar({
   className,
   isCollapsed = false,
 }: SidebarProps) {
+  const { t, i18n } = useTranslation();
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
+  const toggleLanguage = () => {
+    const nextLang = i18n.language.startsWith("pt") ? "en" : "pt";
+    i18n.changeLanguage(nextLang);
+    toast.success(
+      t("common.languageSwitched", {
+        lang: nextLang === "pt" ? "Português" : "English",
+      }),
+    );
+  };
+
   const handleLogout = async () => {
-    console.log("Iniciando logout...");
-    toast.info("Saindo do sistema...");
+    toast.info(t("auth.signingOut"));
     try {
       await signOut();
-      console.log("Logout realizado com sucesso, redirecionando...");
       navigate("/login");
       if (onClose) onClose();
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-      toast.error("Erro ao sair do sistema. Tentando novamente...");
-      // Forçamos o redirecionamento mesmo em caso de erro bizarro
+      console.error("Logout error:", error);
+      toast.error(t("auth.signOutError"));
       navigate("/login");
     }
   };
+
+  const menuItems = getMenuItems(t);
 
   return (
     <aside
@@ -107,7 +153,7 @@ export default function Sidebar({
         className,
       )}
     >
-      {/* Header - Apenas para Mobile */}
+      {/* Header - Mobile Only */}
       {!isCollapsed && onClose && (
         <div className="p-4 flex items-center justify-end lg:hidden">
           <button
@@ -199,10 +245,28 @@ export default function Sidebar({
           </div>
         )}
 
+        {/* Language Switcher */}
+        <button
+          type="button"
+          onClick={toggleLanguage}
+          title={isCollapsed ? t("common.switchLanguage") : undefined}
+          className={cn(
+            "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-blue-300 hover:bg-blue-400/10 rounded-xl transition-all mb-1",
+            isCollapsed && "px-0",
+          )}
+        >
+          <Languages size={18} />
+          {!isCollapsed && (
+            <span className="uppercase tracking-widest text-xs font-bold">
+              {i18n.language.startsWith("pt") ? "English" : "Português"}
+            </span>
+          )}
+        </button>
+
         <button
           type="button"
           onClick={() => setIsAboutOpen(true)}
-          title={isCollapsed ? "Sobre o Sistema" : undefined}
+          title={isCollapsed ? t("sidebar.items.about") : undefined}
           className={cn(
             "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-blue-300 hover:bg-blue-400/10 rounded-xl transition-all mb-1",
             isCollapsed && "px-0",
@@ -211,7 +275,7 @@ export default function Sidebar({
           <Info size={18} />
           {!isCollapsed && (
             <span className="uppercase tracking-widest text-xs font-bold">
-              Sobre
+              {t("sidebar.items.about")}
             </span>
           )}
         </button>
@@ -219,7 +283,7 @@ export default function Sidebar({
         <button
           type="button"
           onClick={handleLogout}
-          title={isCollapsed ? "Sair do Sistema" : undefined}
+          title={isCollapsed ? t("auth.signOut") : undefined}
           className={cn(
             "w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-all",
             isCollapsed && "px-0",
@@ -228,7 +292,7 @@ export default function Sidebar({
           <LogOut size={18} />
           {!isCollapsed && (
             <span className="uppercase tracking-widest text-xs font-bold">
-              Sair
+              {t("auth.signOut")}
             </span>
           )}
         </button>

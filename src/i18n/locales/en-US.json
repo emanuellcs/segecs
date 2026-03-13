@@ -1,0 +1,800 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "status": "Status",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "noItemsFound": "No items found.",
+    "confirm": "Confirm",
+    "success": "Success!",
+    "error": "Error!",
+    "languageSwitched": "Language switched to {{lang}}",
+    "switchLanguage": "Switch Language",
+    "viewAll": "View All",
+    "student": "Student",
+    "statusLabels": {
+      "active": "Active",
+      "completed": "Completed",
+      "finished": "Finished"
+    },
+    "createdAt": "Created At",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "confirmRegistration": "Confirm Registration",
+    "confirmDeletion": "Confirm Deletion",
+    "keepCurrent": "Keep current...",
+    "updating": "Updating...",
+    "applyChanges": "Apply Changes",
+    "allSchools": "All Schools",
+    "allLevels": "All Levels",
+    "allStatus": "All Status",
+    "allCities": "All Cities",
+    "allStates": "All States (UF)",
+    "allCompanies": "All Companies",
+    "allTypes": "All Types",
+    "thisRecord": "this record",
+    "period": "Period",
+    "allActiveStudents": "All active students",
+    "all": "All",
+    "validated": "Validated",
+    "pending": "Pending",
+    "hours": "Hours",
+    "validation": "Validation",
+    "date": "Date",
+    "allInternships": "All internships",
+    "activeFilters": "Active Filters",
+    "none": "None",
+    "selectedRecords": "selected records",
+    "editBulk": "Bulk Edit",
+    "deleteBulk": "Bulk Delete",
+    "clearSelection": "Clear selection",
+    "deletePermanently": "Delete permanently",
+    "typeToConfirm": "To confirm, type <strong>{{text}}</strong> in the field below:",
+    "confirmText": "delete records",
+    "sync": "Sync",
+    "tableLayout": "Table Layout",
+    "cardLayout": "Card Layout",
+    "sortBy": "Sort by",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "waitAMoment": "Wait a moment",
+    "show": "Show",
+    "records": "records",
+    "of": "of",
+    "showing": "Showing",
+    "filters": "Filters",
+    "clear": "Clear"
+  },
+  "layout": {
+    "syncSuccess": "Data synchronized with database!",
+    "syncError": "Error synchronizing data.",
+    "openMenu": "Open menu",
+    "expandMenu": "Expand menu",
+    "collapseMenu": "Collapse menu",
+    "systemTitle": "Internship Management System",
+    "syncDatabase": "Sync with Database"
+  },
+  "levels": {
+    "title": "Levels",
+    "subtitle": "Management of education levels",
+    "new": "New Level",
+    "editTitle": "Edit Level",
+    "newTitle": "New Level Registration",
+    "formDescription": "Fill in the description for the education level.",
+    "searchPlaceholder": "Search by description...",
+    "fields": {
+      "description": "Description",
+      "registrationMonth": "Registration Month"
+    },
+    "placeholders": {
+      "levelDescriptionExample": "Ex: Integrated High School"
+    },
+    "validations": {
+      "descriptionMin": "Description must be at least 3 characters"
+    },
+    "messages": {
+      "createSuccess": "Level registered successfully!",
+      "updateSuccess": "Level updated successfully!",
+      "deleteSuccess": "Level removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!"
+    }
+  },
+  "cities": {
+    "title": "Cities",
+    "subtitle": "Management of cities and states",
+    "new": "New City",
+    "editTitle": "Edit City",
+    "newTitle": "New City Registration",
+    "formDescription": "Fill in the details for the location.",
+    "searchPlaceholder": "Search by name or state...",
+    "fields": {
+      "name": "City Name",
+      "state": "State (UF)"
+    },
+    "placeholders": {
+      "cityNameExample": "Ex: Fortaleza",
+      "stateExample": "CE"
+    },
+    "validations": {
+      "nameMin": "Name must be at least 2 characters",
+      "stateLength": "State must be exactly 2 characters"
+    },
+    "messages": {
+      "createSuccess": "City registered successfully!",
+      "updateSuccess": "City updated successfully!",
+      "deleteSuccess": "City removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newState": "New State (Optional)"
+    }
+  },
+  "schools": {
+    "title": "Schools",
+    "subtitle": "Management of educational institutions",
+    "new": "New School",
+    "editTitle": "Edit School",
+    "newTitle": "New School Registration",
+    "formDescription": "Fill in the details for the educational institution.",
+    "searchPlaceholder": "Search by name or INEP...",
+    "fields": {
+      "name": "School Name",
+      "inep": "INEP Code",
+      "city": "City"
+    },
+    "placeholders": {
+      "selectCity": "Select city...",
+      "schoolNameExample": "Ex: Manoel Mano High School",
+      "optional": "Optional"
+    },
+    "validations": {
+      "nameMin": "Name must be at least 3 characters",
+      "cityRequired": "Select a valid city"
+    },
+    "messages": {
+      "createSuccess": "School registered successfully!",
+      "updateSuccess": "School updated successfully!",
+      "deleteSuccess": "School removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newCity": "New City (Optional)"
+    }
+  },
+  "courses": {
+    "title": "Courses",
+    "subtitle": "Management of courses and training",
+    "new": "New Course",
+    "editTitle": "Edit Course",
+    "newTitle": "New Course Registration",
+    "formDescription": "Fill in the details for the technical or professional training.",
+    "searchPlaceholder": "Search by course name...",
+    "fields": {
+      "name": "Course Name",
+      "school": "School",
+      "level": "Education Level",
+      "mandatoryWorkload": "Mandatory Internship Workload",
+      "workloadAbbreviation": "Workload"
+    },
+    "placeholders": {
+      "selectSchool": "Select school...",
+      "selectLevel": "Select level...",
+      "courseNameExample": "Ex: IT Technician"
+    },
+    "validations": {
+      "nameMin": "Name must be at least 3 characters",
+      "schoolRequired": "Select a valid school",
+      "levelRequired": "Select a valid level",
+      "workloadMin": "Minimum 1 hour"
+    },
+    "messages": {
+      "createSuccess": "Course registered successfully!",
+      "updateSuccess": "Course updated successfully!",
+      "deleteSuccess": "Course removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!",
+      "selectFieldToUpdate": "Select at least one field to update."
+    },
+    "bulkEdit": {
+      "newSchool": "New School (Optional)",
+      "newLevel": "New Level (Optional)",
+      "newWorkload": "New Mandatory Workload (Optional)"
+    },
+    "labels": {
+      "totalWorkload": "{{count}}h total internship hours"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Welcome to the SEGECS intelligence center.",
+    "cards": {
+      "totalStudents": "Total Students",
+      "activeInternships": "Active Internships",
+      "totalHours": "Accumulated Hours",
+      "openVacancies": "Open Vacancies"
+    },
+    "sections": {
+      "distribution": "Student Distribution",
+      "recentAllocations": "Latest Allocations",
+      "openVacancies": "Open Vacancies"
+    },
+    "labels": {
+      "startedOn": "Started on",
+      "availableOpportunities": "Available Opportunities"
+    },
+    "actions": {
+      "exportSICE": "Export Full SICE",
+      "manageVacancies": "Manage Vacancies"
+    },
+    "compliance": {
+      "title": "Compliance",
+      "alerts": "ALERTS",
+      "ok": "SYSTEM OK",
+      "deadlines": "Deadlines",
+      "expiringInternships": "{{count}} Contracts expiring in 15 days",
+      "solveNow": "Solve Now",
+      "evaluations": "Evaluations",
+      "pendingEvaluations": "{{count}} Internships without grades",
+      "enterGrades": "Enter Grades",
+      "allInOrder": "Everything in order!",
+      "noCriticalIssues": "No critical issues found."
+    },
+    "messages": {
+      "noDataToExport": "No data to export.",
+      "reportExported": "Report exported!",
+      "exportError": "Error exporting report."
+    }
+  },
+  "auth": {
+    "signOut": "Sign Out",
+    "signingOut": "Signing out...",
+    "signOutError": "Error signing out. Redirecting...",
+    "signIn": "Sign In",
+    "subtitle": "School Management System for Supervised Curricular Internship",
+    "developedBy": "Developed by",
+    "fields": {
+      "email": "Institutional Email",
+      "password": "Access Password",
+      "rememberMe": "Remember me"
+    },
+    "validations": {
+      "emailInvalid": "Enter a valid email",
+      "passwordMin": "Password must be at least 6 characters"
+    },
+    "messages": {
+      "invalidCredentials": "Invalid credentials or server error.",
+      "welcome": "Welcome to SEGECS!"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "main": "Main",
+      "operational": "Operational",
+      "evaluation": "Evaluation & Completion",
+      "people": "People & Partners",
+      "settings": "Base Settings"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "vacancies": "Vacancies",
+      "allocation": "Allocation (TCE)",
+      "visits": "Technical Visits",
+      "frequency": "Frequency",
+      "evaluations": "Evaluations",
+      "socialProjects": "Social Projects",
+      "students": "Students",
+      "guardians": "Guardians",
+      "advisors": "Advisors",
+      "supervisors": "Supervisors",
+      "companies": "Companies",
+      "cities": "Cities",
+      "levels": "Levels",
+      "schools": "Schools",
+      "courses": "Courses",
+      "about": "About"
+    }
+  },
+  "errors": {
+    "foreignKeyViolation": "Cannot delete this record because it is linked to other data in the system (e.g., internships, vacancies, or evaluations).",
+    "uniqueViolation": "A record with these unique data (CPF, CNPJ, or Registration) already exists.",
+    "unexpected": "An unexpected error occurred during the operation."
+  },
+  "students": {
+    "title": "Students",
+    "subtitle": "Centralized student management",
+    "new": "New Student",
+    "editTitle": "Edit Student",
+    "newTitle": "New Student Registration",
+    "formDescription": "Fill in all required fields to keep the record updated.",
+    "searchPlaceholder": "Search by name, registration, or CPF...",
+    "allCourses": "All Courses",
+    "allGuardians": "All Guardians",
+    "fields": {
+      "name": "Full Name",
+      "registration": "Registration",
+      "cpf": "CPF",
+      "birthDate": "Birth Date",
+      "course": "Course",
+      "guardian": "Legal Guardian",
+      "status": "Academic Status"
+    },
+    "status": {
+      "pending": "PENDING",
+      "interning": "INTERNSHIP",
+      "completed": "COMPLETED",
+      "dropped_out": "DROPPED OUT"
+    },
+    "placeholders": {
+      "selectCourse": "Select a course...",
+      "selectGuardian": "Select a guardian..."
+    },
+    "validations": {
+      "nameMin": "Name must be at least 3 characters",
+      "registrationRequired": "Registration is required",
+      "cpfInvalid": "Invalid CPF",
+      "birthDateRequired": "Birth date is required",
+      "courseRequired": "Select a valid course",
+      "guardianRequired": "Select a valid guardian",
+      "statusRequired": "Select a valid status"
+    },
+    "messages": {
+      "createSuccess": "Student registered successfully!",
+      "updateSuccess": "Student updated successfully!",
+      "deleteSuccess": "Student removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!",
+      "selectFieldToUpdate": "Select at least one field to update."
+    },
+    "bulkEdit": {
+      "newCourse": "New Course (Optional)",
+      "newGuardian": "New Legal Guardian (Optional)",
+      "newStatus": "New Academic Status (Optional)"
+    }
+  },
+  "companies": {
+    "title": "Companies",
+    "subtitle": "Management of partner companies",
+    "new": "New Company",
+    "editTitle": "Edit Company",
+    "newTitle": "New Company Registration",
+    "formDescription": "Fill in all required fields to keep the record updated.",
+    "searchPlaceholder": "Search by business name or CNPJ...",
+    "sections": {
+      "location": "Location",
+      "mainContact": "Primary Contact",
+      "agreementInfo": "Agreement Information"
+    },
+    "fields": {
+      "businessName": "Business Name",
+      "cnpj": "CNPJ",
+      "address": "Full Address",
+      "city": "City",
+      "contactName": "Contact Name",
+      "email": "Email",
+      "phone": "Phone",
+      "agreementNumber": "Agreement No.",
+      "validity": "Validity"
+    },
+    "placeholders": {
+      "businessNameExample": "Ex: ACME Corporation LTD",
+      "addressExample": "Street, Number, Neighborhood",
+      "contactNameExample": "Responsible name at the company",
+      "emailExample": "contact@company.com",
+      "agreementNumberExample": "Ex: 123/2024"
+    },
+    "validations": {
+      "businessNameMin": "Business name must be at least 3 characters",
+      "cnpjInvalid": "Invalid CNPJ",
+      "addressRequired": "Address is required",
+      "cityRequired": "Select a valid city",
+      "contactNameRequired": "Contact name is required",
+      "emailInvalid": "Invalid email",
+      "phoneInvalid": "Invalid phone"
+    },
+    "messages": {
+      "createSuccess": "Company registered successfully!",
+      "updateSuccess": "Company updated successfully!",
+      "deleteSuccess": "Company removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newCity": "New City (Optional)",
+      "newValidity": "New Agreement Validity (Optional)"
+    }
+  },
+  "guardians": {
+    "title": "Guardians",
+    "subtitle": "Management of parents and tutors",
+    "new": "New Guardian",
+    "editTitle": "Edit Guardian",
+    "newTitle": "New Guardian Registration",
+    "formDescription": "Contact information for the student's parent or legal tutor.",
+    "searchPlaceholder": "Search by name or CPF...",
+    "fields": {
+      "name": "Full Name",
+      "cpf": "CPF",
+      "phone": "Phone/WhatsApp"
+    },
+    "placeholders": {
+      "guardianNameExample": "Ex: Jane Doe"
+    },
+    "validations": {
+      "nameMin": "Name must be at least 3 characters",
+      "cpfInvalid": "Invalid CPF",
+      "phoneInvalid": "Invalid phone"
+    },
+    "messages": {
+      "createSuccess": "Guardian registered successfully!",
+      "updateSuccess": "Guardian updated successfully!",
+      "deleteSuccess": "Guardian removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!"
+    }
+  },
+  "advisors": {
+    "title": "Advisors",
+    "subtitle": "Management of faculty advisors",
+    "new": "New Advisor",
+    "editTitle": "Edit Advisor",
+    "newTitle": "New Advisor Registration",
+    "formDescription": "Fill in the details for the faculty internship advisor.",
+    "searchPlaceholder": "Search by name or CPF...",
+    "fields": {
+      "name": "Full Name",
+      "cpf": "CPF",
+      "phone": "Phone",
+      "school": "Linked School"
+    },
+    "placeholders": {
+      "advisorNameExample": "Ex: Prof. Dr. John Smith"
+    },
+    "validations": {
+      "nameMin": "Name must be at least 3 characters",
+      "cpfInvalid": "Invalid CPF",
+      "schoolRequired": "Select a valid school"
+    },
+    "messages": {
+      "createSuccess": "Advisor registered successfully!",
+      "updateSuccess": "Advisor updated successfully!",
+      "deleteSuccess": "Advisor removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newSchool": "New Linked School (Optional)"
+    }
+  },
+  "supervisors": {
+    "title": "Supervisors",
+    "subtitle": "Management of field supervisors",
+    "new": "New Supervisor",
+    "editTitle": "Edit Supervisor",
+    "newTitle": "New Supervisor Registration",
+    "formDescription": "Fill in the details for the professional responsible at the company.",
+    "searchPlaceholder": "Search by name or position...",
+    "fields": {
+      "name": "Full Name",
+      "cpf": "CPF",
+      "phone": "Phone",
+      "company": "Company",
+      "position": "Position/Function",
+      "education": "Education"
+    },
+    "placeholders": {
+      "supervisorNameExample": "Ex: John Silva",
+      "positionExample": "Ex: IT Manager",
+      "educationExample": "Ex: Software Engineer",
+      "selectCompany": "Select a company..."
+    },
+    "validations": {
+      "nameMin": "Name must be at least 3 characters",
+      "companyRequired": "Select a valid company",
+      "positionRequired": "Position is required"
+    },
+    "messages": {
+      "createSuccess": "Supervisor registered successfully!",
+      "updateSuccess": "Supervisor updated successfully!",
+      "deleteSuccess": "Supervisor removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newCompany": "New Company (Optional)"
+    }
+  },
+  "vacancies": {
+    "title": "Job Offers",
+    "subtitle": "Manage internship opportunities",
+    "new": "New Vacancy",
+    "editTitle": "Edit Vacancy",
+    "newTitle": "New Internship Vacancy",
+    "formDescription": "Fill in the information for the internship opportunity.",
+    "searchPlaceholder": "Search by title, company, or course...",
+    "fields": {
+      "title": "Vacancy Title",
+      "company": "Company",
+      "intendedCourse": "Intended Course",
+      "quantity": "Quantity",
+      "description": "Description"
+    },
+    "status": {
+      "open": "OPEN",
+      "filled": "FILLED",
+      "cancelled": "CANCELLED"
+    },
+    "placeholders": {
+      "vacancyTitleExample": "Ex: Development Intern",
+      "descriptionExample": "Details about the vacancy and requirements..."
+    },
+    "validations": {
+      "titleMin": "Title must be at least 3 characters",
+      "quantityMin": "Minimum 1 vacancy"
+    },
+    "messages": {
+      "createSuccess": "Vacancy registered successfully!",
+      "updateSuccess": "Vacancy updated successfully!",
+      "deleteSuccess": "Vacancy removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newCourse": "New Intended Course (Optional)",
+      "newStatus": "New Status (Optional)"
+    },
+    "labels": {
+      "vacanciesCount": "{{count}} vacancy(ies)"
+    }
+  },
+  "internships": {
+    "title": "Internship Allocation",
+    "subtitle": "Management of contracts and links",
+    "new": "New Internship",
+    "editTitle": "Edit Allocation",
+    "newTitle": "New Internship Allocation",
+    "formDescription": "Link a student to a vacancy and define the internship terms.",
+    "searchPlaceholder": "Search by student or company...",
+    "fields": {
+      "student": "Student",
+      "vacancy": "Vacancy / Company",
+      "advisor": "Advisor",
+      "supervisor": "Field Supervisor",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "totalWorkload": "Total Workload",
+      "dailyWorkload": "Daily Workload"
+    },
+    "status": {
+      "active": "ACTIVE",
+      "completed": "COMPLETED",
+      "interrupted": "INTERRUPTED"
+    },
+    "messages": {
+      "createSuccess": "Internship allocated successfully!",
+      "updateSuccess": "Internship updated successfully!",
+      "deleteSuccess": "Internship removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!",
+      "generating": "Generating {{type}}...",
+      "generateSuccess": "{{type}} generated successfully!",
+      "generateError": "Error generating {{type}}"
+    },
+    "bulkEdit": {
+      "newAdvisor": "New Advisor (Optional)",
+      "newSupervisor": "New Field Supervisor (Optional)",
+      "newStatus": "New Status (Optional)"
+    },
+    "labels": {
+      "totalHours": "{{count}}h total"
+    },
+    "templates": {
+      "tce": "TCE",
+      "plan": "PLAN",
+
+      "tre": "TRE"
+    }
+  },
+  "visits": {
+    "title": "Technical Visits",
+    "subtitle": "In-person and monitoring follow-up",
+    "new": "Register Visit",
+    "editTitle": "Edit Visit",
+    "newTitle": "New Visit Record",
+    "formDescription": "Document the technical monitoring performed.",
+    "searchPlaceholder": "Search by student or summary...",
+    "fields": {
+      "internship": "Internship / Student",
+      "visitDate": "Visit Date",
+      "type": "Type",
+      "summary": "Visit Summary",
+      "observations": "Additional Observations"
+    },
+    "types": {
+      "in_person": "IN-PERSON",
+      "remote": "REMOTE"
+    },
+    "placeholders": {
+      "summaryExample": "Briefly describe what was observed...",
+      "observationsExample": "Points for improvement, pending items, etc...",
+      "selectInternship": "Select the internship..."
+    },
+    "validations": {
+      "internshipRequired": "Select a valid internship",
+      "summaryMin": "Summary must be at least 10 characters",
+      "typeRequired": "Select the visit type"
+    },
+    "messages": {
+      "createSuccess": "Visit registered successfully!",
+      "updateSuccess": "Visit updated successfully!",
+      "deleteSuccess": "Visit removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newType": "New Visit Type (Optional)"
+    }
+  },
+  "frequencies": {
+    "title": "Frequency",
+    "subtitle": "Daily monitoring of activities",
+    "new": "Log Hours",
+    "editTitle": "Edit Entry",
+    "newTitle": "New Hours Log",
+    "formDescription": "Record the hours and activities performed on the internship day.",
+    "searchPlaceholder": "Search by activities or student name...",
+    "fields": {
+      "internship": "Internship / Student",
+      "date": "Date",
+      "hoursPerformed": "Hours Performed",
+      "activities": "Performed Activities",
+      "supervisorValidation": "Validated by Supervisor",
+      "advisorValidation": "Validated by Advisor"
+    },
+    "stats": {
+      "accumulatedTotal": "Accumulated Total",
+      "mandatoryGoal": "Mandatory Goal"
+    },
+    "placeholders": {
+      "activitiesExample": "Ex: Software installation, user support...",
+      "selectInternship": "Select the internship..."
+    },
+    "validations": {
+      "internshipRequired": "Select a valid internship",
+      "dateRequired": "Date is required",
+      "hoursMin": "Minimum 1 hour",
+      "hoursMax": "Maximum 10 hours",
+      "activitiesMin": "Describe activities with at least 10 characters"
+    },
+    "messages": {
+      "createSuccess": "Frequency logged successfully!",
+      "updateSuccess": "Frequency entry updated!",
+      "deleteSuccess": "Entry removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "validateSelected": "Validate selected entries:",
+      "validateSupervisor": "Validated by Supervisor",
+      "validateAdvisor": "Validated by Advisor"
+    },
+    "labels": {
+      "hoursPerformed": "{{count}}h performed",
+      "validatedSup": "SUP",
+      "validatedOri": "ADV"
+    }
+  },
+  "evaluations": {
+    "title": "Evaluations",
+    "subtitle": "Academic performance follow-up",
+    "new": "Enter Grade",
+    "editTitle": "Edit Evaluation",
+    "newTitle": "New Grade Entry",
+    "formDescription": "Record the intern's performance during this period.",
+    "searchPlaceholder": "Search by student name...",
+    "fields": {
+      "internship": "Internship / Student",
+      "type": "Evaluation Type",
+      "grade": "Grade (0 to 10)",
+      "comments": "Comments",
+      "evaluationDate": "Evaluation Date"
+    },
+    "stats": {
+      "activeFilter": "Active Filter",
+      "gradeAverage": "Grade Average",
+      "totalEntries": "Total Entries"
+    },
+    "types": {
+      "first": "1st Evaluation",
+      "second": "2nd Evaluation",
+      "third": "3rd Evaluation (Final)",
+      "label": "{{count}}st GRADE"
+    },
+    "placeholders": {
+      "selectInternship": "Select the internship...",
+      "commentsExample": "Observations about performance...",
+      "gradeRange": "0.0 to 10.0"
+    },
+    "validations": {
+      "internshipRequired": "Select a valid internship",
+      "gradeMin": "Minimum grade 0",
+      "gradeMax": "Maximum grade 10",
+      "dateRequired": "Date is required"
+    },
+    "messages": {
+      "createSuccess": "Grade entered successfully!",
+      "updateSuccess": "Evaluation updated successfully!",
+      "deleteSuccess": "Evaluation removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newType": "New Evaluation Type (Optional)",
+      "newGrade": "New Grade (Optional)",
+      "newDate": "New Evaluation Date (Optional)"
+    }
+  },
+  "social_projects": {
+    "title": "Social Projects",
+    "subtitle": "Management of mandatory counterparts",
+    "new": "New Project",
+    "editTitle": "Edit Project",
+    "newTitle": "New Social Project",
+    "formDescription": "Register information for the social counterpart project.",
+    "searchPlaceholder": "Search by title or student name...",
+    "fields": {
+      "student": "Responsible Student",
+      "title": "Project Title",
+      "description": "Description",
+      "estimatedHours": "Estimated Hours",
+      "executionDate": "Execution Date"
+    },
+    "status": {
+      "planned": "PLANNED",
+      "executed": "EXECUTED"
+    },
+    "placeholders": {
+      "titleExample": "Ex: Food Donation",
+      "descriptionExample": "Details about social activities...",
+      "selectStudent": "Select the student..."
+    },
+    "validations": {
+      "studentRequired": "Select a valid student",
+      "titleMin": "Title must be at least 5 characters",
+      "hoursMin": "Minimum 1 hour"
+    },
+    "messages": {
+      "createSuccess": "Social project registered successfully!",
+      "updateSuccess": "Social project updated!",
+      "deleteSuccess": "Project removed successfully!",
+      "bulkDeleteSuccess": "Records removed successfully!",
+      "bulkUpdateSuccess": "Records updated successfully!"
+    },
+    "bulkEdit": {
+      "newStatus": "New Status (Optional)"
+    },
+    "labels": {
+      "notExecuted": "Not executed",
+      "estimatedHours": "{{count}}h estimated"
+    }
+  },
+  "about": {
+    "description": "School Management System for Supervised Curricular Internship",
+    "developers": "Developers",
+    "repository": "Project Repository",
+    "sourceCode": "View Source Code on GitHub"
+  },
+  "documents": {
+    "placeholders": {
+      "dropzone": "Click or drag to send (PDF/IMG)"
+    },
+    "messages": {
+      "uploadSuccess": "File uploaded successfully!",
+      "uploadError": "Upload error: "
+    }
+  }
+}

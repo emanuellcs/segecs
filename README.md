@@ -1,71 +1,72 @@
-# SEGECS - Sistema Escolar de Gestão do Estágio Curricular Supervisionado
+# SEGECS - School Management System for Supervised Curricular Internship
 
-## 📖 Sobre o SEGECS
+## 📖 About SEGECS
 
-O **SEGECS** é uma solução de governança acadêmica de alta performance, projetada especificamente para centralizar, automatizar e monitorar o ciclo de vida completo do Estágio Curricular Supervisionado. A plataforma atua como uma ponte inteligente entre instituições de ensino, empresas parceiras e estudantes, eliminando burocracias manuais e garantindo total conformidade com a **Lei nº 11.788/2008**.
+**SEGECS** is a high-performance academic governance solution, specifically designed to centralize, automate, and monitor the complete lifecycle of the Supervised Curricular Internship. The platform acts as an intelligent bridge between educational institutions, partner companies, and students, eliminating manual bureaucracies and ensuring full compliance with **Brazilian Law No. 11,788/2008**.
 
-Diferente de sistemas genéricos, o SEGECS oferece uma arquitetura **multi-formação**, permitindo que coordenadores gerenciem simultaneamente diversos cursos técnicos e profissionais (como Enfermagem, Administração, Redes, Edificações, entre outros). Cada curso possui sua própria parametrização de carga horária e competências, permitindo que a instituição escale sua operação de estágios sem perder o controle individualizado de cada contrato.
+Unlike generic systems, SEGECS offers a **multi-training** architecture, allowing coordinators to simultaneously manage various technical and professional courses (such as Nursing, Administration, Networking, Building Construction, among others). Each course has its own workload and competency settings, allowing the institution to scale its internship operations without losing individualized control over each contract.
 
-Com uma interface moderna e orientada a dados, o sistema transforma o acompanhamento pedagógico, antes disperso em papéis e planilhas, em indicadores estratégicos em tempo real, fornecendo segurança jurídica através da geração automatizada de documentos e integridade técnica por meio de políticas rigorosas de proteção de dados.
+With a modern, data-driven interface, the system transforms pedagogical monitoring, previously scattered across papers and spreadsheets, into real-time strategic indicators, providing legal security through automated document generation and technical integrity through rigorous data protection policies.
 
-## 🏛️ Arquitetura do Sistema
+## 🏛️ System Architecture
 
-O SEGECS utiliza uma arquitetura moderna baseada em **SPA (Single Page Application)** com uma infraestrutura **Serverless**, garantindo escalabilidade, segurança e alta performance.
+SEGECS uses a modern architecture based on **SPA (Single Page Application)** with a **Serverless** infrastructure, ensuring scalability, security, and high performance.
 
-### 🏗️ Stack Tecnológica
+### 🏗️ Tech Stack
 
-- **Frontend:** [React 18](https://react.dev/) com [Vite](https://vitejs.dev/) e [TypeScript](https://www.typescriptlang.org/).
-- **Estilização:** [TailwindCSS](https://tailwindcss.com/) e [Framer Motion](https://www.framer.com/motion/) para animações fluídas.
-- **Backend-as-a-Service:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, RLS e Realtime).
-- **Gerenciamento de Estado:** [React Query (TanStack)](https://tanstack.com/query/latest) para cache e sincronização de dados.
-- **Formulários:** [React Hook Form](https://react-hook-form.com/) integrado com [Zod](https://zod.dev/) para validação rigorosa.
-- **Documentação:** [@react-pdf/renderer](https://react-pdf.org/) para geração dinâmica de PDFs no cliente.
+- **Frontend:** [React 18](https://react.dev/) with [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang.org/).
+- **Styling:** [TailwindCSS](https://tailwindcss.com/) and [Framer Motion](https://www.framer.com/motion/) for fluid animations.
+- **Backend-as-a-Service:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, RLS, and Realtime).
+- **State Management:** [React Query (TanStack)](https://tanstack.com/query/latest) for caching and data synchronization.
+- **Forms:** [React Hook Form](https://react-hook-form.com/) integrated with [Zod](https://zod.dev/) for rigorous validation.
+- **Documentation:** [@react-pdf/renderer](https://react-pdf.org/) for dynamic PDF generation on the client side.
+- **Localization:** [i18next](https://www.i18next.com/) for multi-language support (Portuguese and English).
 
-### 🛡️ Camada de Segurança
+### 🛡️ Security Layer
 
-- **Supabase Auth:** Autenticação segura com suporte a persistência de sessão configurável ("Lembre-se de mim").
-- **Row Level Security (RLS):** Políticas de acesso direto no banco de dados garantindo que alunos vejam apenas seus dados, enquanto coordenadores acessam a visão gerencial.
-- **Snapshot Logic:** Cargas horárias são copiadas para os contratos no momento da criação, protegendo registros históricos contra alterações futuras nas grades curriculares.
+- **Supabase Auth:** Secure authentication with configurable session persistence ("Remember me").
+- **Row Level Security (RLS):** Access policies directly in the database ensuring students see only their data, while coordinators access the management view.
+- **Snapshot Logic:** Workloads are copied to contracts at the time of creation, protecting historical records against future changes in the curriculum.
 
-## 🚀 Funcionalidades Principais
+## 🚀 Key Features
 
-### 📋 Gestão Administrativa (Multi-Curso)
+### 📋 Administrative Management (Multi-Course)
 
-- **Cursos Customizáveis:** Cadastro de qualquer formação com definição de CH obrigatória específica.
-- **Gestão de Parceiros:** Controle de empresas com monitoramento de validade de convênios.
-- **Banco de Talentos:** Cadastro detalhado de alunos, orientadores e supervisores de campo.
+- **Customizable Courses:** Registration of any training with specific mandatory workload definition.
+- **Partner Management:** Control of companies with monitoring of agreement validity.
+- **Talent Bank:** Detailed registration of students, advisors, and field supervisors.
 
-### ⚙️ Fluxo de Alocação e Vagas
+### ⚙️ Allocation and Vacancy Flow
 
-- **Gestão de Vagas:** Publicação e controle de oportunidades por curso e empresa.
-- **Alocação Inteligente:** Vínculo automático entre aluno, vaga, orientador e supervisor.
-- **Preenchimento Automático:** O sistema detecta a CH do curso e sugere os termos do contrato instantaneamente.
+- **Vacancy Management:** Publication and control of opportunities by course and company.
+- **Intelligent Allocation:** Automatic link between student, vacancy, advisor, and supervisor.
+- **Auto-fill:** The system detects the course workload and suggests contract terms instantly.
 
-### 📈 Monitoramento e Controle (Compliance)
+### 📈 Monitoring and Control (Compliance)
 
-- **Registro de Frequência:** Lançamento diário de atividades com validação de horários.
-- **Visitas Técnicas:** Módulo completo para registro de acompanhamento presencial ou remoto.
-- **Avaliações Pedagógicas:** Sistema de notas e feedbacks por período.
-- **Dashboard de Inteligência:** Gráficos de distribuição, alertas de contratos vencendo e pendências de avaliação.
+- **Frequency Log:** Daily entry of activities with time validation.
+- **Technical Visits:** Full module for recording in-person or remote monitoring.
+- **Pedagogical Evaluations:** Grading and feedback system by period.
+- **Intelligence Dashboard:** Distribution charts, expiring contract alerts, and evaluation pending items.
 
-### 🎓 Documentação Automática (PDF)
+### 🎓 Automatic Documentation (PDF)
 
-- **TCE (Termo de Compromisso):** Geração instantânea conforme legislação vigente.
-- **Plano de Atividades:** Detalhamento das competências técnicas em desenvolvimento.
-- **TRE (Termo de Realização):** Documento final de conclusão com resumo de carga horária.
-- **Exportação SICE:** Preparação de dados em CSV estruturado para o sistema da SEDUC-CE.
+- **TCE (Commitment Term):** Instant generation according to current legislation.
+- **Activity Plan:** Detailing technical competencies in development.
+- **TRE (Realization Term):** Final completion document with workload summary.
+- **SICE Export:** Preparation of structured CSV data for the SEDUC-CE system.
 
-## 🚦 Começando
+## 🚦 Getting Started
 
-### 📋 Pré-requisitos
+### 📋 Prerequisites
 
 - **Node.js** (v18+)
-- **npm** ou **pnpm**
-- Instância do **Supabase**
+- **npm** or **pnpm**
+- **Supabase** Instance
 
-### ⚙️ Instalação e Configuração
+### ⚙️ Installation and Configuration
 
-1. **Clonar e Instalar:**
+1. **Clone and Install:**
 
    ```bash
    git clone https://github.com/prof-raimundo/segecs.git
@@ -73,40 +74,41 @@ O SEGECS utiliza uma arquitetura moderna baseada em **SPA (Single Page Applicati
    npm install
    ```
 
-2. **Configurar Variáveis de Ambiente:**
-   Crie um arquivo `.env` na raiz:
+2. **Configure Environment Variables:**
+   Create a `.env` file in the root:
 
    ```env
-   VITE_PUBLIC_SUPABASE_URL=sua_url_supabase
-   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua_chave_anon
+   VITE_PUBLIC_SUPABASE_URL=your_supabase_url
+   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_anon_key
    ```
 
-3. **Configurar Banco de Dados:**
-   - Execute o script em `database/supabase_schema.sql` no editor SQL do Supabase.
-   - (Opcional) Execute o `database/seed.sql` para popular o sistema com dados de teste (70 usuários, 15 visitas, frequências, etc.).
+3. **Configure Database:**
+   - Run the script in `database/supabase_schema.sql` in the Supabase SQL editor.
+   - (Optional) Run `database/seed.sql` to populate the system with test data (70 users, 15 visits, frequencies, etc.).
 
-4. **Executar:**
+4. **Run:**
    ```bash
    npm run dev
    ```
 
-## 📂 Estrutura de Pastas
+## 📂 Folder Structure
 
 ```text
 src/
-├── app/            # Configurações globais, rotas e provedores
-├── components/     # Componentes UI reutilizáveis (Pagination, Loading, etc)
-├── features/       # Módulos de negócio (alunos, estagios, visitas, etc)
-│   └── [feature]/  # Componentes, páginas e serviços específicos
-├── hooks/          # Hooks customizados (usePagination, useAuth, useSupabaseCrud)
-├── lib/            # Configurações de bibliotecas (supabase cliente, utils)
-└── types/          # Definições de tipos TypeScript e banco de dados
+├── app/            # Global configurations, routes, and providers
+├── components/     # Reusable UI components (Pagination, Loading, etc.)
+├── features/       # Business modules (students, internships, visits, etc.)
+│   └── [feature]/  # Specific components, pages, and services
+├── hooks/          # Custom hooks (usePagination, useAuth, useSupabaseCrud)
+├── i18n/           # Localization configuration and translation files
+├── lib/            # Library configurations (supabase client, utils)
+└── types/          # TypeScript type definitions and database types
 ```
 
-## 📄 Licença
+## 📄 License
 
-Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 <p align="center">
-  Desenvolvido com ❤️ para transformar a educação técnica.
+  Developed with ❤️ to transform technical education.
 </p>

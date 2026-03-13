@@ -1,4 +1,5 @@
 import { Trash2, Edit2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface BulkActionsToolbarProps {
   selectedCount: number;
@@ -13,9 +14,13 @@ export function BulkActionsToolbar({
   onClearSelection,
   onBulkDelete,
   onBulkEdit,
-  label = "registros selecionados",
+  label,
 }: BulkActionsToolbarProps) {
+  const { t } = useTranslation();
+
   if (selectedCount === 0) return null;
+
+  const displayLabel = label || t("common.selectedRecords");
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -24,12 +29,12 @@ export function BulkActionsToolbar({
           <button
             onClick={onClearSelection}
             className="p-1 hover:bg-blue-800 rounded-md transition-colors"
-            title="Limpar seleção"
+            title={t("common.clearSelection")}
           >
             <X size={18} />
           </button>
           <span className="font-bold text-sm whitespace-nowrap">
-            {selectedCount} {label}
+            {selectedCount} {displayLabel}
           </span>
         </div>
 
@@ -39,14 +44,14 @@ export function BulkActionsToolbar({
               onClick={onBulkEdit}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 font-bold text-sm transition-all active:scale-95"
             >
-              <Edit2 size={16} /> Editar em Lote
+              <Edit2 size={16} /> {t("common.editBulk")}
             </button>
           )}
           <button
             onClick={onBulkDelete}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-sm transition-all active:scale-95 shadow-lg shadow-red-900/20"
           >
-            <Trash2 size={16} /> Excluir em Lote
+            <Trash2 size={16} /> {t("common.deleteBulk")}
           </button>
         </div>
       </div>

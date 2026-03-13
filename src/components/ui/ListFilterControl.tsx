@@ -1,5 +1,6 @@
 import { Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ListFilterControlProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ export function ListFilterControl({
   count,
   children,
 }: ListFilterControlProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -29,7 +32,7 @@ export function ListFilterControl({
           )}
         >
           <Filter size={18} />
-          Filtros
+          {t("common.filters", "Filters")}
           {count > 0 && (
             <span className="ml-1 px-2 py-0.5 bg-blue-600 text-white text-[10px] rounded-full">
               {count}
@@ -43,7 +46,7 @@ export function ListFilterControl({
             className="flex items-center gap-1 px-3 py-2 text-sm font-bold text-red-500 hover:bg-red-50 rounded-lg transition-colors"
           >
             <X size={16} />
-            Limpar
+            {t("common.clear", "Clear")}
           </button>
         )}
       </div>

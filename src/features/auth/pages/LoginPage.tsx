@@ -8,16 +8,19 @@ import { toast } from "sonner";
 import { Mail, Lock, LogIn, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
-const loginSchema = z.object({
-  email: z.string().email("Insira um e-mail válido"),
-  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
-  rememberMe: z.boolean(),
-});
+const loginSchema = (t: any) =>
+  z.object({
+    email: z.string().email(t("auth.validations.emailInvalid")),
+    password: z.string().min(6, t("auth.validations.passwordMin")),
+    rememberMe: z.boolean(),
+  });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginFormValues = z.infer<ReturnType<typeof loginSchema>>;
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -33,7 +36,7 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema(t)),
     defaultValues: {
       email: "",
       password: "",
@@ -44,7 +47,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     try {
-      // Configura a preferência de persistência antes do login
+      // Set persistence preference before login
       localStorage.setItem("sb-remember-me", String(data.rememberMe));
 
       const { error } = await supabase.auth.signInWithPassword({
@@ -53,21 +56,19 @@ export default function LoginPage() {
       });
 
       if (error) {
-        toast.error("Credenciais inválidas ou erro no servidor.");
-        setLoading(false); // Importante resetar aqui em caso de erro
+        toast.error(t("auth.messages.invalidCredentials"));
+        setLoading(false);
         return;
       }
 
-      toast.success("Bem-vindo ao SEGECS!");
-      // O navigate será tratado pelo useEffect acima ou aqui explicitamente
+      toast.success(t("auth.messages.welcome"));
       navigate("/dashboard");
     } catch (error) {
-      toast.error("Ocorreu um erro inesperado.");
+      toast.error(t("common.error"));
       setLoading(false);
     }
   };
 
-  // Se estiver carregando o estado inicial de autenticação, mostramos um spinner centralizado
   if (isAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-900">
@@ -76,7 +77,6 @@ export default function LoginPage() {
     );
   }
 
-  // Se já estiver autenticado, evitamos renderizar o form brevemente antes do redirect
   if (isAuthenticated) {
     return null;
   }
@@ -100,13 +100,13 @@ export default function LoginPage() {
           SEGECS
         </h1>
         <p className="text-center text-gray-400 mb-10 font-black uppercase tracking-[0.2em] text-[10px]">
-          Sistema Escolar de Gestão do Estágio Curricular Supervisionado
+          {t("auth.subtitle")}
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-1">
             <label className="block text-blue-950 text-xs font-black mb-2 uppercase tracking-widest ml-1">
-              E-mail Institucional
+              {t("auth.fields.email")}
             </label>
             <div className="relative group">
               <Mail
@@ -116,7 +116,7 @@ export default function LoginPage() {
               <input
                 {...register("email")}
                 type="email"
-                placeholder="seu@email.com"
+                placeholder="your@email.com"
                 className={cn(
                   "w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 transition-all text-sm font-medium",
                   errors.email
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
           <div className="space-y-1">
             <label className="block text-blue-950 text-xs font-black mb-2 uppercase tracking-widest ml-1">
-              Senha de Acesso
+              {t("auth.fields.password")}
             </label>
             <div className="relative group">
               <Lock
@@ -171,7 +171,7 @@ export default function LoginPage() {
                 <div className="h-2.5 w-2.5 rounded-[3px] bg-blue-900 opacity-0 peer-checked:opacity-100 transition-all duration-200 scale-50 peer-checked:scale-100" />
               </div>
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-blue-900 transition-colors">
-                Lembrar de mim
+                {t("auth.fields.rememberMe")}
               </span>
             </label>
           </div>
@@ -185,7 +185,7 @@ export default function LoginPage() {
               <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             ) : (
               <>
-                Entrar no Sistema <LogIn size={18} />
+                {t("auth.signIn")} <LogIn size={18} />
               </>
             )}
           </button>
@@ -197,7 +197,7 @@ export default function LoginPage() {
           </p>
           <div className="flex flex-col gap-1">
             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-              Desenvolvido por:
+              {t("auth.developedBy")}:
             </p>
             <div className="flex justify-center gap-4">
               <a

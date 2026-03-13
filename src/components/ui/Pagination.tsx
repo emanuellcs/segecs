@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -17,6 +18,7 @@ export function Pagination({
   onItemsPerPageChange,
   totalItems,
 }: PaginationProps) {
+  const { t } = useTranslation();
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -24,7 +26,7 @@ export function Pagination({
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-gray-100 px-2 mt-4">
       <div className="flex items-center gap-3">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-          Mostrar:
+          {t("common.show", "Show")}:
         </label>
         <select
           value={itemsPerPage}
@@ -33,7 +35,7 @@ export function Pagination({
         >
           {[10, 25, 50, 100].map((num) => (
             <option key={num} value={num}>
-              {num} registros
+              {num} {t("common.records", "records")}
             </option>
           ))}
         </select>
@@ -54,7 +56,7 @@ export function Pagination({
               {currentPage}
             </span>
             <span className="text-[10px] font-black text-gray-300 uppercase">
-              de
+              {t("common.of", "of")}
             </span>
             <span className="text-sm font-black text-gray-500">
               {totalPages}
@@ -70,8 +72,9 @@ export function Pagination({
           </button>
         </div>
         <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-          Exibindo {totalItems === 0 ? 0 : startItem}–{endItem} de {totalItems}{" "}
-          registros
+          {t("common.showing", "Showing")} {totalItems === 0 ? 0 : startItem}–
+          {endItem} {t("common.of", "of")} {totalItems}{" "}
+          {t("common.records", "records")}
         </p>
       </div>
     </div>

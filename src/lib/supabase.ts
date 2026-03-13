@@ -9,26 +9,30 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+/**
+ * Custom storage implementation for Supabase Auth that respects the 'Remember Me' preference.
+ * Persists session in localStorage if 'Remember Me' is enabled, otherwise uses sessionStorage.
+ */
 const customStorage = {
   getItem: (key: string) => {
     if (typeof window === "undefined") return null;
-    // Tenta obter de ambos para ser resiliente. Se houver no localStorage, ele persiste entre sessões.
+    // Tries both to be resilient. If it exists in localStorage, it persists across sessions.
     return localStorage.getItem(key) || sessionStorage.getItem(key);
   },
   setItem: (key: string, value: string) => {
     if (typeof window === "undefined") return;
 
-    // Consideramos 'true' por padrão a menos que explicitamente marcado como 'false'
-    // Isso garante que não se perca o login em caso de inconsistência no storage
+    // We consider 'true' by default unless explicitly marked as 'false'
+    // This ensures login is not lost in case of storage inconsistency
     const rememberMeRaw = localStorage.getItem("sb-remember-me");
     const isRememberMe = rememberMeRaw !== "false";
 
     if (isRememberMe) {
       localStorage.setItem(key, value);
-      sessionStorage.removeItem(key); // Limpa do volátil se está no persistente
+      sessionStorage.removeItem(key); // Clear from volatile if in persistent
     } else {
       sessionStorage.setItem(key, value);
-      localStorage.removeItem(key); // Limpa do persistente se optou por não ser lembrado
+      localStorage.removeItem(key); // Clear from persistent if opted not to be remembered
     }
   },
   removeItem: (key: string) => {

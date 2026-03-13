@@ -1,10 +1,13 @@
+import { useTranslation } from "react-i18next";
+
 interface LoadingScreenProps {
   message?: string;
 }
 
-export function LoadingScreen({
-  message = "Sincronizando dados...",
-}: LoadingScreenProps) {
+export function LoadingScreen({ message }: LoadingScreenProps) {
+  const { t } = useTranslation();
+  const displayMessage = message || t("common.loading");
+
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 text-center px-4">
@@ -16,10 +19,10 @@ export function LoadingScreen({
         </div>
         <div className="space-y-1">
           <p className="text-blue-900 font-black text-sm uppercase tracking-[0.2em] animate-pulse">
-            {message}
+            {displayMessage}
           </p>
           <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-            Aguarde um momento
+            {t("common.waitAMoment", "Wait a moment")}
           </p>
         </div>
       </div>

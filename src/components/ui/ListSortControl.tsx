@@ -1,5 +1,6 @@
 import { ArrowUpDown, SortAsc, SortDesc } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export interface SortOption {
   label: string;
@@ -19,6 +20,8 @@ export function ListSortControl({
   ascending,
   onSortChange,
 }: ListSortControlProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-2">
       <div className="relative group flex-1 md:flex-none min-w-[180px]">
@@ -33,7 +36,7 @@ export function ListSortControl({
         >
           {options.map((opt) => (
             <option key={opt.column} value={opt.column}>
-              Ordenar por: {opt.label}
+              {t("common.sortBy", "Sort by")}: {opt.label}
             </option>
           ))}
         </select>
@@ -45,7 +48,11 @@ export function ListSortControl({
           "p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-all shadow-sm group",
           "text-blue-600 font-bold flex items-center gap-1",
         )}
-        title={ascending ? "Crescente" : "Decrescente"}
+        title={
+          ascending
+            ? t("common.ascending", "Ascending")
+            : t("common.descending", "Descending")
+        }
       >
         {ascending ? <SortAsc size={20} /> : <SortDesc size={20} />}
       </button>

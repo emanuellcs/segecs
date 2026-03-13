@@ -18,8 +18,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { useTranslation } from "react-i18next";
 
 export default function DashboardPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const { data: stats, isLoading } = useQuery({
@@ -29,79 +31,80 @@ export default function DashboardPage() {
       const next15Days = new Date();
       next15Days.setDate(today.getDate() + 15);
 
-      const [alunos, estagios, frequencias, vagas, avaliacoes] =
+      const [students, internships, frequencies, vacancies, evaluations] =
         await Promise.all([
-          supabase.from("alunos").select("*", { count: "exact" }),
+          supabase.from("students").select("*", { count: "exact" }),
           supabase
-            .from("estagios")
-            .select("id, status, created_at, aluno_id, data_fim", {
+            .from("internships")
+            .select("id, status, created_at, student_id, end_date", {
               count: "exact",
             })
             .order("created_at", { ascending: false }),
-          supabase.from("frequencias").select("horas_realizadas"),
+          supabase.from("frequencies").select("performed_hours"),
           supabase
-            .from("vagas")
+            .from("vacancies")
             .select("id", { count: "exact" })
-            .eq("status", "aberta"),
-          supabase.from("avaliacoes").select("estagio_id"),
+            .eq("status", "open"),
+          supabase.from("evaluations").select("internship_id"),
         ]);
 
-      const totalHoras =
-        frequencias.data?.reduce((acc, f) => acc + f.horas_realizadas, 0) || 0;
-      const estagiosAtivosArr =
-        estagios.data?.filter((e) => e.status === "ativo") || [];
-      const estagiosAtivosCount = estagiosAtivosArr.length;
+      const totalHours =
+        frequencies.data?.reduce((acc, f) => acc + f.performed_hours, 0) || 0;
+      const activeInternshipsArr =
+        internships.data?.filter((e) => e.status === "active") || [];
+      const activeInternshipsCount = activeInternshipsArr.length;
 
-      // Compliance: Contratos Vencendo (Próximos 15 dias)
-      const vencendoCount = estagiosAtivosArr.filter((e) => {
-        const dataFim = new Date(e.data_fim);
-        return dataFim >= today && dataFim <= next15Days;
+      // Compliance: Contracts Expiring (Next 15 days)
+      const expiringCount = activeInternshipsArr.filter((e) => {
+        const endDate = new Date(e.end_date);
+        return endDate >= today && endDate <= next15Days;
       }).length;
 
-      // Compliance: Avaliações Pendentes (Estágios ativos sem nenhuma nota)
-      const estagiosComAvaliacao = new Set(
-        avaliacoes.data?.map((a) => a.estagio_id),
+      // Compliance: Pending Evaluations (Active internships without any grade)
+      const internshipsWithEvaluation = new Set(
+        evaluations.data?.map((a) => a.internship_id),
       );
-      const semAvaliacaoCount = estagiosAtivosArr.filter(
-        (e) => !estagiosComAvaliacao.has(e.id),
+      const withoutEvaluationCount = activeInternshipsArr.filter(
+        (e) => !internshipsWithEvaluation.has(e.id),
       ).length;
 
-      // Distribuição por status
+      // Distribution by status
       const statusDistribution = {
-        pendente:
-          alunos.data?.filter((a) => a.status === "pendente").length || 0,
-        estagiando:
-          alunos.data?.filter((a) => a.status === "estagiando").length || 0,
-        concluido:
-          alunos.data?.filter((a) => a.status === "concluido").length || 0,
+        pending:
+          students.data?.filter((a) => a.status === "pending").length || 0,
+        interning:
+          students.data?.filter((a) => a.status === "interning").length || 0,
+        completed:
+          students.data?.filter((a) => a.status === "completed").length || 0,
       };
 
-      // Últimos 5 estágios com detalhes do aluno
-      const recentEstagiosIds =
-        estagios.data?.slice(0, 5).map((e) => e.aluno_id) || [];
-      const { data: recentAlunos } = await supabase
-        .from("alunos")
-        .select("id, nome")
-        .in("id", recentEstagiosIds);
+      // Last 5 internships with student details
+      const recentInternshipsIds =
+        internships.data?.slice(0, 5).map((e) => e.student_id) || [];
+      const { data: recentStudents } = await supabase
+        .from("students")
+        .select("id, name")
+        .in("id", recentInternshipsIds);
 
       const recentActivities =
-        estagios.data?.slice(0, 5).map((e) => ({
+        internships.data?.slice(0, 5).map((e) => ({
           ...e,
-          aluno_nome:
-            recentAlunos?.find((a) => a.id === e.aluno_id)?.nome || "Aluno",
+          studentName:
+            recentStudents?.find((a) => a.id === e.student_id)?.name ||
+            t("common.student", "Student"),
         })) || [];
 
       return {
-        totalAlunos: alunos.count || 0,
-        estagiosAtivos: estagiosAtivosCount,
-        totalHoras,
-        vagasAbertas: vagas.count || 0,
+        totalStudents: students.count || 0,
+        activeInternships: activeInternshipsCount,
+        totalHours,
+        openVacancies: vacancies.count || 0,
         statusDistribution,
         recentActivities,
         compliance: {
-          vencendo: vencendoCount,
-          semAvaliacao: semAvaliacaoCount,
-          totalAlertas: vencendoCount + semAvaliacaoCount,
+          expiring: expiringCount,
+          withoutEvaluation: withoutEvaluationCount,
+          totalAlerts: expiringCount + withoutEvaluationCount,
         },
       };
     },
@@ -109,55 +112,56 @@ export default function DashboardPage() {
 
   const handleExportSICE = async () => {
     try {
-      const { data: estagios, error } = await supabase.from("estagios").select(`
-          id, status, data_inicio, data_fim, carga_horaria_total, carga_horaria_diaria,
-          alunos (nome, matricula, cpf, cursos (nome)),
-          vagas (titulo, empresas (razao_social, cnpj)),
-          orientadores (nome),
-          supervisores (nome)
+      const { data: internships, error } = await supabase.from("internships")
+        .select(`
+          id, status, start_date, end_date, total_workload, daily_workload,
+          students (name, registration, cpf, courses (name)),
+          vacancies (title, companies (business_name, cnpj)),
+          advisors (name),
+          supervisors (name)
         `);
 
       if (error) throw error;
-      if (!estagios || estagios.length === 0) {
-        toast.error("Não há dados para exportar.");
+      if (!internships || internships.length === 0) {
+        toast.error(t("dashboard.messages.noDataToExport"));
         return;
       }
 
       const headers = [
-        "ID Estágio",
-        "Nome do Aluno",
-        "Matrícula",
-        "CPF Aluno",
-        "Curso",
-        "Empresa",
+        "Internship ID",
+        "Student Name",
+        "Registration",
+        "Student CPF",
+        "Course",
+        "Company",
         "CNPJ",
-        "Vaga",
-        "Orientador",
+        "Vacancy",
+        "Advisor",
         "Supervisor",
-        "Início",
-        "Fim",
-        "CH Total",
-        "CH Diária",
+        "Start",
+        "End",
+        "Total Workload",
+        "Daily Workload",
         "Status",
       ];
-      const csvData = estagios.map((e) => {
-        const aluno = e.alunos as any;
-        const vaga = e.vagas as any;
+      const csvData = internships.map((e) => {
+        const student = e.students as any;
+        const vacancy = e.vacancies as any;
         return [
           e.id,
-          aluno?.nome,
-          aluno?.matricula,
-          aluno?.cpf,
-          aluno?.cursos?.nome,
-          vaga?.empresas?.razao_social,
-          vaga?.empresas?.cnpj,
-          vaga?.titulo,
-          (e.orientadores as any)?.nome,
-          (e.supervisores as any)?.nome,
-          e.data_inicio,
-          e.data_fim,
-          e.carga_horaria_total,
-          e.carga_horaria_diaria,
+          student?.name,
+          student?.registration,
+          student?.cpf,
+          student?.courses?.name,
+          vacancy?.companies?.business_name,
+          vacancy?.companies?.cnpj,
+          vacancy?.title,
+          (e.advisors as any)?.name,
+          (e.supervisors as any)?.name,
+          e.start_date,
+          e.end_date,
+          e.total_workload,
+          e.daily_workload,
           e.status,
         ];
       });
@@ -173,39 +177,39 @@ export default function DashboardPage() {
       });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `relatorio_detalhado_sice_${new Date().toISOString().split("T")[0]}.csv`;
+      link.download = `detailed_sice_report_${new Date().toISOString().split("T")[0]}.csv`;
       link.click();
-      toast.success("Relatório exportado!");
+      toast.success(t("dashboard.messages.reportExported"));
     } catch (error) {
-      toast.error("Erro ao exportar relatório.");
+      toast.error(t("dashboard.messages.exportError"));
     }
   };
 
   const cards = [
     {
-      label: "Total de Alunos",
-      value: stats?.totalAlunos,
+      label: t("dashboard.cards.totalStudents"),
+      value: stats?.totalStudents,
       icon: Users,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
     {
-      label: "Estágios Ativos",
-      value: stats?.estagiosAtivos,
+      label: t("dashboard.cards.activeInternships"),
+      value: stats?.activeInternships,
       icon: Briefcase,
       color: "text-green-600",
       bg: "bg-green-50",
     },
     {
-      label: "Horas Acumuladas",
-      value: `${stats?.totalHoras}h`,
+      label: t("dashboard.cards.totalHours"),
+      value: `${stats?.totalHours}h`,
       icon: Clock,
       color: "text-orange-600",
       bg: "bg-orange-50",
     },
     {
-      label: "Vagas Abertas",
-      value: stats?.vagasAbertas,
+      label: t("dashboard.cards.openVacancies"),
+      value: stats?.openVacancies,
       icon: TrendingUp,
       color: "text-purple-600",
       bg: "bg-purple-50",
@@ -230,10 +234,10 @@ export default function DashboardPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-blue-900 tracking-tight leading-none">
-              Dashboard
+              {t("dashboard.title")}
             </h1>
             <p className="text-gray-500 font-medium mt-1">
-              Bem-vindo à central de inteligência SEGECS.
+              {t("dashboard.subtitle")}
             </p>
           </div>
         </div>
@@ -241,7 +245,7 @@ export default function DashboardPage() {
           onClick={handleExportSICE}
           className="flex items-center gap-3 px-6 py-4 bg-blue-50 text-blue-700 rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-blue-100 transition-all active:scale-95"
         >
-          <FileSpreadsheet size={18} /> Exportar SICE Completo
+          <FileSpreadsheet size={18} /> {t("dashboard.actions.exportSICE")}
         </button>
       </div>
 
@@ -276,33 +280,33 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Distribuição & Atividades */}
+        {/* Distribution & Activities */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Distribuição de Alunos */}
+          {/* Student Distribution */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-bold text-blue-900 mb-8 flex items-center gap-2">
-              <GraduationCap className="text-blue-600" size={20} /> Distribuição
-              de Alunos
+              <GraduationCap className="text-blue-600" size={20} />{" "}
+              {t("dashboard.sections.distribution")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 {
-                  label: "Pendentes",
-                  value: stats?.statusDistribution.pendente ?? 0,
+                  label: t("students.status.pending"),
+                  value: stats?.statusDistribution.pending ?? 0,
                   color: "bg-amber-400",
-                  total: stats?.totalAlunos,
+                  total: stats?.totalStudents,
                 },
                 {
-                  label: "Estagiando",
-                  value: stats?.statusDistribution.estagiando ?? 0,
+                  label: t("students.status.interning"),
+                  value: stats?.statusDistribution.interning ?? 0,
                   color: "bg-green-500",
-                  total: stats?.totalAlunos,
+                  total: stats?.totalStudents,
                 },
                 {
-                  label: "Concluídos",
-                  value: stats?.statusDistribution.concluido ?? 0,
+                  label: t("students.status.completed"),
+                  value: stats?.statusDistribution.completed ?? 0,
                   color: "bg-blue-600",
-                  total: stats?.totalAlunos,
+                  total: stats?.totalStudents,
                 },
               ].map((item, idx) => {
                 const percentage = item.total
@@ -332,18 +336,18 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Atividades Recentes */}
+          {/* Recent Activities */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-                <Clock className="text-orange-500" size={20} /> Últimas
-                Alocações
+                <Clock className="text-orange-500" size={20} />{" "}
+                {t("dashboard.sections.recentAllocations")}
               </h3>
               <button
-                onClick={() => navigate("/estagios")}
+                onClick={() => navigate("/internships")}
                 className="text-blue-600 text-[10px] font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
               >
-                Ver Tudo <ArrowRight size={14} />
+                {t("common.viewAll")} <ArrowRight size={14} />
               </button>
             </div>
             <div className="space-y-4">
@@ -354,16 +358,16 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-xs">
-                      {activity.aluno_nome.substring(0, 2).toUpperCase()}
+                      {activity.studentName.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-900">
-                        {activity.aluno_nome}
+                        {activity.studentName}
                       </p>
                       <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-tight">
-                        Iniciado em{" "}
+                        {t("dashboard.labels.startedOn")}{" "}
                         {new Date(activity.created_at).toLocaleDateString(
-                          "pt-BR",
+                          i18n.language === "pt" ? "pt-BR" : "en-US",
                         )}
                       </p>
                     </div>
@@ -371,12 +375,17 @@ export default function DashboardPage() {
                   <span
                     className={cn(
                       "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider",
-                      activity.status === "ativo"
+                      activity.status === "active"
                         ? "bg-green-100 text-green-700"
                         : "bg-blue-100 text-blue-700",
                     )}
                   >
-                    {activity.status}
+                    {
+                      t(
+                        `common.statusLabels.${activity.status}`,
+                        activity.status,
+                      ) as string
+                    }
                   </span>
                 </div>
               ))}
@@ -386,17 +395,17 @@ export default function DashboardPage() {
 
         {/* Sidebar Intelligence */}
         <div className="space-y-8">
-          {/* Alertas Rápidos */}
+          {/* Quick Alerts */}
           <div
             className={cn(
               "p-8 rounded-3xl shadow-xl transition-all duration-500 relative overflow-hidden group",
-              (stats?.compliance.totalAlertas ?? 0) > 0
+              (stats?.compliance.totalAlerts ?? 0) > 0
                 ? "bg-blue-900 text-white shadow-blue-900/30"
                 : "bg-green-600 text-white shadow-green-600/20",
             )}
           >
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-500">
-              {(stats?.compliance.totalAlertas ?? 0) > 0 ? (
+              {(stats?.compliance.totalAlerts ?? 0) > 0 ? (
                 <AlertTriangle size={80} />
               ) : (
                 <CheckCircle2 size={80} />
@@ -404,53 +413,56 @@ export default function DashboardPage() {
             </div>
 
             <h3 className="text-lg font-bold mb-6 relative z-10 flex items-center gap-2">
-              Compliance
-              {(stats?.compliance.totalAlertas ?? 0) > 0 ? (
+              {t("dashboard.compliance.title")}
+              {(stats?.compliance.totalAlerts ?? 0) > 0 ? (
                 <span className="bg-orange-500 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">
-                  {stats?.compliance.totalAlertas} ALERTAS
+                  {stats?.compliance.totalAlerts}{" "}
+                  {t("dashboard.compliance.alerts")}
                 </span>
               ) : (
                 <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">
-                  SISTEMA OK
+                  {t("dashboard.compliance.ok")}
                 </span>
               )}
             </h3>
 
             <div className="space-y-6 relative z-10">
-              {(stats?.compliance.totalAlertas ?? 0) > 0 ? (
+              {(stats?.compliance.totalAlerts ?? 0) > 0 ? (
                 <>
-                  {stats?.compliance.vencendo ? (
+                  {stats?.compliance.expiring ? (
                     <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-300 mb-1">
-                        Prazos
+                        {t("dashboard.compliance.deadlines")}
                       </p>
                       <p className="text-sm font-semibold">
-                        {stats.compliance.vencendo} Contratos vencendo em 15
-                        dias
+                        {t("dashboard.compliance.expiringInternships", {
+                          count: stats.compliance.expiring,
+                        })}
                       </p>
                       <button
-                        onClick={() => navigate("/estagios")}
+                        onClick={() => navigate("/internships")}
                         className="mt-3 text-[10px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 transition-colors"
                       >
-                        Resolver Agora →
+                        {t("dashboard.compliance.solveNow")} →
                       </button>
                     </div>
                   ) : null}
 
-                  {stats?.compliance.semAvaliacao ? (
+                  {stats?.compliance.withoutEvaluation ? (
                     <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-300 mb-1">
-                        Avaliações
+                        {t("dashboard.compliance.evaluations")}
                       </p>
                       <p className="text-sm font-semibold">
-                        {stats.compliance.semAvaliacao} Estágios sem nota
-                        lançada
+                        {t("dashboard.compliance.pendingEvaluations", {
+                          count: stats.compliance.withoutEvaluation,
+                        })}
                       </p>
                       <button
-                        onClick={() => navigate("/avaliacoes")}
+                        onClick={() => navigate("/evaluations")}
                         className="mt-3 text-[10px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 transition-colors"
                       >
-                        Lançar Notas →
+                        {t("dashboard.compliance.enterGrades")} →
                       </button>
                     </div>
                   ) : null}
@@ -458,34 +470,34 @@ export default function DashboardPage() {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-sm font-bold text-green-50">
-                    Tudo em ordem!
+                    {t("dashboard.compliance.allInOrder")}
                   </p>
                   <p className="text-[10px] font-medium text-green-100/70 mt-1 uppercase tracking-widest">
-                    Nenhuma pendência crítica encontrada.
+                    {t("dashboard.compliance.noCriticalIssues")}
                   </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Parceiros em Destaque */}
+          {/* Featured Partners */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-bold text-blue-900 mb-6 flex items-center gap-2">
-              <Building2 className="text-purple-600" size={20} /> Vagas em
-              Aberto
+              <Building2 className="text-purple-600" size={20} />{" "}
+              {t("dashboard.sections.openVacancies")}
             </h3>
             <div className="bg-purple-50 p-6 rounded-2xl text-center border border-purple-100">
               <p className="text-3xl font-bold text-purple-700">
-                {stats?.vagasAbertas}
+                {stats?.openVacancies}
               </p>
               <p className="text-[10px] font-semibold text-purple-400 uppercase tracking-widest mt-1">
-                Oportunidades Disponíveis
+                {t("dashboard.labels.availableOpportunities")}
               </p>
               <button
-                onClick={() => navigate("/vagas")}
+                onClick={() => navigate("/vacancies")}
                 className="w-full mt-4 bg-white py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest text-purple-700 shadow-sm hover:shadow-md transition-all active:scale-95"
               >
-                Gerenciar Vagas
+                {t("dashboard.actions.manageVacancies")}
               </button>
             </div>
           </div>

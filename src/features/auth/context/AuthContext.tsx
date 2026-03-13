@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string, user: any) => {
     console.log("AuthProvider: Fetching profile for:", userId);
     try {
-      // Adicionamos um timeout de 5 segundos na busca de perfil para evitar travar o carregamento
+      // Add a 5-second timeout to profile fetching to avoid blocking load
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Profile fetch timeout")), 5000),
       );
@@ -53,8 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile({
           id: userId,
           email: user.email || "",
-          full_name: user.user_metadata?.["full_name"] || "Usuário",
-          role: (user.user_metadata?.["role"] as UserRole) || "aluno",
+          full_name: user.user_metadata?.["full_name"] || "User",
+          role: (user.user_metadata?.["role"] as UserRole) || "student",
           created_at: new Date().toISOString(),
         });
       } else {
@@ -62,12 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error("AuthProvider: Profile fetch error:", err);
-      // Em caso de erro, definimos um perfil básico para não travar a navegação
+      // In case of error, set a basic profile to avoid blocking navigation
       setProfile({
         id: userId,
         email: user.email || "",
-        full_name: user.user_metadata?.["full_name"] || "Usuário",
-        role: (user.user_metadata?.["role"] as UserRole) || "aluno",
+        full_name: user.user_metadata?.["full_name"] || "User",
+        role: (user.user_metadata?.["role"] as UserRole) || "student",
         created_at: new Date().toISOString(),
       });
     }
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // O onAuthStateChange do Supabase v2 dispara um evento INITIAL_SESSION logo no início
+    // Supabase v2 onAuthStateChange triggers an INITIAL_SESSION event at the start
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
@@ -102,11 +102,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         queryClient.clear();
       }
 
-      // Garantimos que o loading pare
+      // Ensure loading stops
       setIsLoading(false);
     });
 
-    // Como segurança adicional, se após 10 segundos ainda estiver carregando, forçamos o encerramento
+    // As extra security, if it's still loading after 10 seconds, force termination
     const backupTimeout = setTimeout(() => {
       if (mounted && isLoading) {
         console.warn("AuthProvider: Forcing isLoading false after timeout");
@@ -122,36 +122,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const signOut = async () => {
-    console.log("AuthContext: Iniciando processo de logout...");
+    console.log("AuthContext: Starting logout process...");
 
-    // Limpamos o estado local para garantir que o usuário saia da tela atual
+    // Clear local state to ensure the user leaves the current screen
     const clearLocalData = () => {
-      console.log("AuthContext: Limpando estado local e limpando cache...");
+      console.log("AuthContext: Clearing local state and cache...");
       setSession(null);
       setProfile(null);
       queryClient.clear();
     };
 
     try {
-      // Tentamos o logout no Supabase, mas com um timeout para não travar a UI
+      // Attempt Supabase logout, but with a timeout to not block UI
       const signOutPromise = supabase.auth.signOut();
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error("Timeout no logout do Supabase")),
-          3000,
-        ),
+        setTimeout(() => reject(new Error("Supabase logout timeout")), 3000),
       );
 
       await Promise.race([signOutPromise, timeoutPromise]);
-      console.log("AuthContext: Supabase signOut concluído com sucesso.");
+      console.log("AuthContext: Supabase signOut completed successfully.");
     } catch (error) {
       console.warn(
-        "AuthContext: Erro ou timeout ao deslogar do Supabase:",
+        "AuthContext: Error or timeout logging out from Supabase:",
         error,
       );
     } finally {
       clearLocalData();
-      console.log("AuthContext: Logout local concluído.");
+      console.log("AuthContext: Local logout completed.");
     }
   };
 
