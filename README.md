@@ -1,258 +1,114 @@
-# SEGECS - Sistema Escolar de Gestão do Estágio Curricular Supervisionado
+# SEGECS - School Management System for Supervised Curricular Internship
 
-Aplicação web desenvolvida com PERN Stack (PostgreSQL, Express, React, Node.js) para gestão de estágios curriculares supervisionados.
+## 📖 About SEGECS
 
-## 🛠️ Tecnologias:
+**SEGECS** is a high-performance academic governance solution, specifically designed to centralize, automate, and monitor the complete lifecycle of the Supervised Curricular Internship. The platform acts as an intelligent bridge between educational institutions, partner companies, and students, eliminating manual bureaucracies and ensuring full compliance with **Brazilian Law No. 11,788/2008**.
 
-- **Frontend**: React 18
-- **Backend**: Node.js + Express
-- **Database**: PostgreSQL
-- **Package Manager**: npm
+Unlike generic systems, SEGECS offers a **multi-training** architecture, allowing coordinators to simultaneously manage various technical and professional courses (such as Nursing, Administration, Networking, Building Construction, among others). Each course has its own workload and competency settings, allowing the institution to scale its internship operations without losing individualized control over each contract.
 
-## 📋 Pré-requisitos
+With a modern, data-driven interface, the system transforms pedagogical monitoring, previously scattered across papers and spreadsheets, into real-time strategic indicators, providing legal security through automated document generation and technical integrity through rigorous data protection policies.
 
-Antes de começar, certifique-se de ter instalado:
+## 🏛️ System Architecture
 
-- [Node.js](https://nodejs.org/) (v18 ou superior)
-- [npm](https://www.npmjs.com/) (vem com o Node.js)
-- [PostgreSQL](https://www.postgresql.org/download/) (v14 ou superior)
-- [Git](https://git-scm.com/) (opcional)
+SEGECS uses a modern architecture based on **SPA (Single Page Application)** with a **Serverless** infrastructure, ensuring scalability, security, and high performance.
 
-## 🚀 Instalação e Configuração
+### 🏗️ Tech Stack
 
-### 1. Clone o repositório (se aplicável)
+- **Frontend:** [React 18](https://react.dev/) with [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang.org/).
+- **Styling:** [TailwindCSS](https://tailwindcss.com/) and [Framer Motion](https://www.framer.com/motion/) for fluid animations.
+- **Backend-as-a-Service:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, RLS, and Realtime).
+- **State Management:** [React Query (TanStack)](https://tanstack.com/query/latest) for caching and data synchronization.
+- **Forms:** [React Hook Form](https://react-hook-form.com/) integrated with [Zod](https://zod.dev/) for rigorous validation.
+- **Documentation:** [@react-pdf/renderer](https://react-pdf.org/) for dynamic PDF generation on the client side.
+- **Localization:** [i18next](https://www.i18next.com/) for multi-language support (Portuguese and English).
 
-```bash
-git clone <repository-url>
-cd SEGECS
+### 🛡️ Security Layer
+
+- **Supabase Auth:** Secure authentication with configurable session persistence ("Remember me").
+- **Row Level Security (RLS):** Access policies directly in the database ensuring students see only their data, while coordinators access the management view.
+- **Snapshot Logic:** Workloads are copied to contracts at the time of creation, protecting historical records against future changes in the curriculum.
+
+## 🚀 Key Features
+
+### 📋 Administrative Management (Multi-Course)
+
+- **Customizable Courses:** Registration of any training with specific mandatory workload definition.
+- **Partner Management:** Control of companies with monitoring of agreement validity.
+- **Talent Bank:** Detailed registration of students, advisors, and field supervisors.
+
+### ⚙️ Allocation and Vacancy Flow
+
+- **Vacancy Management:** Publication and control of opportunities by course and company.
+- **Intelligent Allocation:** Automatic link between student, vacancy, advisor, and supervisor.
+- **Auto-fill:** The system detects the course workload and suggests contract terms instantly.
+
+### 📈 Monitoring and Control (Compliance)
+
+- **Frequency Log:** Daily entry of activities with time validation.
+- **Technical Visits:** Full module for recording in-person or remote monitoring.
+- **Pedagogical Evaluations:** Grading and feedback system by period.
+- **Intelligence Dashboard:** Distribution charts, expiring contract alerts, and evaluation pending items.
+
+### 🎓 Automatic Documentation (PDF)
+
+- **TCE (Commitment Term):** Instant generation according to current legislation.
+- **Activity Plan:** Detailing technical competencies in development.
+- **TRE (Realization Term):** Final completion document with workload summary.
+- **SICE Export:** Preparation of structured CSV data for the SEDUC-CE system.
+
+## 🚦 Getting Started
+
+### 📋 Prerequisites
+
+- **Node.js** (v18+)
+- **npm** or **pnpm**
+- **Supabase** Instance
+
+### ⚙️ Installation and Configuration
+
+1. **Clone and Install:**
+
+   ```bash
+   git clone https://github.com/prof-raimundo/segecs.git
+   cd segecs
+   npm install
+   ```
+
+2. **Configure Environment Variables:**
+   Create a `.env` file in the root:
+
+   ```env
+   VITE_PUBLIC_SUPABASE_URL=your_supabase_url
+   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_anon_key
+   ```
+
+3. **Configure Database:**
+   - Run the script in `database/supabase_schema.sql` in the Supabase SQL editor.
+   - (Optional) Run `database/seed.sql` to populate the system with test data (70 users, 15 visits, frequencies, etc.).
+
+4. **Run:**
+   ```bash
+   npm run dev
+   ```
+
+## 📂 Folder Structure
+
+```text
+src/
+├── app/            # Global configurations, routes, and providers
+├── components/     # Reusable UI components (Pagination, Loading, etc.)
+├── features/       # Business modules (students, internships, visits, etc.)
+│   └── [feature]/  # Specific components, pages, and services
+├── hooks/          # Custom hooks (usePagination, useAuth, useSupabaseCrud)
+├── i18n/           # Localization configuration and translation files
+├── lib/            # Library configurations (supabase client, utils)
+└── types/          # TypeScript type definitions and database types
 ```
 
-### 2. Configurar o Banco de Dados
+## 📄 License
 
-1. Instale e inicie o PostgreSQL
-2. Crie um novo banco de dados:
+Distributed under the MIT License. See `LICENSE` for more information.
 
-```sql
-CREATE DATABASE segecs_db;
-```
-
-3. Execute o script de schema para criar as tabelas:
-
-```bash
-psql -U postgres -d segecs_db -f database/schema.sql
-```
-
-Ou conecte-se ao banco e execute o conteúdo do arquivo `database/schema.sql` manualmente.
-
-### 3. Configurar o Backend (Server)
-
-1. Navegue para a pasta do servidor:
-
-```bash
-cd server
-```
-
-2. Instale as dependências:
-
-```bash
-npm install
-```
-
-3. Configure as variáveis de ambiente:
-
-Crie um arquivo `.env` na pasta `server/` (copie do `.env.example` na raiz):
-
-```env
-PORT=5000
-NODE_ENV=development
-
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=sua_senha_aqui
-DB_NAME=segecs_db
-
-JWT_SECRET=seu_jwt_secret_aqui
-CLIENT_URL=http://localhost:3000
-```
-
-**Importante**: Substitua `sua_senha_aqui` e `seu_jwt_secret_aqui` com valores reais.
-
-4. Inicie o servidor:
-
-```bash
-# Modo desenvolvimento (com nodemon - reinicia automaticamente)
-npm run dev
-
-# Modo produção
-npm start
-```
-
-O servidor estará rodando em `http://localhost:5000`
-
-### 4. Configurar o Frontend (Client)
-
-1. Abra um novo terminal e navegue para a pasta do cliente:
-
-```bash
-cd client
-```
-
-2. Instale as dependências:
-
-```bash
-npm install
-```
-
-3. Inicie o servidor de desenvolvimento:
-
-```bash
-npm start
-```
-
-O frontend estará rodando em `http://localhost:3000` e abrirá automaticamente no navegador.
-
-## 📁 Estrutura do Projeto
-
-```
-SEGECS/
-├── client/                        # Frontend React
-│   ├── public/                    # Arquivos públicos
-│   │   └── index.html
-│   ├── src/                       # Código fonte
-│   │   ├── components/            # Componentes reutilizáveis
-│   │   │   ├── AlunoForm.js
-│   │   │   ├── AlunoList.js
-│   │   │   ├── CidadesForm.js
-│   │   │   ├── CidadesList.js
-│   │   │   ├── CursosForm.js
-│   │   │   ├── CursosList.js
-│   │   │   ├── EscolasForm.js
-│   │   │   ├── EscolasList.js
-│   │   │   ├── Layout.js
-│   │   │   ├── NiveisForm.js
-│   │   │   ├── NiveisList.js
-│   │   │   ├── PrivateRoute.js
-│   │   │   ├── ResponsaveisForm.js
-│   │   │   ├── ResponsaveisList.js
-│   │   │   ├── Sidebar.js
-│   │   │   ├── UsuariosForm.js
-│   │   │   └── UsuariosList.js
-│   │   ├── pages/                 # Páginas da aplicação
-│   │   │   ├── CadastroAlunos.js
-│   │   │   ├── CadastroCidades.js
-│   │   │   ├── CadastroCursos.js
-│   │   │   ├── CadastroEscolas.js
-│   │   │   ├── CadastroNiveis.js
-│   │   │   ├── CadastroResponsaveis.js
-│   │   │   ├── CadastroUsuarios.js
-│   │   │   ├── Dashboard.js
-│   │   │   ├── EditarUsuario.js
-│   │   │   ├── Home.js
-│   │   │   └── Login.js
-│   │   ├── services/              # Serviços de API
-│   │   │   └── api.js
-│   │   ├── utils/                 # Funções utilitárias
-│   │   │   ├── constants.js
-│   │   │   └── swalHelpers.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   ├── index.js
-│   │   └── index.css
-│   ├── build/                     # Build de produção
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   └── ...
-├── server/                        # Backend Node.js/Express
-│   ├── config/                    # Configurações
-│   │   └── db.js
-│   ├── controllers/               # Lógica de negócio
-│   │   ├── alunosController.js
-│   │   ├── authController.js
-│   │   ├── cidadesController.js
-│   │   ├── cursosController.js
-│   │   ├── escolasController.js
-│   │   ├── niveisController.js
-│   │   ├── responsaveisController.js
-│   │   └── usuariosController.js
-│   ├── middleware/                # Middlewares customizados
-│   │   └── errorHandler.js
-│   ├── routes/                    # Rotas da API
-│   │   ├── alunosRoutes.js
-│   │   ├── authRoutes.js
-│   │   ├── cidadesRoutes.js
-│   │   ├── cursosRoutes.js
-│   │   ├── dashboardRoutes.js
-│   │   ├── escolasRoutes.js
-│   │   ├── niveisRoutes.js
-│   │   ├── responsaveisRoutes.js
-│   │   ├── usuariosRoutes.js
-│   │   └── index.js
-│   ├── server.js                  # Arquivo principal do servidor
-│   ├── package.json
-│   └── ...
-├── database/                      # Scripts SQL
-│   ├── schema.sql                 # Schema do banco de dados
-│   ├── seed.sql                   # Dados de exemplo
-│   └── migration_add_social_fields.sql
-├── env.example                    # Exemplo de variáveis de ambiente
-├── SETUP.md                       # Instruções de configuração detalhadas
-├── .gitignore
-└── README.md
-```
-
-## 🔌 Endpoints da API
-
-### Status
-- `GET /api/health` - Verifica o status da API e conexão com o banco
-
-### (Endpoints adicionais serão documentados conforme o desenvolvimento)
-
-## 🧪 Testando a Aplicação
-
-1. Certifique-se de que o PostgreSQL está rodando
-2. Inicie o servidor backend (porta 5000)
-3. Inicie o frontend (porta 3000)
-4. Acesse `http://localhost:3000` no navegador
-5. A página inicial deve exibir o status da conexão com a API
-
-## 📝 Scripts Disponíveis
-
-### Backend
-- `npm start` - Inicia o servidor em modo produção
-- `npm run dev` - Inicia o servidor em modo desenvolvimento (com nodemon)
-
-### Frontend
-- `npm start` - Inicia o servidor de desenvolvimento
-- `npm run build` - Cria build de produção
-- `npm test` - Executa os testes
-
-## 🔒 Segurança
-
-- **Nunca** commite o arquivo `.env` no repositório
-- Use variáveis de ambiente para informações sensíveis
-- Gere um `JWT_SECRET` forte e único
-- Mantenha as dependências atualizadas
-
-## 🤝 Contribuindo
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença ISC.
-
-## 👥 Autor
-
-Prof. Raimundo N. de Sousa (Raiworld)
-
-## 📞 Suporte
-
----
-
-**Nota**: Este é um projeto inicial. A estrutura e funcionalidades serão expandidas conforme o desenvolvimento progride.
+<p align="center">
+  Developed with ❤️ to transform technical education.
+</p>

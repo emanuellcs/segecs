@@ -1,0 +1,799 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "search": "Buscar",
+    "status": "Status",
+    "actions": "Ações",
+    "loading": "Carregando...",
+    "noItemsFound": "Nenhum item encontrado.",
+    "confirm": "Confirmar",
+    "success": "Sucesso!",
+    "error": "Erro!",
+    "languageSwitched": "Idioma alterado para {{lang}}",
+    "switchLanguage": "Alternar Idioma",
+    "viewAll": "Ver Tudo",
+    "student": "Aluno",
+    "statusLabels": {
+      "active": "Ativo",
+      "completed": "Concluído",
+      "finished": "Finalizado"
+    },
+    "createdAt": "Criado em",
+    "saving": "Salvando...",
+    "saveChanges": "Salvar Alterações",
+    "confirmRegistration": "Confirmar Cadastro",
+    "confirmDeletion": "Confirmar Exclusão",
+    "keepCurrent": "Manter atual...",
+    "updating": "Atualizando...",
+    "applyChanges": "Aplicar Alterações",
+    "allSchools": "Todas as Escolas",
+    "allLevels": "Todos os Níveis",
+    "allStatus": "Todos os Status",
+    "allCities": "Todas as Cidades",
+    "allStates": "Todos os Estados (UF)",
+    "allCompanies": "Todas as Empresas",
+    "allTypes": "Todos os Tipos",
+    "thisRecord": "este registro",
+    "period": "Período",
+    "allActiveStudents": "Todos os alunos ativos",
+    "all": "Todos",
+    "validated": "Validado",
+    "pending": "Pendente",
+    "hours": "Horas",
+    "validation": "Validação",
+    "date": "Data",
+    "allInternships": "Todos os estágios",
+    "activeFilters": "Filtro Ativo",
+    "none": "Nenhum",
+    "selectedRecords": "registros selecionados",
+    "editBulk": "Editar em Lote",
+    "deleteBulk": "Excluir em Lote",
+    "clearSelection": "Limpar seleção",
+    "deletePermanently": "Excluir permanentemente",
+    "typeToConfirm": "Para confirmar, digite <strong>{{text}}</strong> no campo abaixo:",
+    "confirmText": "apagar registros",
+    "sync": "Sincronizar",
+    "tableLayout": "Layout de Tabela",
+    "cardLayout": "Layout de Cards",
+    "sortBy": "Ordenar por",
+    "ascending": "Crescente",
+    "descending": "Decrescente",
+    "waitAMoment": "Aguarde um momento",
+    "show": "Mostrar",
+    "records": "registros",
+    "of": "de",
+    "showing": "Exibindo",
+    "filters": "Filtros",
+    "clear": "Limpar"
+  },
+  "layout": {
+    "syncSuccess": "Dados sincronizados com o banco de dados!",
+    "syncError": "Erro ao sincronizar dados.",
+    "openMenu": "Abrir menu",
+    "expandMenu": "Expandir menu",
+    "collapseMenu": "Recolher menu",
+    "systemTitle": "Sistema de Gestão do Estágio",
+    "syncDatabase": "Sincronizar com Banco de Dados"
+  },
+  "levels": {
+    "title": "Níveis",
+    "subtitle": "Gestão de níveis de ensino",
+    "new": "Novo Nível",
+    "editTitle": "Editar Nível",
+    "newTitle": "Novo Cadastro de Nível",
+    "formDescription": "Preencha a descrição do nível de ensino.",
+    "searchPlaceholder": "Buscar por descrição...",
+    "fields": {
+      "description": "Descrição",
+      "registrationMonth": "Mês de Cadastro"
+    },
+    "placeholders": {
+      "levelDescriptionExample": "Ex: Ensino Médio Integrado"
+    },
+    "validations": {
+      "descriptionMin": "A descrição deve ter pelo menos 3 caracteres"
+    },
+    "messages": {
+      "createSuccess": "Nível cadastrado com sucesso!",
+      "updateSuccess": "Nível atualizado com sucesso!",
+      "deleteSuccess": "Nível removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!"
+    }
+  },
+  "cities": {
+    "title": "Cidades",
+    "subtitle": "Gestão de cidades e estados",
+    "new": "Nova Cidade",
+    "editTitle": "Editar Cidade",
+    "newTitle": "Novo Cadastro de Cidade",
+    "formDescription": "Preencha os dados da localização.",
+    "searchPlaceholder": "Buscar por nome ou UF...",
+    "fields": {
+      "name": "Nome da Cidade",
+      "state": "Estado (UF)"
+    },
+    "placeholders": {
+      "cityNameExample": "Ex: Fortaleza",
+      "stateExample": "CE"
+    },
+    "validations": {
+      "nameMin": "O nome deve ter pelo menos 2 caracteres",
+      "stateLength": "A UF deve ter exatamente 2 caracteres"
+    },
+    "messages": {
+      "createSuccess": "Cidade cadastrada com sucesso!",
+      "updateSuccess": "Cidade atualizada com sucesso!",
+      "deleteSuccess": "Cidade removida com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newState": "Nova UF (Opcional)"
+    }
+  },
+  "schools": {
+    "title": "Escolas",
+    "subtitle": "Gestão de instituições de ensino",
+    "new": "Nova Escola",
+    "editTitle": "Editar Escola",
+    "newTitle": "Novo Cadastro de Escola",
+    "formDescription": "Preencha os dados da instituição de ensino.",
+    "searchPlaceholder": "Buscar por nome ou INEP...",
+    "fields": {
+      "name": "Nome da Escola",
+      "inep": "Código INEP",
+      "city": "Cidade"
+    },
+    "placeholders": {
+      "selectCity": "Selecione a cidade...",
+      "schoolNameExample": "Ex: EEEP Manoel Mano",
+      "optional": "Opcional"
+    },
+    "validations": {
+      "nameMin": "O nome deve ter pelo menos 3 caracteres",
+      "cityRequired": "Selecione uma cidade válida"
+    },
+    "messages": {
+      "createSuccess": "Escola cadastrada com sucesso!",
+      "updateSuccess": "Escola atualizada com sucesso!",
+      "deleteSuccess": "Escola removida com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newCity": "Nova Cidade (Opcional)"
+    }
+  },
+  "courses": {
+    "title": "Cursos",
+    "subtitle": "Gestão de cursos e formações",
+    "new": "Novo Curso",
+    "editTitle": "Editar Curso",
+    "newTitle": "Novo Cadastro de Curso",
+    "formDescription": "Preencha os dados da formação técnica ou profissional.",
+    "searchPlaceholder": "Buscar por nome do curso...",
+    "fields": {
+      "name": "Nome do Curso",
+      "school": "Escola",
+      "level": "Nível de Ensino",
+      "mandatoryWorkload": "CH Estágio Obrigatória",
+      "workloadAbbreviation": "CH"
+    },
+    "placeholders": {
+      "selectSchool": "Selecione a escola...",
+      "selectLevel": "Selecione o nível...",
+      "courseNameExample": "Ex: Técnico em Informática"
+    },
+    "validations": {
+      "nameMin": "O nome deve ter pelo menos 3 caracteres",
+      "schoolRequired": "Selecione uma escola válida",
+      "levelRequired": "Selecione um nível válido",
+      "workloadMin": "Mínimo 1 hora"
+    },
+    "messages": {
+      "createSuccess": "Curso cadastrado com sucesso!",
+      "updateSuccess": "Curso atualizado com sucesso!",
+      "deleteSuccess": "Curso removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!",
+      "selectFieldToUpdate": "Selecione pelo menos um campo para atualizar."
+    },
+    "bulkEdit": {
+      "newSchool": "Nova Escola (Opcional)",
+      "newLevel": "Novo Nível (Opcional)",
+      "newWorkload": "Nova CH Obrigatória (Opcional)"
+    },
+    "labels": {
+      "totalWorkload": "{{count}}h totais de estágio"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Bem-vindo à central de inteligência SEGECS.",
+    "cards": {
+      "totalStudents": "Total de Alunos",
+      "activeInternships": "Estágios Ativos",
+      "totalHours": "Horas Acumuladas",
+      "openVacancies": "Vagas Abertas"
+    },
+    "sections": {
+      "distribution": "Distribuição de Alunos",
+      "recentAllocations": "Últimas Alocações",
+      "openVacancies": "Vagas em Aberto"
+    },
+    "labels": {
+      "startedOn": "Iniciado em",
+      "availableOpportunities": "Oportunidades Disponíveis"
+    },
+    "actions": {
+      "exportSICE": "Exportar SICE Completo",
+      "manageVacancies": "Gerenciar Vagas"
+    },
+    "compliance": {
+      "title": "Compliance",
+      "alerts": "ALERTAS",
+      "ok": "SISTEMA OK",
+      "deadlines": "Prazos",
+      "expiringInternships": "{{count}} Contratos vencendo em 15 dias",
+      "solveNow": "Resolver Agora",
+      "evaluations": "Avaliações",
+      "pendingEvaluations": "{{count}} Estágios sem nota lançada",
+      "enterGrades": "Lançar Notas",
+      "allInOrder": "Tudo em ordem!",
+      "noCriticalIssues": "Nenhuma pendência crítica encontrada."
+    },
+    "messages": {
+      "noDataToExport": "Não há dados para exportar.",
+      "reportExported": "Relatório exportado!",
+      "exportError": "Erro ao exportar relatório."
+    }
+  },
+  "auth": {
+    "signOut": "Sair",
+    "signingOut": "Saindo...",
+    "signOutError": "Erro ao sair. Redirecionando...",
+    "signIn": "Entrar no Sistema",
+    "subtitle": "Sistema Escolar de Gestão do Estágio Curricular Supervisionado",
+    "developedBy": "Desenvolvido por",
+    "fields": {
+      "email": "E-mail Institucional",
+      "password": "Senha de Acesso",
+      "rememberMe": "Lembrar de mim"
+    },
+    "validations": {
+      "emailInvalid": "Insira um e-mail válido",
+      "passwordMin": "A senha deve ter pelo menos 6 caracteres"
+    },
+    "messages": {
+      "invalidCredentials": "Credenciais inválidas ou erro no servidor.",
+      "welcome": "Bem-vindo ao SEGECS!"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "main": "Principal",
+      "operational": "Operacional",
+      "evaluation": "Avaliação & Conclusão",
+      "people": "Pessoas & Parceiros",
+      "settings": "Configurações Base"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "vacancies": "Vagas",
+      "allocation": "Alocação (TCE)",
+      "visits": "Visitas Técnicas",
+      "frequency": "Frequência",
+      "evaluations": "Avaliações",
+      "socialProjects": "Projetos Sociais",
+      "students": "Alunos",
+      "guardians": "Responsáveis",
+      "advisors": "Orientadores",
+      "supervisors": "Supervisores",
+      "companies": "Empresas",
+      "cities": "Cidades",
+      "levels": "Níveis",
+      "schools": "Escolas",
+      "courses": "Cursos",
+      "about": "Sobre"
+    }
+  },
+  "errors": {
+    "foreignKeyViolation": "Não é possível excluir este registro pois ele está vinculado a outros dados no sistema (ex: estágios, vagas ou avaliações).",
+    "uniqueViolation": "Já existe um registro com estes dados únicos (CPF, CNPJ ou Matrícula).",
+    "unexpected": "Ocorreu um erro inesperado na operação."
+  },
+  "students": {
+    "title": "Alunos",
+    "subtitle": "Gestão centralizada de estudantes",
+    "new": "Novo Aluno",
+    "editTitle": "Editar Aluno",
+    "newTitle": "Novo Cadastro de Aluno",
+    "formDescription": "Preencha todos os dados obrigatórios para manter o registro atualizado.",
+    "searchPlaceholder": "Buscar por nome, matrícula ou CPF...",
+    "allCourses": "Todos os Cursos",
+    "allGuardians": "Todos os Responsáveis",
+    "fields": {
+      "name": "Nome Completo",
+      "registration": "Matrícula",
+      "cpf": "CPF",
+      "birthDate": "Nascimento",
+      "course": "Curso",
+      "guardian": "Responsável Legal",
+      "status": "Status Acadêmico"
+    },
+    "status": {
+      "pending": "PENDENTE",
+      "interning": "ESTAGIANDO",
+      "completed": "CONCLUÍDO",
+      "dropped_out": "EVADIDO"
+    },
+    "placeholders": {
+      "selectCourse": "Selecione o curso...",
+      "selectGuardian": "Selecione o responsável..."
+    },
+    "validations": {
+      "nameMin": "O nome deve ter pelo menos 3 caracteres",
+      "registrationRequired": "A matrícula é obrigatória",
+      "cpfInvalid": "CPF inválido",
+      "birthDateRequired": "A data de nascimento é obrigatória",
+      "courseRequired": "Selecione um curso válido",
+      "guardianRequired": "Selecione um responsável válido",
+      "statusRequired": "Selecione um status válido"
+    },
+    "messages": {
+      "createSuccess": "Aluno cadastrado com sucesso!",
+      "updateSuccess": "Aluno atualizado com sucesso!",
+      "deleteSuccess": "Aluno removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!",
+      "selectFieldToUpdate": "Selecione pelo menos um campo para atualizar."
+    },
+    "bulkEdit": {
+      "newCourse": "Novo Curso (Opcional)",
+      "newGuardian": "Novo Responsável Legal (Opcional)",
+      "newStatus": "Novo Status Acadêmico (Opcional)"
+    }
+  },
+  "companies": {
+    "title": "Empresas",
+    "subtitle": "Gestão de empresas parceiras",
+    "new": "Nova Empresa",
+    "editTitle": "Editar Empresa",
+    "newTitle": "Novo Cadastro de Empresa",
+    "formDescription": "Preencha todos os dados obrigatórios para manter o registro atualizado.",
+    "searchPlaceholder": "Buscar por razão social ou CNPJ...",
+    "sections": {
+      "location": "Localização",
+      "mainContact": "Contato Principal",
+      "agreementInfo": "Informações do Convênio"
+    },
+    "fields": {
+      "businessName": "Razão Social",
+      "cnpj": "CNPJ",
+      "address": "Endereço Completo",
+      "city": "Cidade",
+      "contactName": "Nome do Contato",
+      "email": "Email",
+      "phone": "Telefone",
+      "agreementNumber": "Nº Convênio",
+      "validity": "Validade"
+    },
+    "placeholders": {
+      "businessNameExample": "Ex: ACME Corporation LTDA",
+      "addressExample": "Rua, Número, Bairro",
+      "contactNameExample": "Nome do responsável na empresa",
+      "emailExample": "contato@empresa.com",
+      "agreementNumberExample": "Ex: 123/2024"
+    },
+    "validations": {
+      "businessNameMin": "A razão social deve ter pelo menos 3 caracteres",
+      "cnpjInvalid": "CNPJ inválido",
+      "addressRequired": "O endereço é obrigatório",
+      "cityRequired": "Selecione uma cidade válida",
+      "contactNameRequired": "O nome do contato é obrigatório",
+      "emailInvalid": "Email inválido",
+      "phoneInvalid": "Telefone inválido"
+    },
+    "messages": {
+      "createSuccess": "Empresa cadastrada com sucesso!",
+      "updateSuccess": "Empresa atualizada com sucesso!",
+      "deleteSuccess": "Empresa removida com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newCity": "Nova Cidade (Opcional)",
+      "newValidity": "Nova Validade do Convênio (Opcional)"
+    }
+  },
+  "guardians": {
+    "title": "Responsáveis",
+    "subtitle": "Gestão de pais e tutores",
+    "new": "Novo Responsável",
+    "editTitle": "Editar Responsável",
+    "newTitle": "Novo Cadastro de Responsável",
+    "formDescription": "Informações de contato do pai ou tutor legal do aluno.",
+    "searchPlaceholder": "Buscar por nome ou CPF...",
+    "fields": {
+      "name": "Nome Completo",
+      "cpf": "CPF",
+      "phone": "Telefone/WhatsApp"
+    },
+    "placeholders": {
+      "guardianNameExample": "Ex: Maria das Dores"
+    },
+    "validations": {
+      "nameMin": "O nome deve ter pelo menos 3 caracteres",
+      "cpfInvalid": "CPF inválido",
+      "phoneInvalid": "Telefone inválido"
+    },
+    "messages": {
+      "createSuccess": "Responsável cadastrado com sucesso!",
+      "updateSuccess": "Responsável atualizado com sucesso!",
+      "deleteSuccess": "Responsável removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!"
+    }
+  },
+  "advisors": {
+    "title": "Orientadores",
+    "subtitle": "Gestão de professores orientadores",
+    "new": "Novo Orientador",
+    "editTitle": "Editar Orientador",
+    "newTitle": "Novo Cadastro de Orientador",
+    "formDescription": "Preencha os dados do professor orientador de estágio.",
+    "searchPlaceholder": "Buscar por nome ou CPF...",
+    "fields": {
+      "name": "Nome Completo",
+      "cpf": "CPF",
+      "phone": "Telefone",
+      "school": "Escola de Vínculo"
+    },
+    "placeholders": {
+      "advisorNameExample": "Ex: Prof. Dr. Carlos Silva"
+    },
+    "validations": {
+      "nameMin": "O nome deve ter pelo menos 3 caracteres",
+      "cpfInvalid": "CPF inválido",
+      "schoolRequired": "Selecione uma escola válida"
+    },
+    "messages": {
+      "createSuccess": "Orientador cadastrado com sucesso!",
+      "updateSuccess": "Orientador atualizado com sucesso!",
+      "deleteSuccess": "Orientador removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newSchool": "Nova Escola de Vínculo (Opcional)"
+    }
+  },
+  "supervisors": {
+    "title": "Supervisores",
+    "subtitle": "Gestão de supervisores de campo",
+    "new": "Novo Supervisor",
+    "editTitle": "Editar Supervisor",
+    "newTitle": "Novo Cadastro de Supervisor",
+    "formDescription": "Preencha os dados do profissional responsável na empresa.",
+    "searchPlaceholder": "Buscar por nome ou cargo...",
+    "fields": {
+      "name": "Nome Completo",
+      "cpf": "CPF",
+      "phone": "Telefone",
+      "company": "Empresa",
+      "position": "Cargo/Função",
+      "education": "Formação"
+    },
+    "placeholders": {
+      "supervisorNameExample": "Ex: João Silva",
+      "positionExample": "Ex: Gerente de TI",
+      "educationExample": "Ex: Engenheiro de Software",
+      "selectCompany": "Selecione a empresa..."
+    },
+    "validations": {
+      "nameMin": "O nome deve ter pelo menos 3 caracteres",
+      "companyRequired": "Selecione uma empresa válida",
+      "positionRequired": "O cargo é obrigatório"
+    },
+    "messages": {
+      "createSuccess": "Supervisor cadastrado com sucesso!",
+      "updateSuccess": "Supervisor atualizado com sucesso!",
+      "deleteSuccess": "Supervisor removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newCompany": "Nova Empresa (Opcional)"
+    }
+  },
+  "vacancies": {
+    "title": "Ofertas de Vagas",
+    "subtitle": "Gerencie as oportunidades de estágio",
+    "new": "Nova Vaga",
+    "editTitle": "Editar Vaga",
+    "newTitle": "Nova Vaga de Estágio",
+    "formDescription": "Preencha as informações da oportunidade de estágio.",
+    "searchPlaceholder": "Buscar por título, empresa ou curso...",
+    "fields": {
+      "title": "Título da Vaga",
+      "company": "Empresa",
+      "intendedCourse": "Curso Destinado",
+      "quantity": "Quantidade",
+      "description": "Descrição"
+    },
+    "status": {
+      "open": "ABERTA",
+      "filled": "PREENCHIDA",
+      "cancelled": "CANCELADA"
+    },
+    "placeholders": {
+      "vacancyTitleExample": "Ex: Estagiário de Desenvolvimento",
+      "descriptionExample": "Detalhes sobre a vaga e requisitos..."
+    },
+    "validations": {
+      "titleMin": "O título deve ter pelo menos 3 caracteres",
+      "quantityMin": "Mínimo 1 vaga"
+    },
+    "messages": {
+      "createSuccess": "Vaga cadastrada com sucesso!",
+      "updateSuccess": "Vaga atualizada com sucesso!",
+      "deleteSuccess": "Vaga removida com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newCourse": "Novo Curso Destinado (Opcional)",
+      "newStatus": "Novo Status (Opcional)"
+    },
+    "labels": {
+      "vacanciesCount": "{{count}} vaga(s)"
+    }
+  },
+  "internships": {
+    "title": "Alocação de Estágios",
+    "subtitle": "Gestão de contratos e vínculos",
+    "new": "Novo Estágio",
+    "editTitle": "Editar Alocação",
+    "newTitle": "Nova Alocação de Estágio",
+    "formDescription": "Vincule um aluno a uma vaga e defina os termos do estágio.",
+    "searchPlaceholder": "Buscar por aluno ou empresa...",
+    "fields": {
+      "student": "Aluno",
+      "vacancy": "Vaga / Empresa",
+      "advisor": "Orientador",
+      "supervisor": "Supervisor de Campo",
+      "startDate": "Data Início",
+      "endDate": "Data Fim",
+      "totalWorkload": "CH Total",
+      "dailyWorkload": "CH Diária"
+    },
+    "status": {
+      "active": "ATIVO",
+      "completed": "CONCLUÍDO",
+      "interrupted": "INTERROMPIDO"
+    },
+    "messages": {
+      "createSuccess": "Estágio alocado com sucesso!",
+      "updateSuccess": "Estágio atualizado com sucesso!",
+      "deleteSuccess": "Estágio removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!",
+      "generating": "Gerando {{type}}...",
+      "generateSuccess": "{{type}} gerado com sucesso!",
+      "generateError": "Erro ao gerar {{type}}"
+    },
+    "bulkEdit": {
+      "newAdvisor": "Novo Orientador (Opcional)",
+      "newSupervisor": "Novo Supervisor de Campo (Opcional)",
+      "newStatus": "Novo Status (Opcional)"
+    },
+    "labels": {
+      "totalHours": "{{count}}h totais"
+    },
+    "templates": {
+      "tce": "TCE",
+      "plan": "PLANO",
+      "tre": "TRE"
+    }
+  },
+  "visits": {
+    "title": "Visitas Técnicas",
+    "subtitle": "Acompanhamento e monitoramento in loco",
+    "new": "Registrar Visita",
+    "editTitle": "Editar Visita",
+    "newTitle": "Novo Registro de Visita",
+    "formDescription": "Documente o acompanhamento técnico realizado.",
+    "searchPlaceholder": "Buscar por aluno ou resumo...",
+    "fields": {
+      "internship": "Estágio / Aluno",
+      "visitDate": "Data da Visita",
+      "type": "Tipo",
+      "summary": "Resumo da Visita",
+      "observations": "Observações Adicionais"
+    },
+    "types": {
+      "in_person": "PRESENCIAL",
+      "remote": "REMOTA"
+    },
+    "placeholders": {
+      "summaryExample": "Descreva brevemente o que foi observado...",
+      "observationsExample": "Pontos de melhoria, pendências, etc...",
+      "selectInternship": "Selecione o estágio..."
+    },
+    "validations": {
+      "internshipRequired": "Selecione um estágio válido",
+      "summaryMin": "O resumo deve ter pelo menos 10 caracteres",
+      "typeRequired": "Selecione o tipo de visita"
+    },
+    "messages": {
+      "createSuccess": "Visita registrada com sucesso!",
+      "updateSuccess": "Visita atualizada com sucesso!",
+      "deleteSuccess": "Visita removida com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newType": "Novo Tipo de Visita (Opcional)"
+    }
+  },
+  "frequencies": {
+    "title": "Frequência",
+    "subtitle": "Acompanhamento diário de atividades",
+    "new": "Lançar Horas",
+    "editTitle": "Editar Lançamento",
+    "newTitle": "Novo Lançamento de Horas",
+    "formDescription": "Registre as horas e atividades realizadas no dia de estágio.",
+    "searchPlaceholder": "Buscar por atividades ou nome do aluno...",
+    "fields": {
+      "internship": "Estágio / Aluno",
+      "date": "Data",
+      "hoursPerformed": "Horas Realizadas",
+      "activities": "Atividades Desempenhadas",
+      "supervisorValidation": "Validado pelo Supervisor",
+      "advisorValidation": "Validado pelo Orientador"
+    },
+    "stats": {
+      "accumulatedTotal": "Total Acumulado",
+      "mandatoryGoal": "Meta Obrigatória"
+    },
+    "placeholders": {
+      "activitiesExample": "Ex: Instalação de softwares, suporte aos usuários...",
+      "selectInternship": "Selecione o estágio..."
+    },
+    "validations": {
+      "internshipRequired": "Selecione um estágio válido",
+      "dateRequired": "A data é obrigatória",
+      "hoursMin": "Mínimo 1 hora",
+      "hoursMax": "Máximo 10 horas",
+      "activitiesMin": "Descreva as atividades com pelo menos 10 caracteres"
+    },
+    "messages": {
+      "createSuccess": "Frequência lançada com sucesso!",
+      "updateSuccess": "Registro de frequência atualizado!",
+      "deleteSuccess": "Registro removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "validateSelected": "Validar registros selecionados:",
+      "validateSupervisor": "Validado pelo Supervisor",
+      "validateAdvisor": "Validado pelo Orientador"
+    },
+    "labels": {
+      "hoursPerformed": "{{count}}h realizadas",
+      "validatedSup": "SUP",
+      "validatedOri": "ORI"
+    }
+  },
+  "evaluations": {
+    "title": "Avaliações",
+    "subtitle": "Acompanhamento de desempenho acadêmico",
+    "new": "Lançar Nota",
+    "editTitle": "Editar Avaliação",
+    "newTitle": "Novo Lançamento de Nota",
+    "formDescription": "Registre o desempenho do estagiário neste período.",
+    "searchPlaceholder": "Buscar por nome do aluno...",
+    "fields": {
+      "internship": "Estágio / Aluno",
+      "type": "Tipo de Avaliação",
+      "grade": "Nota (0 a 10)",
+      "comments": "Comentários",
+      "evaluationDate": "Data da Avaliação"
+    },
+    "stats": {
+      "activeFilter": "Filtro Ativo",
+      "gradeAverage": "Média de Notas",
+      "totalEntries": "Total de Lançamentos"
+    },
+    "types": {
+      "first": "1ª Avaliação",
+      "second": "2ª Avaliação",
+      "third": "3ª Avaliação (Final)",
+      "label": "{{count}}ª NOTA"
+    },
+    "placeholders": {
+      "selectInternship": "Selecione o estágio...",
+      "commentsExample": "Observações sobre o desempenho...",
+      "gradeRange": "0.0 a 10.0"
+    },
+    "validations": {
+      "internshipRequired": "Selecione um estágio válido",
+      "gradeMin": "Nota mínima 0",
+      "gradeMax": "Nota máxima 10",
+      "dateRequired": "A data é obrigatória"
+    },
+    "messages": {
+      "createSuccess": "Nota lançada com sucesso!",
+      "updateSuccess": "Avaliação atualizada com sucesso!",
+      "deleteSuccess": "Avaliação removida com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newType": "Novo Tipo de Avaliação (Opcional)",
+      "newGrade": "Nova Nota (Opcional)",
+      "newDate": "Nova Data da Avaliação (Opcional)"
+    }
+  },
+  "social_projects": {
+    "title": "Projetos Sociais",
+    "subtitle": "Gestão de contrapartidas obrigatórias",
+    "new": "Novo Projeto",
+    "editTitle": "Editar Projeto",
+    "newTitle": "Novo Projeto Social",
+    "formDescription": "Registre as informações do projeto de contrapartida social.",
+    "searchPlaceholder": "Buscar por título ou nome do aluno...",
+    "fields": {
+      "student": "Aluno Responsável",
+      "title": "Título do Projeto",
+      "description": "Descrição",
+      "estimatedHours": "Horas Estimadas",
+      "executionDate": "Data de Execução"
+    },
+    "status": {
+      "planned": "PLANEJADO",
+      "executed": "EXECUTADO"
+    },
+    "placeholders": {
+      "titleExample": "Ex: Doação de Alimentos",
+      "descriptionExample": "Detalhes sobre as atividades sociais...",
+      "selectStudent": "Selecione o aluno..."
+    },
+    "validations": {
+      "studentRequired": "Selecione um aluno válido",
+      "titleMin": "O título deve ter pelo menos 5 caracteres",
+      "hoursMin": "Mínimo 1 hora"
+    },
+    "messages": {
+      "createSuccess": "Projeto social cadastrado!",
+      "updateSuccess": "Projeto social atualizado!",
+      "deleteSuccess": "Projeto removido com sucesso!",
+      "bulkDeleteSuccess": "Registros removidos com sucesso!",
+      "bulkUpdateSuccess": "Registros atualizados com sucesso!"
+    },
+    "bulkEdit": {
+      "newStatus": "Novo Status (Opcional)"
+    },
+    "labels": {
+      "notExecuted": "Não executado",
+      "estimatedHours": "{{count}}h estimadas"
+    }
+  },
+  "about": {
+    "description": "Sistema Escolar de Gestão do Estágio Curricular Supervisionado",
+    "developers": "Desenvolvedores",
+    "repository": "Repositório do Projeto",
+    "sourceCode": "Ver Código Fonte no GitHub"
+  },
+  "documents": {
+    "placeholders": {
+      "dropzone": "Clique ou arraste para enviar (PDF/IMG)"
+    },
+    "messages": {
+      "uploadSuccess": "Arquivo enviado com sucesso!",
+      "uploadError": "Erro no upload: "
+    }
+  }
+}
