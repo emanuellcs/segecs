@@ -39,8 +39,8 @@ import { Frequency, Internship, Student } from "@/types/database";
 
 // Sort options for frequency
 const frequencySortOptions = (t: any): SortOption[] => [
-  { label: t("frequency.fields.date"), column: "date" },
-  { label: t("frequency.fields.hoursPerformed"), column: "performed_hours" },
+  { label: t("frequencies.fields.date"), column: "date" },
+  { label: t("frequencies.fields.hoursPerformed"), column: "performed_hours" },
   { label: t("common.createdAt"), column: "created_at" },
 ];
 
@@ -61,13 +61,13 @@ const frequencySchema = (t: any) =>
   z.object({
     internship_id: z
       .string()
-      .uuid(t("frequency.validations.internshipRequired")),
-    date: z.string().min(1, t("frequency.validations.dateRequired")),
+      .uuid(t("frequencies.validations.internshipRequired")),
+    date: z.string().min(1, t("frequencies.validations.dateRequired")),
     performed_hours: z
       .number()
-      .min(1, t("frequency.validations.hoursMin"))
-      .max(10, t("frequency.validations.hoursMax")),
-    activities: z.string().min(10, t("frequency.validations.activitiesMin")),
+      .min(1, t("frequencies.validations.hoursMin"))
+      .max(10, t("frequencies.validations.hoursMax")),
+    activities: z.string().min(10, t("frequencies.validations.activitiesMin")),
     validated_by_supervisor: z.boolean().default(false),
     validated_by_advisor: z.boolean().default(false),
   });
@@ -144,10 +144,10 @@ export default function FrequencyPage() {
     try {
       if (selectedFreq) {
         await update({ id: selectedFreq.id, ...data });
-        toast.success(t("frequency.messages.updateSuccess"));
+        toast.success(t("frequencies.messages.updateSuccess"));
       } else {
         await create(data);
-        toast.success(t("frequency.messages.createSuccess"));
+        toast.success(t("frequencies.messages.createSuccess"));
       }
       handleCloseForm();
     } catch (error) {
@@ -170,7 +170,7 @@ export default function FrequencyPage() {
         ids: selection.selectedIds,
         updateData,
       });
-      toast.success(t("frequency.messages.bulkUpdateSuccess"));
+      toast.success(t("frequencies.messages.bulkUpdateSuccess"));
       setIsBulkEditOpen(false);
       selection.clearSelection();
       resetBulk();
@@ -201,7 +201,7 @@ export default function FrequencyPage() {
     if (!selectedFreq) return;
     try {
       await remove(selectedFreq.id);
-      toast.success(t("frequency.messages.deleteSuccess"));
+      toast.success(t("frequencies.messages.deleteSuccess"));
       setIsDeleteOpen(false);
       setSelectedFreq(null);
     } catch (error) {
@@ -212,7 +212,7 @@ export default function FrequencyPage() {
   const confirmBulkDelete = async () => {
     try {
       await bulkRemove(selection.selectedIds);
-      toast.success(t("frequency.messages.bulkDeleteSuccess"));
+      toast.success(t("frequencies.messages.bulkDeleteSuccess"));
       setIsBulkDeleteOpen(false);
       selection.clearSelection();
     } catch (error) {
@@ -274,15 +274,18 @@ export default function FrequencyPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-2xl font-black text-blue-900 flex items-center gap-2">
-            <Clock className="text-blue-600" size={28} /> {t("frequency.title")}
+            <Clock className="text-blue-600" size={28} />{" "}
+            {t("frequencies.title")}
           </h1>
-          <p className="text-gray-500 font-medium">{t("frequency.subtitle")}</p>
+          <p className="text-gray-500 font-medium">
+            {t("frequencies.subtitle")}
+          </p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
           className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-bold transition-all shadow-lg shadow-blue-200 active:scale-95"
         >
-          <Plus size={20} /> {t("frequency.new")}
+          <Plus size={20} /> {t("frequencies.new")}
         </button>
       </div>
 
@@ -291,7 +294,7 @@ export default function FrequencyPage() {
         <div className="bg-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-100 flex justify-between items-center text-white">
           <div>
             <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-1">
-              {t("frequency.stats.accumulatedTotal")}
+              {t("frequencies.stats.accumulatedTotal")}
             </p>
             <h2 className="text-4xl font-black">{totalHoras}h</h2>
           </div>
@@ -303,7 +306,7 @@ export default function FrequencyPage() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
           <div>
             <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">
-              {t("frequency.stats.mandatoryGoal")}
+              {t("frequencies.stats.mandatoryGoal")}
             </p>
             <h2 className="text-4xl font-black text-gray-800">400h</h2>
           </div>
@@ -322,7 +325,7 @@ export default function FrequencyPage() {
           />
           <input
             type="text"
-            placeholder={t("frequency.searchPlaceholder")}
+            placeholder={t("frequencies.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
@@ -350,7 +353,7 @@ export default function FrequencyPage() {
       >
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-            {t("frequency.fields.internship")}
+            {t("frequencies.fields.internship")}
           </label>
           <select
             value={filters.internshipId}
@@ -370,7 +373,7 @@ export default function FrequencyPage() {
 
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-            {t("frequency.fields.supervisorValidation")}
+            {t("frequencies.fields.supervisorValidation")}
           </label>
           <select
             value={filters.supervisorValidated}
@@ -387,7 +390,7 @@ export default function FrequencyPage() {
 
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-            {t("frequency.fields.advisorValidation")}
+            {t("frequencies.fields.advisorValidation")}
           </label>
           <select
             value={filters.advisorValidated}
@@ -476,7 +479,7 @@ export default function FrequencyPage() {
                           : "bg-gray-50 text-gray-400 border-gray-100",
                       )}
                     >
-                      {t("frequency.labels.validatedSup")}
+                      {t("frequencies.labels.validatedSup")}
                     </span>
                     <span
                       className={cn(
@@ -486,7 +489,7 @@ export default function FrequencyPage() {
                           : "bg-gray-50 text-gray-400 border-gray-100",
                       )}
                     >
-                      {t("frequency.labels.validatedOri")}
+                      {t("frequencies.labels.validatedOri")}
                     </span>
                   </div>
                 </div>
@@ -499,7 +502,7 @@ export default function FrequencyPage() {
                   <div className="flex items-center gap-2 text-blue-700 font-black">
                     <Clock size={16} />
                     <span>
-                      {t("frequency.labels.hoursPerformed", {
+                      {t("frequencies.labels.hoursPerformed", {
                         count: frequency.performed_hours,
                       })}
                     </span>
@@ -552,7 +555,7 @@ export default function FrequencyPage() {
                   {t("common.date")} / {t("students.title")}
                 </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">
-                  {t("frequency.fields.activities")}
+                  {t("frequencies.fields.activities")}
                 </th>
                 <th className="px-6 py-4 text-xs font-black text-gray-500 uppercase tracking-widest text-center">
                   {t("common.hours", "Hours")}
@@ -644,7 +647,7 @@ export default function FrequencyPage() {
                                 : "bg-gray-50 text-gray-400 border-gray-100",
                             )}
                           >
-                            {t("frequency.labels.validatedSup")}
+                            {t("frequencies.labels.validatedSup")}
                           </span>
                           <span
                             className={cn(
@@ -654,7 +657,7 @@ export default function FrequencyPage() {
                                 : "bg-gray-50 text-gray-400 border-gray-100",
                             )}
                           >
-                            {t("frequency.labels.validatedOri")}
+                            {t("frequencies.labels.validatedOri")}
                           </span>
                         </div>
                       </td>
@@ -707,15 +710,15 @@ export default function FrequencyPage() {
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
         title={
-          selectedFreq ? t("frequency.editTitle") : t("frequency.newTitle")
+          selectedFreq ? t("frequencies.editTitle") : t("frequencies.newTitle")
         }
-        description={t("frequency.formDescription")}
+        description={t("frequencies.formDescription")}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">
-                {t("frequency.fields.internship")}
+                {t("frequencies.fields.internship")}
               </label>
               <div className="relative mt-1">
                 <User
@@ -732,7 +735,7 @@ export default function FrequencyPage() {
                   )}
                 >
                   <option value="">
-                    {t("frequency.placeholders.selectInternship")}
+                    {t("frequencies.placeholders.selectInternship")}
                   </option>
                   {internships
                     .filter((e: Internship) => e.status === "active")
@@ -755,7 +758,7 @@ export default function FrequencyPage() {
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">
-                {t("frequency.fields.date")}
+                {t("frequencies.fields.date")}
               </label>
               <div className="relative mt-1">
                 <Calendar
@@ -782,7 +785,7 @@ export default function FrequencyPage() {
 
             <div>
               <label className="text-sm font-bold text-gray-700 ml-1">
-                {t("frequency.fields.hoursPerformed")}
+                {t("frequencies.fields.hoursPerformed")}
               </label>
               <div className="relative mt-1">
                 <Clock
@@ -809,7 +812,7 @@ export default function FrequencyPage() {
 
             <div className="md:col-span-2">
               <label className="text-sm font-bold text-gray-700 ml-1">
-                {t("frequency.fields.activities")}
+                {t("frequencies.fields.activities")}
               </label>
               <div className="relative mt-1">
                 <Activity
@@ -825,7 +828,7 @@ export default function FrequencyPage() {
                       ? "border-red-500 focus:ring-red-200"
                       : "border-gray-200 focus:ring-blue-100 focus:border-blue-500",
                   )}
-                  placeholder={t("frequency.placeholders.activitiesExample")}
+                  placeholder={t("frequencies.placeholders.activitiesExample")}
                 />
               </div>
               {errors.activities && (
@@ -843,7 +846,7 @@ export default function FrequencyPage() {
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
-                  {t("frequency.fields.supervisorValidation")}
+                  {t("frequencies.fields.supervisorValidation")}
                 </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer group">
@@ -853,7 +856,7 @@ export default function FrequencyPage() {
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-xs font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
-                  {t("frequency.fields.advisorValidation")}
+                  {t("frequencies.fields.advisorValidation")}
                 </span>
               </label>
             </div>
@@ -895,7 +898,7 @@ export default function FrequencyPage() {
           <div className="space-y-4">
             <div className="flex flex-col gap-4 bg-gray-50 p-4 rounded-xl">
               <p className="text-sm font-bold text-gray-700 mb-2">
-                {t("frequency.bulkEdit.validateSelected")}
+                {t("frequencies.bulkEdit.validateSelected")}
               </p>
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
@@ -904,7 +907,7 @@ export default function FrequencyPage() {
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
-                  {t("frequency.bulkEdit.validateSupervisor")}
+                  {t("frequencies.bulkEdit.validateSupervisor")}
                 </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer group">
@@ -914,7 +917,7 @@ export default function FrequencyPage() {
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
-                  {t("frequency.bulkEdit.validateAdvisor")}
+                  {t("frequencies.bulkEdit.validateAdvisor")}
                 </span>
               </label>
             </div>
