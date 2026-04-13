@@ -4,105 +4,114 @@
 
 **SEGECS** is a high-performance academic governance solution, specifically designed to centralize, automate, and monitor the complete lifecycle of the Supervised Curricular Internship. The platform acts as an intelligent bridge between educational institutions, partner companies, and students, eliminating manual bureaucracies and ensuring full compliance with **Brazilian Law No. 11,788/2008**.
 
-Unlike generic systems, SEGECS offers a **multi-training** architecture, allowing coordinators to simultaneously manage various technical and professional courses (such as Nursing, Administration, Networking, Building Construction, among others). Each course has its own workload and competency settings, allowing the institution to scale its internship operations without losing individualized control over each contract.
+## 🏛️ System Architecture (On-Premises / Local LAN)
 
-With a modern, data-driven interface, the system transforms pedagogical monitoring, previously scattered across papers and spreadsheets, into real-time strategic indicators, providing legal security through automated document generation and technical integrity through rigorous data protection policies.
-
-## 🏛️ System Architecture
-
-SEGECS uses a modern architecture based on **SPA (Single Page Application)** with a **Serverless** infrastructure, ensuring scalability, security, and high performance.
+This version of SEGECS is optimized for **100% on-premises deployment**, designed to function flawlessly in localized LAN environments with zero external internet connectivity.
 
 ### 🏗️ Tech Stack
 
 - **Frontend:** [React 18](https://react.dev/) with [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang.org/).
-- **Styling:** [TailwindCSS](https://tailwindcss.com/) and [Framer Motion](https://www.framer.com/motion/) for fluid animations.
-- **Backend-as-a-Service:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, RLS, and Realtime).
-- **State Management:** [React Query (TanStack)](https://tanstack.com/query/latest) for caching and data synchronization.
-- **Forms:** [React Hook Form](https://react-hook-form.com/) integrated with [Zod](https://zod.dev/) for rigorous validation.
-- **Documentation:** [@react-pdf/renderer](https://react-pdf.org/) for dynamic PDF generation on the client side.
-- **Localization:** [i18next](https://www.i18next.com/) for multi-language support (Portuguese and English).
-
-### 🛡️ Security Layer
-
-- **Supabase Auth:** Secure authentication with configurable session persistence ("Remember me").
-- **Row Level Security (RLS):** Access policies directly in the database ensuring students see only their data, while coordinators access the management view.
-- **Snapshot Logic:** Workloads are copied to contracts at the time of creation, protecting historical records against future changes in the curriculum.
+- **Styling:** [TailwindCSS](https://tailwindcss.com/) and [Framer Motion](https://www.framer.com/motion/).
+- **Database & Backend:** Self-hosted [Supabase](https://supabase.com/docs/guides/self-hosting) (PostgreSQL, Auth, PostgREST, and Realtime) running in Docker.
+- **Containerization:** [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
+- **Web Server:** [Nginx](https://nginx.org/) (Alpine-based) serving the frontend SPA.
 
 ## 🚀 Key Features
 
-### 📋 Administrative Management (Multi-Course)
+- **Administrative Management:** Multi-course support with customizable technical training definitions.
+- **Allocation & Vacancy Flow:** Intelligent link between students, companies, advisors, and supervisors.
+- **Compliance Monitoring:** Frequency logs, technical visits, and pedagogical evaluations.
+- **Automatic Documentation:** Instant generation of TCE (Commitment Term), Activity Plans, and TRE (Realization Term) as PDFs.
+- **Data Resilience:** Automated local database backups and persistent Docker volumes.
 
-- **Customizable Courses:** Registration of any training with specific mandatory workload definition.
-- **Partner Management:** Control of companies with monitoring of agreement validity.
-- **Talent Bank:** Detailed registration of students, advisors, and field supervisors.
-
-### ⚙️ Allocation and Vacancy Flow
-
-- **Vacancy Management:** Publication and control of opportunities by course and company.
-- **Intelligent Allocation:** Automatic link between student, vacancy, advisor, and supervisor.
-- **Auto-fill:** The system detects the course workload and suggests contract terms instantly.
-
-### 📈 Monitoring and Control (Compliance)
-
-- **Frequency Log:** Daily entry of activities with time validation.
-- **Technical Visits:** Full module for recording in-person or remote monitoring.
-- **Pedagogical Evaluations:** Grading and feedback system by period.
-- **Intelligence Dashboard:** Distribution charts, expiring contract alerts, and evaluation pending items.
-
-### 🎓 Automatic Documentation (PDF)
-
-- **TCE (Commitment Term):** Instant generation according to current legislation.
-- **Activity Plan:** Detailing technical competencies in development.
-- **TRE (Realization Term):** Final completion document with workload summary.
-- **SICE Export:** Preparation of structured CSV data for the SEDUC-CE system.
-
-## 🚦 Getting Started
+## 🚦 Getting Started (Development)
 
 ### 📋 Prerequisites
 
 - **Node.js** (v18+)
-- **npm** or **pnpm**
-- **Supabase** Instance
+- **pnpm** (preferred)
+- **Docker & Docker Compose**
 
-### ⚙️ Installation and Configuration
+### ⚙️ Development Setup
 
 1. **Clone and Install:**
 
    ```bash
    git clone https://github.com/prof-raimundo/segecs.git
    cd segecs
-   npm install
+   pnpm install
    ```
 
-2. **Configure Environment Variables:**
-   Create a `.env` file in the root:
+2. **Configure Environment:**
+   Create a `.env` file based on `.env.example`:
 
    ```env
-   VITE_PUBLIC_SUPABASE_URL=your_supabase_url
-   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_anon_key
+   VITE_PUBLIC_SUPABASE_URL=http://localhost:8000
+   VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_local_anon_key
    ```
 
-3. **Configure Database:**
-   - Run the script in `database/supabase_schema.sql` in the Supabase SQL editor.
-   - (Optional) Run `database/seed.sql` to populate the system with test data (70 users, 15 visits, frequencies, etc.).
-
-4. **Run:**
+3. **Run Dev Server:**
    ```bash
-   npm run dev
+   pnpm dev
    ```
+
+---
+
+## 📦 On-Premises Deployment (Production)
+
+To deploy SEGECS on a local server for LAN access, follow these steps:
+
+### 1. Initialize Supabase Self-Hosted Stack
+
+Run the automated setup script to fetch and configure the official Supabase Docker repository:
+
+```bash
+chmod +x scripts/setup_supabase.sh
+./scripts/setup_supabase.sh
+```
+
+**Configuration steps inside `supabase-project/`:**
+
+- Run `sh ./utils/generate-keys.sh` to secure your JWT and API keys.
+- Edit `supabase-project/.env` and update `SITE_URL`, `SUPABASE_PUBLIC_URL`, and `API_EXTERNAL_URL` with your **Server's LAN IP** (e.g., `http://192.168.1.100:8000`).
+- Change default passwords for `POSTGRES_PASSWORD` and `DASHBOARD_PASSWORD`.
+- Start the backend: `docker compose up -d`.
+
+### 2. Deploy Frontend Container
+
+Configure your local `.env` with the same LAN IP and the `ANON_KEY` generated in the previous step, then build and start the frontend:
+
+```bash
+# Update .env with your LAN IP
+docker compose up -d --build
+```
+
+The application will be accessible to all devices on the LAN at `http://<SERVER_LAN_IP>`.
+
+### 3. Database Resilience (Backups)
+
+A backup script is provided in `scripts/backup_db.sh`. It is recommended to schedule this via `cron` on the host machine:
+
+```bash
+# Example: Daily backup at 2 AM
+0 2 * * * /path/to/segecs/scripts/backup_db.sh
+```
 
 ## 📂 Folder Structure
 
 ```text
-src/
-├── app/            # Global configurations, routes, and providers
-├── components/     # Reusable UI components (Pagination, Loading, etc.)
-├── features/       # Business modules (students, internships, visits, etc.)
-│   └── [feature]/  # Specific components, pages, and services
-├── hooks/          # Custom hooks (usePagination, useAuth, useSupabaseCrud)
-├── i18n/           # Localization configuration and translation files
-├── lib/            # Library configurations (supabase client, utils)
-└── types/          # TypeScript type definitions and database types
+segecs/
+├── database/           # SQL schema and seed files
+├── nginx/              # Nginx production configuration
+├── scripts/            # Setup and backup automation scripts
+├── src/
+│   ├── app/            # Global configurations and routes
+│   ├── components/     # Reusable UI components
+│   ├── features/       # Business modules (students, internships, etc.)
+│   ├── hooks/          # Custom React hooks
+│   └── lib/            # Supabase client and utilities
+├── Dockerfile          # Multi-stage production build
+└── docker-compose.yml  # Frontend orchestration
 ```
 
 ## 📄 License
@@ -110,5 +119,5 @@ src/
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <p align="center">
-  Developed with ❤️ to transform technical education.
+  Developed with ❤️ to transform technical education in localized environments.
 </p>

@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_PUBLIC_SUPABASE_URL: ${VITE_PUBLIC_SUPABASE_URL}
+        VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
+    image: segecs-frontend:latest
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      - supabase-network
+
+networks:
+  supabase-network:
+    external: true
+    name: supabase-project_default
