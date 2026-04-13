@@ -63,7 +63,7 @@ export function useSupabaseCrud<T extends { id: string }>(
     mutationFn: async (newData: Omit<T, "id" | "created_at">) => {
       const { data, error } = await supabase
         .from(table)
-        .insert(newData)
+        .insert(newData as any)
         .select()
         .single();
       if (error) throw error;
@@ -78,7 +78,7 @@ export function useSupabaseCrud<T extends { id: string }>(
     mutationFn: async ({ id, ...updateData }: Partial<T> & { id: string }) => {
       const { data, error } = await supabase
         .from(table)
-        .update(updateData)
+        .update(updateData as any)
         .eq("id", id)
         .select()
         .single();
@@ -120,7 +120,7 @@ export function useSupabaseCrud<T extends { id: string }>(
     }) => {
       const { error } = await supabase
         .from(table)
-        .update(updateData)
+        .update(updateData as any)
         .in("id", ids);
       if (error) throw error;
     },
