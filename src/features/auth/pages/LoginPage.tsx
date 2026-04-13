@@ -63,7 +63,7 @@ export default function LoginPage() {
 
       toast.success(t("auth.messages.welcome"));
       navigate("/dashboard");
-    } catch (error) {
+    } catch (_error) {
       toast.error(t("common.error"));
       setLoading(false);
     }
