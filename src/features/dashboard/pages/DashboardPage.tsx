@@ -180,7 +180,7 @@ export default function DashboardPage() {
       link.download = `detailed_sice_report_${new Date().toISOString().split("T")[0]}.csv`;
       link.click();
       toast.success(t("dashboard.messages.reportExported"));
-    } catch (error) {
+    } catch (_error) {
       toast.error(t("dashboard.messages.exportError"));
     }
   };
